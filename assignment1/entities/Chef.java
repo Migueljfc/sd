@@ -8,15 +8,35 @@ import java.util.*;
 import sharedRegions.*;
 
 /**
- *
- * @author miguel
+ * This datatype implements the Chef thread ... [Completar]
+ * 
  */
 public class Chef extends Thread{
-    private States chefState;
     
+    /**
+    *  Chef's State.
+    *  @serialField State
+    */
+    private States state;
+    
+    /**
+    *  Kitchen
+    *  @serialField Kitchen
+    */
     private Kitchen kitchen;
     
+     /**
+    *  Bar
+    *  @serialField bar
+    */
+    private Bar bar;
+    
+    /**
+    *  Repository
+    * @serialField Repository
+    */
     private Repository repository;
+    
     /**
    *   Instantiation of a Chef thread.
    *
@@ -25,10 +45,29 @@ public class Chef extends Thread{
    *     @param repo reference to the general repository
    */
     
-    public Chef(String name, Kitchen kitchen, Repository repository){
+    public Chef(String name, Kitchen kitchen, Bar bar, Repository repository){
         super(name);
-        chefState = States.WAIT_FOR_AN_ORDER;
+        state = States.WAIT_FOR_AN_ORDER;
         this.kitchen = kitchen;
         this.repository = repository;
+        this.bar = bar;
+    }
+    
+     /**
+     * Sets the chef's state.
+     * @param s desired state
+     */
+    public States setCheStates(States s){
+        StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        state = s;
+        
+    }
+    
+     /**
+     * Returns the Chef's state.
+     * @return chef's current state
+     */
+    public States getChefStates(){
+        return state;
     }
 }
