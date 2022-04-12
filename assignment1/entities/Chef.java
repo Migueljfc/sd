@@ -1,12 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * 
  */
 package entities;
-import java.util.*;
 import sharedRegions.*;
 
+/**
+ * @author miguel
+ *
+ */
 /**
  * This datatype implements the Chef thread ... [Completar]
  * 
@@ -35,7 +36,7 @@ public class Chef extends Thread{
     *  Repository
     * @serialField Repository
     */
-    private Repository repository;
+    private GeneralRepository repository;
     
     /**
    *   Instantiation of a Chef thread.
@@ -45,7 +46,7 @@ public class Chef extends Thread{
    *     @param repo reference to the general repository
    */
     
-    public Chef(String name, Kitchen kitchen, Bar bar, Repository repository){
+    public Chef(String name, Kitchen kitchen, Bar bar, GeneralRepository repository){
         super(name);
         state = States.WAIT_FOR_AN_ORDER;
         this.kitchen = kitchen;
@@ -57,7 +58,7 @@ public class Chef extends Thread{
      * Sets the chef's state.
      * @param s desired state
      */
-    public States setCheStates(States s){
+    public void setCheStates(States s){
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         state = s;
         
@@ -71,3 +72,4 @@ public class Chef extends Thread{
         return state;
     }
 }
+

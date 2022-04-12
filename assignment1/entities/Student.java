@@ -1,17 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package entities;
-import java.util.*;
-import p2g4.sharedRegions.*;
-
 /**
- *
- * @author miguel
  * 
  */
+package entities;
+import sharedRegions.*;
+
+/**
+ * @author miguel
+ *
+ */
+
 public class Student extends Thread {
     
     
@@ -43,7 +40,7 @@ public class Student extends Thread {
     *  Repository
     * @serialField Repository
     */
-    private Repository repository;
+    private GeneralRepository repository;
     
         /**
        *   Instantiation of a Student thread.
@@ -52,7 +49,7 @@ public class Student extends Thread {
        *     @param table reference to the student table
        *     @param repo reference to the general repository
        */
-    public Student(String name, int id, Table table, Bar bar, Repository repository){
+    public Student(String name, int id, Table table, Bar bar, GeneralRepository repository){
         super(name);
         this.id = id;
         state = States.GOING_TO_THE_RESTAURANT;
@@ -82,7 +79,7 @@ public class Student extends Thread {
      * Sets the student's state.
      * @param s desired state
      */
-    public States setStudentState(States s){
+    public void setStudentState(States s){
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         state = s;
         
@@ -91,7 +88,7 @@ public class Student extends Thread {
      * Sets the student's id.
      * @param i desired id
      */
-    public int setStudentId(int i){
+    public void setStudentId(int i){
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         id= i;
     }

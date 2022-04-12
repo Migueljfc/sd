@@ -7,6 +7,6 @@ package sharedRegions;
  * @author miguel
  *
  */
-public class Table {
+public class GeneralRepository {
 
 }
