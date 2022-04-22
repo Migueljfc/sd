@@ -5,7 +5,7 @@ package sharedRegions;
 import java.util.Arrays;
 import entities.*;
 import main.SimulPar;
-
+import genclass.GenericIO;
 
 
 /**
@@ -15,34 +15,32 @@ import main.SimulPar;
 
 
 public class Kitchen {
-	private boolean portionReady[];
-	private boolean portionDelivery[];
-	private boolean courseDelivery[];
+	private int portionsReady;
+	private int portionsDelivery;
+	private int coursesDelivery;
 	
 	private GeneralRepository repository;
 	
 	public Kitchen(GeneralRepository repository) {
 		this.repository = repository;
-		Arrays.fill(portionReady, false);
-		Arrays.fill(portionDelivery, false);
-		Arrays.fill(courseDelivery, false);
+		this.portionsReady = 0;
+		this.portionsDelivery = 0;
+		this.coursesDelivery = 0;
 		
-
-
 	}
 	
-	public synchronized void whatch_news() {
+	public synchronized void watch_news() {
 		Chef c = (Chef) Thread.currentThread();
 		c.setChefState(States.WAIT_FOR_AN_ORDER);
 		repository.setChefState(c.getChefState());
 		
-		while(repository.handTheNoteToTheChef()) {
+		//while(repository.handTheNoteToTheChef()) {
 			try {
 				wait();
 			} catch( InterruptedException e) {
 				e.printStackTrace();
 			}
-		}		
+		//}		
 	}
 	
 	public synchronized void start_preparation() {
@@ -56,7 +54,7 @@ public class Kitchen {
 		Chef c = (Chef) Thread.currentThread();
 		c.setChefState(States.DISHING_THE_PORTIONS);
 		repository.setChefState(States.DISHING_THE_PORTIONS);
-        numberOfCookedPortions++;
+        portionsReady++;
 	}
 	
 	public synchronized void proceed_preparation() {
@@ -66,49 +64,47 @@ public class Kitchen {
 	}
 	
 	public synchronized boolean have_all_portions_been_delivered() {
-		while( numberOfPortionsReady != 0) {
+		while( portionsReady != 0) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				
 			}
 		}
-        System.out.println("Number of courses delivered: "+numberOfServedPortions);
-        if(numberOfPortionsServed == SimulPar.N){
-            numberOfCoursesServed++;
+        System.out.println("Number of courses delivered: " + coursesDelivery);
+        if(portionsDelivery == SimulPar.N){
+            coursesDelivery++;
             return true;
         }
 
         return false;
 	}
 	
-	public synchronized boolean have_next_portion_ready() {
-		System.out.println("Number of courses delivered: "+numberOfServedCourses);
-		//Check if all courses have been delivered
-		if (numberOfCoursesServed == SimulPar.M)
-			return true;
+	public synchronized void have_next_portion_ready() {
+		Chef c = (Chef) Thread.currentThread();
+		c.setChefState(States.DISHING_THE_PORTIONS);
+		repository.setChefState(c.getChefState());
+		
+		portionsReady++;
+		
+		c = (Chef) Thread.currentThread();
+		c.setChefState(States.DELIVERING_THE_PORTIONS);
+		repository.setChefState(c.getChefState());
+		
+		notify();
+		
+	}
+	
+	public synchronized boolean has_the_order_been_completed() {
+		if(coursesDelivery == SimulPar.M) return true;
 		return false;
 	}
 	
-	public synchronized void has_the_order_been_completed() {
-		//Update chefs state
-				((Chef) Thread.currentThread()).setChefState(States.DISHING_THE_PORTIONS);
-				repository.setChefState(((Chef) Thread.currentThread()).getChefState());
-				
-				//Update numberOfPortionsCooked
-				numberOfCookedPortions++;
-				
-				//Update chefs state
-				((Chef) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
-				repository.setChefState(((Chef) Thread.currentThread()).getChefState());
-				
-				//Notify Waiter that there is a portion waiting to be delivered
-				notifyAll();
-	}
 	
 	public synchronized void clean_up() {
-		((Chef) Thread.currentThread()).setChefState(States.CLOSING_SERVICE);
-		repository.setChefState(States.CLOSING_SERVICE);
+		Chef c = (Chef) Thread.currentThread();
+		c.setChefState(States.CLOSING_SERVICE);
+		repository.setChefState(States.CLOSING_SERVICE););
 	}
 	
 	public synchronized void collect_portion()

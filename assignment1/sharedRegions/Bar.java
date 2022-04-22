@@ -44,8 +44,12 @@ public class Bar {
 	/**
 	   *   Saves the current waiter state
 	*/
-	private char waiterState;
+	private int waiterState; //apraising situation
 	
+	/**
+	 * Control if the course has finished
+	 */
+	private boolean finishCourse;
 	
 	
 private GeneralRepository repository;
@@ -83,8 +87,19 @@ private GeneralRepository repository;
 		}
 		
 		try {
-			
+			waiterState != 'l';
 		}
 		
 	}
+
+	public void enter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

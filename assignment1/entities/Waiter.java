@@ -79,4 +79,35 @@ public class Waiter extends Thread {
        
    }
    
+   @Override
+   public void run ()
+   {
+	   int state;
+	   
+	   bar.look_around()
+	   do{
+	       if(first_student)
+	          bar.salute_client()
+	        bar.presenting_menu()
+	     else first_student = False;
+	     if(table.callTheWaiter())
+	         bar.get_the_pad()
+	       kitchen.hand_the_note_to_the_chef()
+	       bar.return_to_bar()
+	       while(!kitchen.have_all_portions_delivered()){
+	       kitchen.collect portion()
+	       table.deliver_portion()
+	     }
+	        bar.return_to_bar() 
+	   } while table.have_all_clients_been_served()
+
+	   table.signalTheWaiter()
+	   bar.prepare_the_bill()
+	   bar.present_the_bill()
+	   table.honour_the_bill()
+	   bar.return_to_bar()
+	   bar.say_godbey() 
+       
+   }
+   
 }
