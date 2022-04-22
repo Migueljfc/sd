@@ -4,9 +4,16 @@
 package sharedRegions;
 
 /**
- * @author miguel
- *
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
  */
-public class Table {
 
+
+public class Table {
+	private GeneralRepository repository;
+
+	public Table(GeneralRepository repository) {
+		this.repository = repository;
+	
+	}
 }

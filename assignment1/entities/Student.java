@@ -5,8 +5,8 @@ package entities;
 import sharedRegions.*;
 
 /**
- * @author miguel
- *
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
  */
 
 public class Student extends Thread {
@@ -92,4 +92,6 @@ public class Student extends Thread {
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         id= i;
     }
+    
+    
 }

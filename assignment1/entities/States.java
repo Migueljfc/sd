@@ -4,15 +4,19 @@
 package entities;
 
 /**
- * @author miguel
- *
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
  */
 public enum States {
+	
+	//Chef States
     WAIT_FOR_AN_ORDER,
     PREPARING_A_COURSE,
     DISHING_THE_PORTIONS,
     DELIVERING_THE_PORTIONS,
     CLOSING_SERVICE,
+    
+    //Waiter States
     PRESENTING_THE_MENU,
     APPRAISING_SITUATION,
     TAKING_THE_ORDER,
@@ -20,6 +24,8 @@ public enum States {
     WAITING_FOR_AN_PORTION,
     PROCESSING_THE_BILL,
     RECEIVING_PAYMENT,
+    
+    //Student States
     GOING_TO_THE_RESTAURANT,
     TAKING_A_SEAT_AT_THE_TABLE,
     SELECTING_THE_COURSES,

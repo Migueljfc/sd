@@ -5,10 +5,10 @@ package entities;
 import sharedRegions.*;
 
 /**
- * @author miguel
- *
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
  */
-/**
+/**{@summary}
  * This datatype implements the Chef thread ... [Completar]
  * 
  */
@@ -58,7 +58,7 @@ public class Chef extends Thread{
      * Sets the chef's state.
      * @param s desired state
      */
-    public void setCheStates(States s){
+    public void setChefState(States s){
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         state = s;
         
@@ -68,8 +68,35 @@ public class Chef extends Thread{
      * Returns the Chef's state.
      * @return chef's current state
      */
-    public States getChefStates(){
+    public States getChefState(){
         return state;
+    }
+    
+    
+    @Override
+    public void run ()
+    {
+        boolean first_plate = true;
+
+        kitchen.watch_news();
+        kitchen.start_preparation();
+        do
+        {
+            if(!first_plate)
+                kitchen.continue_preparation();
+            else
+                first_plate = false;
+
+            kitchen.proceed_preparation();
+            bar.alert_waiter();
+
+            while(!kitchen.have_all_portions_been_delivered())
+                kitchen.have_next_portion_ready();
+        }
+        while(!kitchen.has_the_order_been_completed());
+
+        kitchen.clean_up();
+        
     }
 }
 
