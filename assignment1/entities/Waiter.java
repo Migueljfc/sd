@@ -82,12 +82,12 @@ public class Waiter extends Thread {
    @Override
    public void run ()
    {
-	   int requestId;
+	   int requestId, studentId;
 	   
 	   requestId = bar.look_arround();
-	   
+	   studentId = bar.getStudentId();
 	   if(requestId == 0) {
-		   bar.salute_client();
+		   table.salute_client();
 		   table.presenting_menu();
 	   }
 	   else if (requestId == 1) {
@@ -100,11 +100,11 @@ public class Waiter extends Thread {
 			   kitchen.collect_portion();
 		       table.deliver_portion();
 		   }
-		   bar.return_to_bar();
+		   table.return_to_bar();
 	   }
 	   else if(requestId == 3) {
 		   bar.prepare_the_bill();
-		   bar.present_the_bill();
+		   table.present_the_bill();
 		   table.return_to_bar();
 	   }
 	   else if (requestId == 4) {

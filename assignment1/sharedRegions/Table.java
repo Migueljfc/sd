@@ -3,6 +3,9 @@
  */
 package sharedRegions;
 
+import entities.*;
+import main.SimulPar;
+
 /**
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
@@ -12,13 +15,29 @@ package sharedRegions;
 public class Table {
 	private GeneralRepository repository;
 
+	private int seats[];
+	
+	private final Student students[];
+	
 	public Table(GeneralRepository repository) {
 		this.repository = repository;
+		seats = new int[SimulPar.N];
+		students = new Student[SimulPar.N];
+		for(int i = 0; i < SimulPar.N; i++) {
+			seats[i] = -1;
+			students[i] = null;
+		}
+		
 	
 	}
 
-	public void read_the_menu() {
-		// TODO Auto-generated method stub
+	public void salute_client(int studentId) {
+		Waiter w = (Waiter) Thread.currentThread();
+		w.setWaiterState(States.PRESENTING_THE_MENU);
+		repository.setWaiterState(w.getWaiterState());
+		
+		
+		
 		
 	}
 
@@ -121,4 +140,20 @@ public class Table {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void present_the_bill() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void read_the_menu() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void end_eating() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

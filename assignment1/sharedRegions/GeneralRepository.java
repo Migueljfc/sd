@@ -35,5 +35,15 @@ public class GeneralRepository {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void setPortions(int portionsDelivery) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setCourses(int i) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
