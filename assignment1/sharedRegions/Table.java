@@ -116,4 +116,9 @@ public class Table {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void seat() {
+		// TODO Auto-generated method stub
+		
+	}
 }

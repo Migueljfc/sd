@@ -25,5 +25,15 @@ public class GeneralRepository {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void setStudentState(int i, States state) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setStudentSeat(int id) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -25,12 +25,12 @@ public class Bar {
 	/**
 	   *   Waiting portions
 	*/
-	private MemFIFO<Integer> portions;
+	private MemFIFO<Request> requests;
 	
 	/**
 	   *   Control if the waiter already said good bye to all students
 	*/
-	private boolean alreadySaidGoodbyeToAll;
+	private int goodByesSaid;
 	
 	/**
 	   *   Current student that is being attended 
@@ -40,11 +40,6 @@ public class Bar {
 	   *   Control if waiter is busy
 	*/
 	private boolean waiterIsBusy;
-	
-	/**
-	   *   Saves the current waiter state
-	*/
-	private int waiterState; //apraising situation
 	
 	/**
 	 * Control if the course has finished
@@ -57,6 +52,7 @@ private GeneralRepository repository;
 	public Bar(GeneralRepository repository, Table table) {
 		this.repository = repository;
 		this.table = table;
+		this.goodByesSaid = 0;
 		
 		students = new Student[SimulPar.N]; 
 		
@@ -65,18 +61,21 @@ private GeneralRepository repository;
 		}
 		
 		try {
-			portions = new MemFIFO<> (new Integer [SimulPar.N*SimulPar.M]);
+			requests = new MemFIFO<> (new Request [SimulPar.N*SimulPar.M]);
 		}
 		catch (MemException e)
 	      { GenericIO.writelnString ("Instantiation of portions FIFO failed: " + e.getMessage ());
-	        portions = null;
+	        requests = null;
 	        System.exit (1);
 	      }
+		
+		
 
 
 	}
 	
 	public synchronized int look_arround() {
+		Request req = null;
 		while(!waiterIsBusy) {
 			try {
 				wait();
@@ -84,23 +83,67 @@ private GeneralRepository repository;
 			catch (InterruptedException e) {
 				
 			}
+			
 		}
 		
 		try {
-			if() {
+				req = requests.read();
+				waiterIsBusy = true;
 				
-			}
 		}
+		catch (MemException e) {
+			System.exit(1);  //NAO SEI SE TA BEM
+		}
+		
+		studentId = req.studentId;
+		return req.requestId;
+		
 		
 	}
 
 	public void enter() {
-		// TODO Auto-generated method stub
+		synchronized (this) {
+			Student st = (Student) Thread.currentThread();
+			int id = st.getStudentId();
+			students[id] = st;
+			students[id].setStudentState(States.GOING_TO_THE_RESTAURANT);
+			
+			try {
+				requests.write(new Request(id,0));
+				
+			}
+			catch (MemException e) {
+				
+			}
+			
+			waiterIsBusy = true; //NAO SEI SE TA BEM
+			
+			students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
+			repository.setStudentState(id,st.getStudentState());
+			repository.setStudentSeat(id);
+			
+			notifyAll();
+			
+		}
 		
+		table.seat();
 	}
 
 	public void exit() {
-		// TODO Auto-generated method stub
+		Student st = (Student) Thread.currentThread();
+		int id = st.getStudentId();
+		Request req = new Request(id, 4);
+		
+		try {
+			requests.write(req);
+		}
+		catch (MemException e) {
+		
+		}
+		waiterIsBusy = true;
+		students[id].setStudentState(States.GOING_HOME);
+		repository.setStudentState(id,st.getStudentState());
+	
 		
 	}
 
