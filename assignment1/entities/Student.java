@@ -104,48 +104,49 @@ public class Student extends Thread {
 	}
 
 	@Override
-    public void run() {
-    	boolean first_student = true;
-    	int current_course = 0;
-    	walk_a_bit();
-    	bar.enter();
-    	table.read_the_menu();
-    	if(first_student){
-    			table.prepare_the_order();
-    	    while(!table.has_everybody_chosen()){
-    	        table.add_up_ones_choice();
-    	    }
-    	    table.call_the_waiter();
-    	    table.describe_the_order();
-    	    table.join_the_talk();
-    	  else {
-    	      first_student = false;
-    	      table.inform_companion();
-    	  }
-    	  while(!table.have_all_courses_delivery()) {
-    		  table.start_eating();
-    		  table.start_eating();
-    		  current_course++;
-    		  while (!table.has_everybody_finished());
-    			  if(id == table.last_finished() && current_course != SimulPar.M) {
-    				  table.signal_the_waiter();
-    			  }
-    	  }
-    	  
-    	  if(table.should_have_arrived_earlier()) {
-    		  table.signal_the_waiter();
-    		  table.honor_the_bill();
-    		  
-    	  }
-	  
+	public void run() {
+		boolean first_student = true;
+		int current_course = 0;
+		walk_a_bit();
+		bar.enter();
+		table.read_the_menu();
+		if (first_student) {
+			table.prepare_the_order();
+			while (!table.has_everybody_chosen()) {
+				table.add_up_ones_choice();
+			}
+			table.call_the_waiter();
+			table.describe_the_order();
+			table.join_the_talk();
+		} else {
+			first_student = false;
+			table.inform_companion();
+		}
+		while (!table.have_all_courses_delivery()) {
+			table.start_eating();
+			table.start_eating();
+			current_course++;
+			while (!table.has_everybody_finished())
+				;
+			if (id == table.last_finished() && current_course != SimulPar.M) {
+				table.signal_the_waiter();
+			}
+		}
 
-    	 
+		if (table.should_have_arrived_earlier()) {
+			table.signal_the_waiter();
+			table.honor_the_bill();
 
-    	bar.exit()
-    }
+		}
+
+		bar.exit();
+	}
 
 	private void walk_a_bit() {
-		// TODO Auto-generated method stub
+		try {
+			sleep((long) (1 + 100 * Math.random()));
+		} catch (InterruptedException e) {
+		}
 
 	}
 }

@@ -76,7 +76,7 @@ private GeneralRepository repository;
 
 	}
 	
-	public synchronized void look_arround() {
+	public synchronized int look_arround() {
 		while(!waiterIsBusy) {
 			try {
 				wait();
@@ -87,7 +87,9 @@ private GeneralRepository repository;
 		}
 		
 		try {
-			waiterState != 'l';
+			if() {
+				
+			}
 		}
 		
 	}
@@ -98,6 +100,36 @@ private GeneralRepository repository;
 	}
 
 	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void alert_waiter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void salute_client() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void return_to_bar() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void present_the_bill() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void prepare_the_bill() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void say_godbey() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -46,7 +46,7 @@ public class Waiter extends Thread {
       *     @param name thread name
       *     @param table reference to the table
       *     @param bar reference to the bar
-      *     @param kitchen regerence to the kitchen
+      *     @param kitchen reference to the kitchen
       *     @param repo reference to the general repository
       */
    public Waiter(String name, Table table, Bar bar, Kitchen kitchen, GeneralRepository repository){
@@ -82,32 +82,35 @@ public class Waiter extends Thread {
    @Override
    public void run ()
    {
-	   int state;
+	   int requestId;
 	   
-	   bar.look_around()
-	   do{
-	       if(first_student)
-	          bar.salute_client()
-	        bar.presenting_menu()
-	     else first_student = False;
-	     if(table.callTheWaiter())
-	         bar.get_the_pad()
-	       kitchen.hand_the_note_to_the_chef()
-	       bar.return_to_bar()
-	       while(!kitchen.have_all_portions_delivered()){
-	       kitchen.collect portion()
-	       table.deliver_portion()
-	     }
-	        bar.return_to_bar() 
-	   } while table.have_all_clients_been_served()
-
-	   table.signalTheWaiter()
-	   bar.prepare_the_bill()
-	   bar.present_the_bill()
-	   table.honour_the_bill()
-	   bar.return_to_bar()
-	   bar.say_godbey() 
-       
-   }
+	   requestId = bar.look_arround();
+	   
+	   if(requestId == 0) {
+		   bar.salute_client();
+		   table.presenting_menu();
+	   }
+	   else if (requestId == 1) {
+		   table.get_the_pad();
+		   kitchen.hand_note_to_the_chef();
+		   kitchen.return_to_bar();
+	   }
+	   else if (requestId == 2) {
+		   while(!table.have_all_portions_delivered()) {
+			   kitchen.collect_portion();
+		       table.deliver_portion();
+		   }
+		   bar.return_to_bar();
+	   }
+	   else if(requestId == 3) {
+		   bar.prepare_the_bill();
+		   bar.present_the_bill();
+		   table.return_to_bar();
+	   }
+	   else if (requestId == 4) {
+		   bar.say_godbey();
+	   }
+		
+	}
    
 }

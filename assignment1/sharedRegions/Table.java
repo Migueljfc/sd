@@ -91,4 +91,29 @@ public class Table {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void presenting_menu() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void get_the_pad() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean have_all_portions_delivered() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void deliver_portion() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void return_to_bar() {
+		// TODO Auto-generated method stub
+		
+	}
 }

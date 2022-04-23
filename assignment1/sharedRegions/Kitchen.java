@@ -104,7 +104,7 @@ public class Kitchen {
 	public synchronized void clean_up() {
 		Chef c = (Chef) Thread.currentThread();
 		c.setChefState(States.CLOSING_SERVICE);
-		repository.setChefState(States.CLOSING_SERVICE););
+		repository.setChefState(States.CLOSING_SERVICE);
 	}
 	
 	public synchronized void collect_portion()
@@ -133,6 +133,16 @@ public class Kitchen {
 		
 		//Signal chef that portion was delivered
 		notifyAll();
+		
+	}
+
+	public void hand_note_to_the_chef() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void return_to_bar() {
+		// TODO Auto-generated method stub
 		
 	}
 }
