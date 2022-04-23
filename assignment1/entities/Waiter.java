@@ -87,8 +87,8 @@ public class Waiter extends Thread {
 	   requestId = bar.look_arround();
 	   studentId = bar.getStudentId();
 	   if(requestId == 0) {
-		   table.salute_client();
-		   table.presenting_menu();
+		   table.salute_client(studentId);
+		   table.return_to_bar();
 	   }
 	   else if (requestId == 1) {
 		   table.get_the_pad();
@@ -108,7 +108,7 @@ public class Waiter extends Thread {
 		   table.return_to_bar();
 	   }
 	   else if (requestId == 4) {
-		   bar.say_godbey();
+		   bar.say_goodbey();
 	   }
 		
 	}

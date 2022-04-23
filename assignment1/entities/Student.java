@@ -112,7 +112,7 @@ public class Student extends Thread {
 		bar.enter();
 		table.read_the_menu();
 		
-		if (id == bar.getFirstStudent()) {
+		if (id == repository.getFirstStudent()) {
 			table.prepare_the_order();
 			while (!table.has_everybody_chosen()) {
 				table.add_up_ones_choice();

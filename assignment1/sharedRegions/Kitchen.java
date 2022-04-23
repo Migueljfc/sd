@@ -131,7 +131,7 @@ public class Kitchen {
 
 	}
 
-	public void hand_note_to_the_chef() {
+	public synchronized void hand_note_to_the_chef() {
 		Waiter w = (Waiter) Thread.currentThread();
 		w.setWaiterState(States.PLACING_THE_ORDER);
 		repository.setWaiterState(w.getWaiterState());
@@ -144,7 +144,7 @@ public class Kitchen {
 		}
 	}
 
-	public void return_to_bar() {
+	public synchronized void return_to_bar() {
 		Waiter w = (Waiter) Thread.currentThread();
 		w.setWaiterState(States.APPRAISING_SITUATION);
 		repository.setWaiterState(w.getWaiterState());

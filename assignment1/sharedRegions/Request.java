@@ -19,19 +19,19 @@ public class Request {
 	/**
 	 *
 	 */
-	public int studentId;
+	public int requestorId;
 	
 	public int requestId;
 	/**
 	 * Instantiation of Request
 	 *
-	 * @param studentId  id of the student that made the request
+	 * @param requestorId  id of the person that made the request
 	 * @param requestId id of the request [0 - request a menu 1- request a order 2- request a portion 3- request a bill 4- request a good bye
 	 */
-	public Request(int studentId, int requestId) {
+	public Request(int requestorId, int requestId) {
 		assert(requestId>0 && requestId <=4);
-		assert(studentId <= SimulPar.N);
-		this.studentId = studentId;
+		assert(requestorId <= SimulPar.N);
+		this.requestorId = requestorId;
 		this.requestId = requestId;
 	}
 }

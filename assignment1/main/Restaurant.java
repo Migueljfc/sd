@@ -5,7 +5,7 @@ package main;
 
 import entities.*;
 import sharedRegions.*;
-import genclass.GenericIO;
+import genclass.*;
 
 /**
  * @author miguel cabral 93091

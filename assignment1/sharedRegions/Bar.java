@@ -7,7 +7,6 @@ import java.util.Arrays;
 import entities.*;
 import genclass.GenericIO;
 import main.SimulPar;
-import sun.awt.www.content.audio.x_aiff;
 import commInfra.*;
 
 /**
@@ -52,11 +51,11 @@ public class Bar {
 	 */
 	private int goodbyesCount;
 	
-	private int nStudents;
+	/**
+	 * Count the number of students in restaurant
+	 */
+	private int studentCount;
 	
-	private int firstStudent;
-	
-	private int lastStudent ;
 
 	private GeneralRepository repository;
 
@@ -65,9 +64,7 @@ public class Bar {
 		this.table = table;
 		this.goodbyesCount = 0;
 		this.courseHasReady = true;
-		this.firstStudent = -1;
-		this.lastStudent = -1;
-		this.nStudents = 0;
+		this.studentCount = 0;
 		
 		goodbyeIds = new int[SimulPar.N];
 		students = new Student[SimulPar.N];
@@ -106,25 +103,25 @@ public class Bar {
 			System.exit(1); // NAO SEI SE TA BEM
 		}
 
-		studentId = req.studentId;
+		studentId = req.requestorId;
 		return req.requestId;
 
 	}
 
-	public void enter() {
+	public synchronized void enter() {
 		synchronized (this) {
 			Student st = (Student) Thread.currentThread();
 			int id = st.getStudentId();
 			students[id] = st;
 			students[id].setStudentState(States.GOING_TO_THE_RESTAURANT);
 			
-			nStudents++;
+			studentCount++;
 			
-			if(nStudents == 1) {
-				firstStudent = id;
+			if(studentCount == 1) {
+				repository.setFirstStudent(id);
 			}
-			else if(nStudents == SimulPar.N){
-				lastStudent = id;
+			else if(studentCount == SimulPar.N){
+				repository.setLastStudent(id);
 			}
 			try {
 				requests.write(new Request(id, 0));
@@ -140,7 +137,7 @@ public class Bar {
 			
 			students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
 			repository.setStudentState(id, st.getStudentState());
-			repository.setStudentSeat(id);
+			repository.setStudentSeat(id,studentCount);
 
 			notifyAll();
 
@@ -149,7 +146,7 @@ public class Bar {
 		table.seat();
 	}
 
-	public void exit() {
+	public synchronized void exit() {
 		Student st = (Student) Thread.currentThread();
 		int id = st.getStudentId();
 		Request req = new Request(id, 4);
@@ -172,14 +169,14 @@ public class Bar {
 
 	}
 
-	public void alert_waiter() {
+	public synchronized void alert_waiter() {
 		while (!courseHasReady) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 			}
 
-			Request req = new Request(studentId + 1, 2);
+			Request req = new Request(SimulPar.N + 1, 2);
 			try {
 				requests.write(req);
 			} catch (MemException e) {
@@ -197,14 +194,14 @@ public class Bar {
 		}
 	}
 
-	public void prepare_the_bill() {
+	public synchronized void prepare_the_bill() {
 		Waiter w = (Waiter) Thread.currentThread();
 		w.setWaiterState(States.PROCESSING_THE_BILL);
 		repository.setWaiterState(w.getWaiterState());
 
 	}
 
-	public boolean say_goodbey() {
+	public synchronized boolean say_goodbey() {
 		goodbyeIds[goodbyesCount++] = studentId;
 		notifyAll();
 		studentId = -1;
@@ -218,7 +215,7 @@ public class Bar {
 		return false;
 	}
 
-	public void call_the_waiter() {
+	public synchronized void call_the_waiter() {
 		Student st = (Student) Thread.currentThread();
 		int id = st.getStudentId();
 		Request req = new Request(id, 1);
@@ -236,7 +233,7 @@ public class Bar {
 
 	}
 
-	public void signal_the_waiter() {
+	public synchronized void signal_the_waiter() {
 		Student st = (Student) Thread.currentThread();
 		int id = st.getStudentId();
 		if (st.getStudentState() == States.PAYING_THE_BILL) {
@@ -262,12 +259,5 @@ public class Bar {
 		return studentId;
 	}
 
-	public int getFirstStudent() {
-		return firstStudent;
-	}
-
-	public int getLastStudent() {
-		return lastStudent;
-	}
 
 }
