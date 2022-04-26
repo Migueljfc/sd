@@ -6,6 +6,7 @@ package entities;
 /**
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
+ @summary Enum class that represents the states of the 3 entities
  */
 public enum States {
 	

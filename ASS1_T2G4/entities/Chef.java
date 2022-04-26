@@ -7,43 +7,38 @@ import sharedRegions.*;
 /**
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
- */
-/**{@summary}
- * This datatype implements the Chef thread ... [Completar]
+ *
+* @summary
+ * This datatype implements the Chef thread
  * 
  */
 public class Chef extends Thread{
     
     /**
     *  Chef's State.
-    *  @serialField State
     */
     private States state;
     
     /**
-    *  Kitchen
-    *  @serialField Kitchen
+    *  Kitchen reference
     */
     private Kitchen kitchen;
     
      /**
-    *  Bar
-    *  @serialField bar
+    *  Bar reference
     */
     private Bar bar;
     
     /**
-    *  Repository
-    * @serialField Repository
+    *  Repository reference
     */
     private GeneralRepository repository;
     
     /**
-   *   Instantiation of a Chef thread.
    *
    *     @param name thread name
-   *     @param kit reference to the chef Kitchen
-   *     @param repo reference to the general repository
+   *     @param kitchen reference to the chef Kitchen
+   *     @param repository reference to the general repository
    */
     
     public Chef(String name, Kitchen kitchen, Bar bar, GeneralRepository repository){
@@ -71,24 +66,26 @@ public class Chef extends Thread{
     public States getChefState(){
         return state;
     }
-    
-    
+
+    /**
+     * Chefs lifecycle
+     */
     @Override
     public void run ()
     {
-        boolean first_plate = true;
+        boolean first_course = true;
 
         kitchen.watch_news();
         kitchen.start_preparation();
         do
         {
-            if(!first_plate)
+            if(!first_course)
                 kitchen.continue_preparation();
             else
-                first_plate = false;
+            	first_course = false;
 
             kitchen.proceed_preparation();
-            bar.alert_waiter();
+            bar.alert_the_waiter();
 
             while(!kitchen.have_all_portions_been_delivered())
                 kitchen.have_next_portion_ready();

@@ -4,17 +4,15 @@
 package sharedRegions;
 import entities.States;
 import main.SimulPar;
-import genclass.*;
+import genclass.GenericIO;
+import genclass.TextFile;
+
+
 import java.util.Objects;
 
 /**
- *  General Repository.
- *
- *    It is responsible to keep the visible internal state of the problem and to provide means for it
+ {@summary}It is responsible to keep the visible internal state of the problem and to provide means for it
  *    to be printed in the logging file.
- *    It is implemented using semaphores for synchronization.
- *    All public methods are executed in mutual exclusion.
- *    There are no internal synchronization points.
  * 
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
@@ -50,15 +48,21 @@ public class GeneralRepository {
 	/**
 	 *  State of the Students.
 	 */
-	private final States [] studentStates;
+	private States [] studentStates;
 
 	/**
 	 *  seat where each student is.
    	*/
-	private final int [] seats = new int[SimulPar.N];
+	private int [] seats;
 	
+	/**
+	 *  Id of first student
+	 */
 	private int firstStudent;
 	
+	/**
+	 *  Id of last student
+	 */
 	private int lastStudent;
 	   
 	public GeneralRepository(String logName) {
@@ -68,22 +72,19 @@ public class GeneralRepository {
 			this.logName = logName;
 		}
 		studentStates = new States[SimulPar.N];
-		
+		seats = new int[SimulPar.N];
 		for (int i = 0; i < SimulPar.N; i++) {
 			studentStates[i] = States.GOING_TO_THE_RESTAURANT;
+			seats[i] = -1;
 		}
 		
 		chefState = States.WAIT_FOR_AN_ORDER;
       
 		waiterState = States.APPRAISING_SITUATION;
-      
-		for(int i = 0; i<SimulPar.N;i++) {
-			seats[i] = -1;
-		}
+
 		
 		printInitialStatus();
-	      
-		
+	      		
 	}
 	
 	/**
@@ -108,7 +109,6 @@ public class GeneralRepository {
    
    /**
     *  Write the body of the logging file.
-    *
     */
     private void printStatus() {
     	TextFile logFile = new TextFile();                      
@@ -192,7 +192,6 @@ public class GeneralRepository {
 	   *     @param chefState chef state
 	   */
 	public synchronized void setChefState(States chefState) {
-		// TODO Auto-generated method stub
 		this.chefState = chefState;
         printStatus();
 	}
@@ -203,7 +202,6 @@ public class GeneralRepository {
 	   *     @param waiterState waiter state
 	   */
 	public synchronized void setWaiterState(States waiterState) {
-		// TODO Auto-generated method stub
 		this.waiterState = waiterState;
 		printStatus();
 	}
@@ -215,8 +213,7 @@ public class GeneralRepository {
 	   *    @param studentState student state
 	   */
 	public synchronized void setStudentState(int id, States studentState) {
-		// TODO Auto-generated method stub
-		this.studentStates[id] = studentState;
+		studentStates[id] = studentState;
         printStatus();
 	}
 	
@@ -224,11 +221,18 @@ public class GeneralRepository {
 	   *   Set who is seated at the table.
 	   *
 	   *     @param id student id
-	   *     @param nStudents number of students at the restaurant
+	   *     @param seat of the student at the restaurant
 	   */
-	public synchronized void setStudentSeat(int nStudents, int id) {
-		// TODO Auto-generated method stub
-		this.seats[nStudents] = id;
+	public synchronized void setStudentSeat(int seat, int id) {
+		seats[seat] = id;
+	}
+
+	/**@return the student seat position in the table */
+	public synchronized int getStudentSeat(int id) {
+		for(int i = 0; i<seats.length;i++){
+			if(seats[i] == id) return i;
+		}
+		return -1;
 	}
 
 	/**
@@ -237,7 +241,6 @@ public class GeneralRepository {
 	   *     @param portionsDelivery number of portions delivered
 	   */
 	public synchronized void setPortions(int portionsDelivery) {
-		// TODO Auto-generated method stub
 		nPortions = portionsDelivery;
 	}
 	
@@ -247,37 +250,34 @@ public class GeneralRepository {
 	   *     @param i number of courses
 	   */
 	public synchronized void setCourses(int i) {
-		// TODO Auto-generated method stub
-		i = nCourses;
+		nCourses= i;
 	}
 	
 	/**
 	 * @return the firstStudent
 	 */
-	public int getFirstStudent() {
-		assert(firstStudent != -1);
+	public synchronized int getFirstStudent() {
 		return firstStudent;
 	}
 
 	/**
 	 * @param id the firstStudent to set
 	 */
-	public void setFirstStudent(int id) {
+	public synchronized void setFirstStudent(int id) {
 		this.firstStudent = id;
 	}
 
 	/**
 	 * @return the lastStudent
 	 */
-	public int getLastStudent() {
-		assert(lastStudent != -1);
+	public synchronized int getLastStudent() {
 		return lastStudent;
 	}
 
 	/**
 	 * @param id the lastStudent to set
 	 */
-	public void setLastStudent(int id) {
+	public synchronized void setLastStudent(int id) {
 		this.lastStudent = id;
 	}
 	

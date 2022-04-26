@@ -9,51 +9,41 @@ import sharedRegions.*;
 /**
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
+ * @summary
+ * This datatype implements the Student thread
  */
 
 public class Student extends Thread {
 
 	/**
 	 * Student identification.
-	 * 
-	 * @serialField id
 	 */
 	private int id;
 
 	/**
 	 * student's State.
-	 * 
-	 * @serialField state
 	 */
 	private States state;
 
 	/**
-	 * Table
-	 * 
-	 * @serialField table
+	 * Table reference
 	 */
 	private Table table;
 
 	/**
-	 * Bar
-	 * 
-	 * @serialField bar
+	 * Bar reference
 	 */
 	private Bar bar;
 
 	/**
-	 * Repository
-	 * 
-	 * @serialField Repository
+	 * Repository reference
 	 */
 	private GeneralRepository repository;
 
 	/**
-	 * Instantiation of a Student thread.
-	 *
 	 * @param name  thread name
 	 * @param table reference to the student table
-	 * @param repo  reference to the general repository
+	 * @param repository  reference to the general repository
 	 */
 	public Student(String name, int id, Table table, Bar bar, GeneralRepository repository) {
 		super(name);
@@ -105,50 +95,43 @@ public class Student extends Thread {
 
 	@Override
 	public void run() {
-		
 		int current_course = 0;
-		
 		walk_a_bit();
 		bar.enter();
-		table.read_the_menu();
+		table.read_menu();
 		
-		if (id == repository.getFirstStudent()) {
+		if(id == repository.getFirstStudent())
+		{
 			table.prepare_the_order();
-			while (!table.has_everybody_chosen()) {
+			while(!table.has_everybody_chosen())
 				table.add_up_ones_choice();
-			}
 			bar.call_the_waiter();
 			table.describe_the_order();
 			table.join_the_talk();
-			
-		} else {
-			table.inform_companion();
 		}
-		
-		while (!table.have_all_courses_delivery()) {
+		else
+			table.inform_companion();
+
+		while(!table.have_all_courses_delivery()) {
 			table.start_eating();
 			table.end_eating();
 			current_course++;
-			
-			while (!table.has_everybody_finished());
-			
-			if (id == table.last_finished() && current_course != SimulPar.M) {
-				bar.signal_the_waiter();
-			}
-		}
 
-		if (table.should_have_arrived_earlier()) {
+			while (!table.has_everybody_finished()) ;
+			if (id == repository.getLastStudent() && current_course != SimulPar.M)
+				bar.signal_the_waiter();
+		}
+		if(table.should_have_arrived_earlier())
+		{
 			bar.signal_the_waiter();
 			table.honor_the_bill();
-
 		}
-
 		bar.exit();
 	}
 
 	private void walk_a_bit() {
 		try {
-			sleep((long) (1 + 100 * Math.random()));
+			sleep((long) (1 + 50 * Math.random()));
 		} catch (InterruptedException e) {
 		}
 
