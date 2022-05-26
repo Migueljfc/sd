@@ -82,7 +82,38 @@ public class KitchenStub {
      */
     public void start_preparation()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+
+        outMessage = new Message(MessageType.STPREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+
+        if((inMessage.getMsgType() != MessageType.STPDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getChefState() != States.PREPARING_A_COURSE) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
     }
 
 
@@ -91,7 +122,38 @@ public class KitchenStub {
      */
     public void proceed_preparation()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        //MESSAGES
+        outMessage = new Message(MessageType.PTPREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        //TODO Message Types - enter
+        if((inMessage.getMsgType() != MessageType.PTPDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getChefState() != States.DISHING_THE_PORTIONS) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
     }
 
 
@@ -101,7 +163,34 @@ public class KitchenStub {
 
     public boolean have_all_portions_been_delivered()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        //MESSAGES
+        outMessage = new Message(MessageType.HAPBDREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        //TODO Message Types - enter
+        if((inMessage.getMsgType() != MessageType.HAPBDDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
+
+        return (inMessage.getMsgType() == MessageType.HAPBDDONE);
     }
 
 
@@ -111,7 +200,34 @@ public class KitchenStub {
 
     public boolean has_the_order_been_completed()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        //MESSAGES
+        outMessage = new Message(MessageType.HOBCREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        //TODO Message Types - enter
+        if((inMessage.getMsgType() != MessageType.HOBCDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
+
+        return (inMessage.getMsgType() == MessageType.HOBCDONE);
     }
 
 
@@ -121,7 +237,38 @@ public class KitchenStub {
 
     public void continue_preparation()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        //MESSAGES
+        outMessage = new Message(MessageType.CPREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        //TODO Message Types - enter
+        if((inMessage.getMsgType() != MessageType.CPDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getChefState() != States.PREPARING_A_COURSE) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
     }
 
 
@@ -131,7 +278,39 @@ public class KitchenStub {
 
     public void have_next_portion_ready()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+
+        outMessage = new Message(MessageType.HNPRREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        if((inMessage.getMsgType() != MessageType.HNPRDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if((inMessage.getChefState() != States.DISHING_THE_PORTIONS) || (inMessage.getChefState() != States.DELIVERING_THE_PORTIONS)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
+
+        return (inMessage.getMsgType() == MessageType.HNPRDONE);
     }
 
 
@@ -142,7 +321,38 @@ public class KitchenStub {
 
     public void clean_up()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        //MESSAGES
+        outMessage = new Message(MessageType.CUREQ, ((Chef) Thread.currentThread()).getChefState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        //TODO Message Types - enter
+        if((inMessage.getMsgType() != MessageType.CUDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getChefState() != States.CLOSING_SERVICE) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
+        com.close();
     }
 
 
@@ -152,7 +362,37 @@ public class KitchenStub {
 
     public void hand_note_to_the_chef()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+
+        outMessage = new Message(MessageType.HNTCREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        if((inMessage.getMsgType() != MessageType.HNTCDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getWaiterState() != States.PLACING_THE_ORDER) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
+        com.close();
     }
 
 
@@ -162,7 +402,36 @@ public class KitchenStub {
 
     public void return_to_bar()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        outMessage = new Message(MessageType.RTBREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        if((inMessage.getMsgType() != MessageType.RTBDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getWaiterState() != States.APPRAISING_SITUATION) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
+        com.close();
     }
 
 
@@ -171,10 +440,69 @@ public class KitchenStub {
      */
     public void collectPortion()
     {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while(!com.open()) {
+            try {
+                Thread.currentThread().sleep((long)(10));
+            } catch(InterruptedException e) {}
+        }
+
+        outMessage = new Message(MessageType.CPORREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        if((inMessage.getMsgType() != MessageType.CPORDONE)) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        if(inMessage.getWaiterState() != States.WAITING_FOR_PORTION) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+
+        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
+        com.close();
 
     }
 
+    /**
+     *   Operation server shutdown.
+     *
+     *   New operation.
+     */
+    public void shutdown(){
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
+
+        com = new ClientCom(serverHostName, serverPortNumb);
+        while (!com.open ()) {
+            try {
+                Thread.sleep((long) (1000));
+            }
+            catch (InterruptedException e) {}
+        }
+
+        outMessage = new Message(MessageType.SHUT);
+
+        com.writeObject(outMessage);
+        inMessage = (Message) com.readObject();
+
+        if (inMessage.getMsgType() != MessageType.SHUTDONE) {
+            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid message type!");
+            GenericIO.writelnString(inMessage.toString());
+            System.exit(1);
+        }
+        com.close();
+    }
 
 }
 

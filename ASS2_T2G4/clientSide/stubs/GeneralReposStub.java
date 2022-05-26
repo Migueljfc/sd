@@ -43,36 +43,6 @@ public class GeneralReposStub {
 
 
     /**
-     * Operation initialization of the simulation.
-     *
-     * @param fileName logging file name
-     */
-
-    public void initSimul(String fileName) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
-
-        com = new ClientCom(serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.sleep((long) (1000));
-            } catch (InterruptedException e) {
-            }
-        }
-        outMessage = new Message(MessageType.SETNFIC, fileName);
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-        if (inMessage.getMsgType() != MessageType.NFICDONE) {
-            GenericIO.writelnString("Thread " + Thread.currentThread().getName() + ": Invalid message type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-        com.close();
-    }
-
-
-    /**
      * Set Chef state.
      *
      * @param chefState chef state
@@ -105,9 +75,27 @@ public class GeneralReposStub {
      *
      * @param waiterState waiter state
      */
-    public synchronized void setWaiterState(States waiterState) {
-        this.waiterState = waiterState;
-        printStatus();
+    public void setWaiterState(States waiterState) {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
+
+        com = new ClientCom (serverHostName, serverPortNumb);
+        while (!com.open ())
+        { try
+        { Thread.sleep ((long) (1000));
+        }
+        catch (InterruptedException e) {}
+        }
+        outMessage = new Message (MessageType.STWST, 1, waiterState);
+        com.writeObject (outMessage);
+        inMessage = (Message) com.readObject ();
+        if (inMessage.getMsgType() != MessageType.SACK)
+        { GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+        com.close ();
     }
 
     /**
@@ -116,77 +104,29 @@ public class GeneralReposStub {
      * @param id           student id
      * @param studentState student state
      */
-    public synchronized void setStudentState(int id, States studentState) {
-        studentStates[id] = studentState;
-        printStatus();
-    }
+    public void setStudentState(int id, States studentState) {
+        ClientCom com;                                                 // communication channel
+        Message outMessage,                                            // outgoing message
+                inMessage;                                             // incoming message
 
-    /**
-     * Set who is seated at the table.
-     *
-     * @param id   student id
-     * @param seat of the student at the restaurant
-     */
-    public synchronized void setStudentSeat(int seat, int id) {
-        seats[seat] = id;
-    }
-
-    /**
-     * @return the student seat position in the table
-     */
-    public synchronized int getStudentSeat(int id) {
-        for (int i = 0; i < seats.length; i++) {
-            if (seats[i] == id) return i;
+        com = new ClientCom (serverHostName, serverPortNumb);
+        while (!com.open ())
+        { try
+        { Thread.sleep ((long) (1000));
         }
-        return -1;
+        catch (InterruptedException e) {}
+        }
+        outMessage = new Message (MessageType.STSST, id, studentState);
+        com.writeObject (outMessage);
+        inMessage = (Message) com.readObject ();
+        if (inMessage.getMsgType() != MessageType.SACK)
+        { GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+        com.close ();
     }
 
-    /**
-     * Set number of portions.
-     *
-     * @param portionsDelivery number of portions delivered
-     */
-    public synchronized void setPortions(int portionsDelivery) {
-        nPortions = portionsDelivery;
-    }
 
-    /**
-     * Set number of Courses.
-     *
-     * @param i number of courses
-     */
-    public synchronized void setCourses(int i) {
-        nCourses = i;
-    }
-
-    /**
-     * @return the firstStudent
-     */
-    public synchronized int getFirstStudent() {
-        return firstStudent;
-    }
-
-    /**
-     * @param id the firstStudent to set
-     */
-    public synchronized void setFirstStudent(int id) {
-        this.firstStudent = id;
-    }
-
-    /**
-     * @return the lastStudent
-     */
-    public synchronized int getLastStudent() {
-        return lastStudent;
-    }
-
-    /**
-     * @param id the lastStudent to set
-     */
-    public synchronized void setLastStudent(int id) {
-        this.lastStudent = id;
-    }
-
-}
 
 }
