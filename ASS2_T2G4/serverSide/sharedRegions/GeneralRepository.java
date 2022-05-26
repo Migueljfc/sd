@@ -1,14 +1,14 @@
 /**
  * 
  */
-package sharedRegions;
+package serverSide.sharedRegions;
 
-import entities.States;
+import clientSide.entities.States;
 import genclass.GenericIO;
 import genclass.TextFile;
-import mainProgram.*;
-
+import serverSide.main.SimulPar;
 import java.util.Objects;
+
 
 /**
  {@summary}It is responsible to keep the visible internal state of the problem and to provide means for it

@@ -1,9 +1,9 @@
-package sharedRegions;
+package serverSide.sharedRegions;
 
-import entities.Chef;
-import entities.States;
-import entities.Waiter;
-import mainProgram.*;
+import clientSide.entities.Chef;
+import clientSide.entities.States;
+import clientSide.entities.Waiter;
+import serverSide.main.SimulPar;
 
 /**
  *  @summary
@@ -37,19 +37,31 @@ public class Kitchen
 	 */
 
 	private int coursesDelivery;
-	
 
+	/**
+	 *	control if a order has been requested
+	 */
+	private boolean startOrder;
+
+	private  boolean startPreparation;
+
+	/**
+	 *
+	 * @param repository repository of information
+	 */
 	public Kitchen(GeneralRepository repository)
 	{
 		this.repository = repository;
 		this.portionsReady = 0;
 		this.portionsDelivery = 0;
 		this.coursesDelivery = 0;
+		this.startOrder = false;
+		this.startPreparation = false;
 
 	}
 
-	
-	
+
+
 	/**
 	 * 	Part of the chef lifecycle to signal that is waiting the order
 	 */
@@ -57,16 +69,19 @@ public class Kitchen
 	{
 		((Chef) Thread.currentThread()).setChefState(States.WAIT_FOR_AN_ORDER);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
+		while(!startOrder) {
+			/**Fita cola preta */
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
-		/**TIVESTE 12 CHUPA BOI */
-		try {
-			wait();
-		} catch (InterruptedException e) {
-
+			}
 		}
+
+
 	}
-	
-	
+
+
 
 	/**
 	 *  Part of the chef lifecycle to start the preparation and signal the waiter of that
@@ -76,14 +91,14 @@ public class Kitchen
 
 		((Chef) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
-
+		startPreparation = true;
 		//Notify waiter
 		notifyAll();
 	}
 
 
-	
-	
+
+
 	/**
 	 * 	Part of the chef lifecycle to signal that the preparation was continued
 	 */
@@ -95,11 +110,11 @@ public class Kitchen
 		portionsReady++;
 	}
 
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * 	Part of the chef lifecycle to check if he needs to prepare another portion or not
 	 */
@@ -124,9 +139,9 @@ public class Kitchen
 
 	}
 
-	
-	
-	
+
+
+
 	/**
 	 * 	Part of the chef lifecycle to check if all courses have been delivered
 	 */
@@ -138,9 +153,9 @@ public class Kitchen
 		return false;
 	}
 
-	
-	
-	
+
+
+
 	/**
 	 * 	Part of the chef lifecycle when we need to continue the preparation of another portion of the same course
 	 */
@@ -150,16 +165,16 @@ public class Kitchen
 		((Chef) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 	Part of the chef lifecycle to signal waiter that a portion has ready to be delivered
 	 */
 
 	public synchronized void have_next_portion_ready()
-	{	
+	{
 
 		((Chef) Thread.currentThread()).setChefState(States.DISHING_THE_PORTIONS);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
@@ -168,14 +183,14 @@ public class Kitchen
 
 		((Chef) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
-		
+
 		//Notify waiter
 		notifyAll();
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 	Part of the chef lifecycle when the order has completed
 	 */
@@ -185,47 +200,50 @@ public class Kitchen
 		((Chef) Thread.currentThread()).setChefState(States.CLOSING_SERVICE);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * 	Part of the waiter lifecycle to signal the waiter that a new order was started
 	 */
-	
-	public synchronized void hand_note_to_the_ched()
+
+	public synchronized void hand_note_to_the_chef()
 	{
 		((Waiter) Thread.currentThread()).setWaiterState(States.PLACING_THE_ORDER);
 		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
-		
+		startOrder = true;
 		//Notify chef
 		notifyAll();
 
-		/**TIVESTE 12 CHUPA BOI */
-		try {
-			wait();
-		} catch (InterruptedException e) {
+		while(!startPreparation){
+			/** Fita cola preta */
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
+			}
 		}
-		
+
+
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * 	Part of the waiter lifecycle to signal that he is returning to bar
 	 */
-	
+
 	public synchronized void return_to_bar()
 	{
 		((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
 		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
 	}
 
-	
+
 	/**
 	 * 	Part of the waiter lifecycle when he is waiting for a portion and one is ready and will be delivered
 	 */
@@ -246,13 +264,13 @@ public class Kitchen
 		portionsDelivery++;
 		if(portionsDelivery > SimulPar.N)
 			portionsDelivery = 1;
-		
+
 		repository.setPortions(portionsDelivery);
 		repository.setCourses(coursesDelivery+1);
-		
+
 		//Notify chef
 		notifyAll();
-		
+
 	}
 
 

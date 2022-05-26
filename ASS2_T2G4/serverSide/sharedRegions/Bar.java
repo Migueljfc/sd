@@ -1,12 +1,14 @@
-package sharedRegions;
+package serverSide.sharedRegions;
 
-import commInfra.*;
-import entities.Chef;
-import entities.States;
-import entities.Student;
-import entities.Waiter;
+import clientSide.entities.Chef;
+import clientSide.entities.States;
+import clientSide.entities.Student;
+import clientSide.entities.Waiter;
+import commInfra.MemFIFO;
+import commInfra.MemException;
 import genclass.GenericIO;
-import mainProgram.*;
+import serverSide.main.SimulPar;
+
 
 /**
  *  @summary

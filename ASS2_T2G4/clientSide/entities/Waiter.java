@@ -1,6 +1,8 @@
-package entities;
+package clientSide.entities;
 
-import sharedRegions.*;
+import serverSide.sharedRegions.Bar;
+import serverSide.sharedRegions.Kitchen;
+import serverSide.sharedRegions.Table;
 
 
 /**

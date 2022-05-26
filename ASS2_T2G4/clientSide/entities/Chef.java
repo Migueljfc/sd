@@ -1,8 +1,10 @@
 /**
- * 
+ *
  */
-package entities;
-import sharedRegions.*;
+package clientSide.entities;
+import serverSide.sharedRegions.Bar;
+import serverSide.sharedRegions.GeneralRepository;
+import serverSide.sharedRegions.Kitchen;
 
 /**
  * @author miguel cabral 93091
@@ -10,37 +12,37 @@ import sharedRegions.*;
  *
 * @summary
  * This datatype implements the Chef thread
- * 
+ *
  */
 public class Chef extends Thread{
-    
+
     /**
     *  Chef's State.
     */
     private States state;
-    
+
     /**
     *  Kitchen reference
     */
     private Kitchen kitchen;
-    
+
      /**
     *  Bar reference
     */
     private Bar bar;
-    
+
     /**
     *  Repository reference
     */
     private GeneralRepository repository;
-    
+
     /**
    *
    *     @param name thread name
    *     @param kitchen reference to the chef Kitchen
    *     @param repository reference to the general repository
    */
-    
+
     public Chef(String name, Kitchen kitchen, Bar bar, GeneralRepository repository){
         super(name);
         state = States.WAIT_FOR_AN_ORDER;
@@ -48,7 +50,7 @@ public class Chef extends Thread{
         this.repository = repository;
         this.bar = bar;
     }
-    
+
      /**
      * Sets the chef's state.
      * @param s desired state
@@ -56,9 +58,9 @@ public class Chef extends Thread{
     public void setChefState(States s){
         StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         state = s;
-        
+
     }
-    
+
      /**
      * Returns the Chef's state.
      * @return chef's current state
@@ -93,7 +95,7 @@ public class Chef extends Thread{
         while(!kitchen.has_the_order_been_completed());
 
         kitchen.clean_up();
-        
+
     }
 }
 

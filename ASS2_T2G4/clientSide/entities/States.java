@@ -1,7 +1,7 @@
 /**
  * 
  */
-package entities;
+package clientSide.entities;
 
 /**
  * @author miguel cabral 93091

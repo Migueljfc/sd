@@ -1,7 +1,7 @@
 /**
  * 
  */
-package sharedRegions;
+package serverSide.sharedRegions;
 
 
 /**

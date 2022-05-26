@@ -1,10 +1,12 @@
 /**
  * 
  */
-package entities;
+package clientSide.entities;
 
-import main.SimulPar;
-import sharedRegions.*;
+import serverSide.main.SimulPar;
+import serverSide.sharedRegions.Bar;
+import serverSide.sharedRegions.GeneralRepository;
+import serverSide.sharedRegions.Table;
 
 /**
  * @author miguel cabral 93091
