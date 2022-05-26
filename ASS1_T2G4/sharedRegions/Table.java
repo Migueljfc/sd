@@ -231,17 +231,21 @@ public class Table {
     public synchronized void present_the_bill()
     {
     	paying = true;
-
+		//Notify student to pay
     	notifyAll();
     	
     	((Waiter) Thread.currentThread()).setWaiterState(States.RECEIVING_PAYMENT);
     	repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
 
-    	try {
-			wait();
-		} catch (InterruptedException e) {
+		while(paying){
+			/**Fita cola preta*/
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
+			}
 		}
+
     	
     }
     
@@ -546,6 +550,7 @@ public class Table {
 			} catch (InterruptedException e) {
 			}
     	}
+		paying = false;
 		//Notify waiter
     	notifyAll();
     }

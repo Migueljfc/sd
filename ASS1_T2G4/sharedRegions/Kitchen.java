@@ -35,14 +35,26 @@ public class Kitchen
 	 */
 
 	private int coursesDelivery;
-	
 
+	/**
+	 *	control if a order has been requested
+	 */
+	private boolean startOrder;
+
+	private  boolean startPreparation;
+
+	/**
+	 *
+	 * @param repository repository of information
+	 */
 	public Kitchen(GeneralRepository repository)
 	{
 		this.repository = repository;
 		this.portionsReady = 0;
 		this.portionsDelivery = 0;
 		this.coursesDelivery = 0;
+		this.startOrder = false;
+		this.startPreparation = false;
 
 	}
 
@@ -55,12 +67,16 @@ public class Kitchen
 	{
 		((Chef) Thread.currentThread()).setChefState(States.WAIT_FOR_AN_ORDER);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
+		while(!startOrder) {
+			/**Fita cola preta */
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
-		try {
-			wait();
-		} catch (InterruptedException e) {
-
+			}
 		}
+
+
 	}
 	
 	
@@ -73,7 +89,7 @@ public class Kitchen
 
 		((Chef) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
 		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
-
+		startPreparation = true;
 		//Notify waiter
 		notifyAll();
 	}
@@ -190,20 +206,24 @@ public class Kitchen
 	/**
 	 * 	Part of the waiter lifecycle to signal the waiter that a new order was started
 	 */
-	
-	public synchronized void hand_note_to_the_ched()
+
+	public synchronized void hand_note_to_the_chef()
 	{
 		((Waiter) Thread.currentThread()).setWaiterState(States.PLACING_THE_ORDER);
 		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
-		
+		startOrder = true;
 		//Notify chef
 		notifyAll();
 
-		try {
-			wait();
-		} catch (InterruptedException e) {
+		while(!startPreparation){
+			/** Fita cola preta */
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
+			}
 		}
+
 		
 	}
 	
