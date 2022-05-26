@@ -87,7 +87,7 @@ public class Waiter extends Thread{
 				table.return_to_bar();
 			} else if (requestId == 1) {
 				table.get_the_pad();
-				kitchen.hand_note_to_the_ched();
+				kitchen.hand_note_to_the_chef();
 				kitchen.return_to_bar();
 			} else if (requestId == 2) {
 				while (!table.have_all_portions_delivered()) {

@@ -1,6 +1,8 @@
 package commInfra;
 
 import java.io.*;
+
+import clientSide.entities.States;
 import genclass.GenericIO;
 
 /**
@@ -22,7 +24,7 @@ public class Message implements Serializable
      *  Message type.
      */
 
-    private int msgType = -1;
+    private MessageType msgType;
 
     /**
      *  Student identification.
@@ -34,20 +36,20 @@ public class Message implements Serializable
      *  Student state.
      */
 
-    private int studentState = -1;
+    private States studentState ;
 
 
     /**
      *  Chef state.
      */
 
-    private int chefState = -1;
+    private States chefState;
 
     /**
      *  Waiter state.
      */
 
-    private int waiterState = -1;
+    private States waiterState;
 
     /**
      *  End of operations (student).
@@ -68,7 +70,7 @@ public class Message implements Serializable
      *     @param type message type
      */
 
-    public Message (int type)
+    public Message (MessageType type)
     {
         msgType = type;
     }
@@ -81,18 +83,18 @@ public class Message implements Serializable
      *     @param state student / chef / waiter state
      */
 
-    public Message (int type, int id, int state)
+    public Message (MessageType type, int id, States state)
     {
         msgType = type;
-        if ((msgType == MessageType.STBST) || (msgType == MessageType.CALLCUST) || (msgType == MessageType.RPAYDONE))
-        { studentId= id;
+        if ((msgType == MessageType.ALREQ) || (msgType == MessageType.ALDONE) || (msgType == MessageType.ENTREQ )|| (msgType == MessageType.ENTDONE) || (msgType == MessageType.RMREQ)|| (msgType == MessageType.RMDONE) || (msgType == MessageType.POREQ) || (msgType == MessageType.PODONE)|| (msgType == MessageType.EHCDONE)|| (msgType == MessageType.EHCREQ)|| (msgType == MessageType.AUOCREQ)|| (msgType == MessageType.AUOCDONE) || (msgType == MessageType.CWREQ)|| (msgType == MessageType.CWDONE)|| (msgType == MessageType.DOREQ)|| (msgType == MessageType.DODONE)|| (msgType == MessageType.JTREQ)|| (msgType == MessageType.JTDONE)|| (msgType == MessageType.ICREQ)|| (msgType == MessageType.ICDONE)|| (msgType == MessageType.HACDREQ)|| (msgType == MessageType.HACDDONE)|| (msgType == MessageType.SEREQ) || (msgType == MessageType.SEDONE)|| (msgType == MessageType.EEREQ)|| (msgType == MessageType.EEDONE)|| (msgType == MessageType.HEFREQ)|| (msgType == MessageType.HEFDONE)|| (msgType == MessageType.GLSREQ)|| (msgType == MessageType.GLSDONE)|| (msgType == MessageType.SWREQ)|| (msgType == MessageType.SWDONE)|| (msgType == MessageType.SHAEREQ)|| (msgType == MessageType.SHAEDONE) || (msgType == MessageType.HBREQ)|| (msgType == MessageType.HBDONE)|| (msgType == MessageType.EXITREQ)|| (msgType == MessageType.EXITDONE)|| (msgType == MessageType.GFSREQ)|| (msgType == MessageType.GFSDONE) )
+        {
+            studentId= id;
             studentState = state;
         }
-        else if ((msgType == MessageType.STCST) || (msgType == MessageType.REQCUTH) || (msgType == MessageType.CUTHDONE) ||
-                (msgType == MessageType.BSHOPF))
+        else if ((msgType == MessageType.WTNREQ) || (msgType == MessageType.WTNDONE) || (msgType == MessageType.SPREQ) || (msgType == MessageType.SPDONE) || (msgType == MessageType.CPREQ)|| (msgType == MessageType.CPDONE)|| (msgType == MessageType.PPREQ)|| (msgType == MessageType.PPDONE) || (msgType == MessageType.ALREQ) || (msgType == MessageType.ALDONE) || (msgType == MessageType.HAPBDREQ) || (msgType == MessageType.HAPBDDONE) || (msgType == MessageType.HNPRREQ) || (msgType == MessageType.HNPRDONE) || (msgType == MessageType.HTOBCREQ) || (msgType == MessageType.HTOBCDONE) || (msgType == MessageType.CUREQ) || (msgType == MessageType.CUDONE))
         {
             chefState = state;
-        } else if (msgType == MessageType.SHUT) {
+        } else if ((msgType == MessageType.LAREQ) || (msgType == MessageType.LADONE) || (msgType == MessageType.LADONE) || (msgType == MessageType.GCSREQ)|| (msgType == MessageType.GCSDONE) || (msgType == MessageType.LADONE) || (msgType == MessageType.SCREQ) || (msgType == MessageType.SCDONE) || (msgType == MessageType.RTBREQ)|| (msgType == MessageType.RTBDONE) || (msgType == MessageType.GTPREQ)|| (msgType == MessageType.GTPDONE)|| (msgType == MessageType.HNTCREQ)|| (msgType == MessageType.HNTCDONE)|| (msgType == MessageType.CPOREQ)|| (msgType == MessageType.CPODONE)|| (msgType == MessageType.RBREQ)|| (msgType == MessageType.RBDONE)|| (msgType == MessageType.HAPDREQ)|| (msgType == MessageType.HAPDDONE)|| (msgType == MessageType.DPREQ)|| (msgType == MessageType.DPDONE)|| (msgType == MessageType.PREBREQ)|| (msgType == MessageType.PREBDONE) || (msgType == MessageType.PBREQ)|| (msgType == MessageType.PBDONE) || (msgType == MessageType.SGREQ)|| (msgType == MessageType.SGDONE)) {
             waiterState = state;
 
         } else { GenericIO.writelnString ("Message type = " + msgType + ": non-implemented instantiation!");
@@ -107,7 +109,7 @@ public class Message implements Serializable
      *     @param id student identification
      */
 
-    public Message (int type, int id)
+    public Message (MessageType type, int id)
     {
         msgType = type;
         studentId= id;
@@ -118,30 +120,16 @@ public class Message implements Serializable
      *
      *     @param type message type
      *     @param id student identification
-     *     @param endOP end of operations flag
+     *     @param endOp end of operations flag
      */
 
-    public Message (int type, int id, boolean endOp)
+    public Message (MessageType type, int id, boolean endOp)
     {
         msgType = type;
         studentId= id;
         this.endOp = endOp;
     }
 
-    /**
-     *  Message instantiation (form 5).
-     *
-     *     @param type message type
-     *     @param studentId student identification
-     *     @param studentState barber state
-     */
-
-    public Message (int type, int studentId, int studentState, int custId)
-    {
-        msgType = type;
-        this.studentId= studentId;
-        this.studentState = studentState;
-    }
 
     /**
      *  Message instantiation (form 6).
@@ -152,7 +140,7 @@ public class Message implements Serializable
      *     @param waiterState customer state
      */
 
-    public Message (int type, int studentId, int studentState, int waiterState)
+    public Message (MessageType type, int studentId, States studentState, States waiterState)
     {
         msgType = type;
         this.studentId= studentId;
@@ -167,11 +155,21 @@ public class Message implements Serializable
      *     @param name name of the logging file
      */
 
-    public Message (int type, String name)
+    public Message (MessageType type, String name)
     {
         msgType = type;
         fName= name;
 
+    }
+
+    /**
+     *
+     * @param type message type
+     * @param waiterState waiter state
+     */
+    public Message (MessageType type, States waiterState){
+        msgType = type;
+        this.waiterState = waiterState;
     }
 
     /**
@@ -180,7 +178,7 @@ public class Message implements Serializable
      *     @return message type
      */
 
-    public int getMsgType ()
+    public MessageType getMsgType ()
     {
         return (msgType);
     }
@@ -202,7 +200,7 @@ public class Message implements Serializable
      *     @return student state
      */
 
-    public int getStudentState ()
+    public States getStudentState ()
     {
         return (studentState);
     }
@@ -213,7 +211,7 @@ public class Message implements Serializable
      *     @return chef state
      */
 
-    public int getChefState ()
+    public States getChefState ()
     {
         return (chefState);
     }
@@ -224,13 +222,13 @@ public class Message implements Serializable
      *     @return waiter state
      */
 
-    public int getWaiterState ()
+    public States getWaiterState ()
     {
-        return (chefState);
+        return (waiterState);
     }
 
     /**
-     *  Getting end of operations flag (barber).
+     *  Getting end of operations flag .
      *
      *     @return end of operations flag
      */
@@ -251,11 +249,6 @@ public class Message implements Serializable
         return (fName);
     }
 
-    /**
-     *  Getting the number of iterations of the customer life cycle.
-     *
-     *     @return number of iterations of the customer life cycle
-     */
 
 
     /**
