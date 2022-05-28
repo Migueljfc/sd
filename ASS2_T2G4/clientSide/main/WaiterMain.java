@@ -1,10 +1,8 @@
 package clientSide.main;
 
-import clientSide.entities.Chef;
-import clientSide.entities.Student;
 import clientSide.entities.Waiter;
 import clientSide.stubs.BarStub;
-import clientSide.stubs.GenReposStub;
+import clientSide.stubs.GeneralRepositoryStub;
 import clientSide.stubs.KitchenStub;
 import clientSide.stubs.TableStub;
 import genclass.GenericIO;
@@ -32,7 +30,7 @@ public class WaiterMain {
         TableStub table;                                        // remote reference to the table
         KitchenStub kitchen;                                    // remote reference to the kitchen
         Waiter waiter;                                          // remote reference to the waiter
-        GenReposStub genReposStub;								// remote reference to the general repository
+        GeneralRepositoryStub genReposStub;								// remote reference to the general repository
 
 
         /* getting problem runtime parameters */
@@ -99,10 +97,10 @@ public class WaiterMain {
         bar = new BarStub(barServerHostName, barServerPortNum);
         table = new TableStub(tableServerHostName, tableServerPortNum);
         kitchen = new KitchenStub(kitchenServerHostName, kitchenServerPortNum);
-        genReposStub = new GenReposStub(genReposServerHostName, genReposServerPortNum);
+        genReposStub = new GeneralRepositoryStub(genReposServerHostName, genReposServerPortNum);
 
 
-        waiter = new Waiter("Waiter", kitchen, bar, table);
+        waiter = new Waiter("Waiter", table, bar, kitchen);
 
 
         // Start of simulation

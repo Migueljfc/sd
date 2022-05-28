@@ -3,10 +3,10 @@
  */
 package clientSide.entities;
 
+import clientSide.stubs.BarStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.TableStub;
 import serverSide.main.SimulPar;
-import serverSide.sharedRegions.Bar;
-import serverSide.sharedRegions.GeneralRepository;
-import serverSide.sharedRegions.Table;
 
 /**
  * @author miguel cabral 93091
@@ -30,24 +30,24 @@ public class Student extends Thread {
 	/**
 	 * Table reference
 	 */
-	private Table table;
+	private TableStub table;
 
 	/**
 	 * Bar reference
 	 */
-	private Bar bar;
+	private BarStub bar;
 
 	/**
 	 * Repository reference
 	 */
-	private GeneralRepository repository;
+	private GeneralRepositoryStub repository;
 
 	/**
 	 * @param name  thread name
 	 * @param table reference to the student table
 	 * @param repository  reference to the general repository
 	 */
-	public Student(String name, int id, Table table, Bar bar, GeneralRepository repository) {
+	public Student(String name, int id, TableStub table, BarStub bar, GeneralRepositoryStub repository) {
 		super(name);
 		this.id = id;
 		state = States.GOING_TO_THE_RESTAURANT;

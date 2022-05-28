@@ -1,7 +1,7 @@
 package serverSide.sharedRegions;
 
 import clientSide.entities.States;
-import clientSide.stubs.GeneralReposStub;
+import clientSide.stubs.GeneralRepositoryStub;
 import serverSide.entities.TableClientProxy;
 import serverSide.main.SimulPar;
 import serverSide.main.TableMain;
@@ -91,7 +91,7 @@ public class Table {
 	/**
 	 * Reference to the GeneralRepository.
 	 */
-	private final GeneralReposStub repository;
+	private final GeneralRepositoryStub repository;
 
 	/**
 	 * Number of entities requesting to shut down
@@ -99,7 +99,7 @@ public class Table {
 	private int entities;
 
 
-	public Table(GeneralReposStub repository)
+	public Table(GeneralRepositoryStub repository)
 	{
 		this.repository = repository;
 		this.ordersCount = 0;

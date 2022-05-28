@@ -1,6 +1,8 @@
 package serverSide.main;
 
-import clientSide.stubs.GeneralReposStub;
+
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.TableStub;
 import commInfra.ServerCom;
 import genclass.GenericIO;
 import serverSide.entities.BarClientProxy;
@@ -30,20 +32,23 @@ public class BarMain {
      *        args[2] - port nunber where the server for the general repository is listening to service requests
      */
     public static void main(String[] args) {
-        Table table;
+        TableStub table;
 
-        Bar bar;                                                      // bar (service to be rendered)
-        BarInterface barInterface;                                    // interface to the bar
-        GeneralReposStub genReposStub;                                // stub to the general repository
+        Bar bar;                                              // bar (service to be rendered)
+        BarInterface barInterface;                            // interface to the bar
+        GeneralRepositoryStub genReposStub;                                // stub to the general repository
         ServerCom scon, sconi;                                        // communication channels
         int portNumb = -1;                                            // port number for listening to service requests
         String reposServerName;                                       // name of the platform where is located the server for the general repository
         int reposPortNumb = -1;                                       // port nunber where the server for the general repository is listening to service requests
+        String tableServerName;                                       // name of the platform where is located the server for the general repository
+        int tablePortNumb = -1;                                       // port nunber where the server for the general repository is listening to service requests
 
-        if (args.length != 3) {
+        if (args.length != 5) {
             GenericIO.writelnString ("Wrong number of parameters!");
             System.exit (1);
         }
+
         try {
             portNumb = Integer.parseInt (args[0]);
         } catch(NumberFormatException e) {
@@ -54,6 +59,7 @@ public class BarMain {
             GenericIO.writelnString ("args[0] is not a valid port number!");
             System.exit (1);
         }
+
         reposServerName = args[1];
         try {
             reposPortNumb = Integer.parseInt (args[2]);
@@ -66,10 +72,23 @@ public class BarMain {
             System.exit (1);
         }
 
+        tableServerName = args[3];
+        try {
+            tablePortNumb = Integer.parseInt (args[4]);
+        } catch (NumberFormatException e) {
+            GenericIO.writelnString ("args[2] is not a number!");
+            System.exit (1);
+        }
+        if((tablePortNumb < 4000) || (tablePortNumb >= 65536)) {
+            GenericIO.writelnString ("args[2] is not a valid port number!");
+            System.exit (1);
+        }
+
+
         /* service is established */
 
-        genReposStub = new GeneralReposStub(reposServerName, reposPortNumb);       // communication to the general repository is instantiated
-        table = new Table(genReposStub);
+        genReposStub = new GeneralRepositoryStub(reposServerName, reposPortNumb);       // communication to the general repository is instantiated
+        table = new TableStub(tableServerName, tablePortNumb);
         bar = new Bar(genReposStub, table);									// service is instantiated
         barInterface = new BarInterface(bar);					// interface to the service is instantiated
         scon = new ServerCom (portNumb);                                        // listening channel at the public port is established
@@ -89,7 +108,7 @@ public class BarMain {
                 cliProxy.start ();                                         //   the request of service
             } catch(SocketTimeoutException e) {}
         }
-        scon.end ();                                                   // operations termination
+        scon.end();                                                   // operations termination
         GenericIO.writelnString ("Server was shutdown.");
     }
 

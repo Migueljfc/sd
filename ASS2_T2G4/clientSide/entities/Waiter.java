@@ -1,5 +1,8 @@
 package clientSide.entities;
 
+import clientSide.stubs.BarStub;
+import clientSide.stubs.KitchenStub;
+import clientSide.stubs.TableStub;
 import serverSide.sharedRegions.Bar;
 import serverSide.sharedRegions.Kitchen;
 import serverSide.sharedRegions.Table;
@@ -24,18 +27,18 @@ public class Waiter extends Thread{
 	 * Reference to the kitchen
 	 */
 	
-	private final Kitchen kitchen;
+	private final KitchenStub kitchen;
 	
 	/**
 	 * Reference to the bar
 	 */
 	
-	private final Bar bar;
+	private final BarStub bar;
 	
 	/**
 	 * Reference to the table
 	 */
-	private final Table table;
+	private final TableStub table;
 	
 	/**
 	 * Set waiter state
@@ -64,7 +67,7 @@ public class Waiter extends Thread{
 	 * @param bar  reference to the bar
 	 */
 	
-	public Waiter(String name, Table table, Bar bar, Kitchen kitchen) {
+	public Waiter(String name, TableStub table, BarStub bar, KitchenStub kitchen) {
 		super(name);
 		this.state = States.APPRAISING_SITUATION;
 		this.kitchen = kitchen;

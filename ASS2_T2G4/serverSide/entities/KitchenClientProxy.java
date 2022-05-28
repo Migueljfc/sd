@@ -149,6 +149,11 @@ public class KitchenClientProxy extends Thread implements StudentCloning, Waiter
         studentState = state;
     }
 
+    @Override
+    public void setStudentId(int id) {
+        this.studentID = id;
+    }
+
     /**
      *   Get student state.
      *
@@ -157,6 +162,11 @@ public class KitchenClientProxy extends Thread implements StudentCloning, Waiter
 
     public States getStudentState() {
         return studentState;
+    }
+
+    @Override
+    public int getStudentId() {
+        return studentID;
     }
 
     /**

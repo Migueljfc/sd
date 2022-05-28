@@ -1,10 +1,8 @@
 package clientSide.main;
 
-import clientSide.entities.Chef;
 import clientSide.entities.Student;
 import clientSide.stubs.BarStub;
-import clientSide.stubs.GenReposStub;
-import clientSide.stubs.KitchenStub;
+import clientSide.stubs.GeneralRepositoryStub;
 import clientSide.stubs.TableStub;
 import commInfra.SimulPar;
 import genclass.GenericIO;
@@ -30,7 +28,7 @@ public class StudentMain {
         BarStub bar;										        // remote reference to the bar
         TableStub table;                                            // remote reference to the table
         Student[] students = new Student[SimulPar.N];             // array of students threads
-        GenReposStub genReposStub;								    // remote reference to the general repository
+        GeneralRepositoryStub genReposStub;						// remote reference to the general repository
 
 
         /* getting problem runtime parameters */
@@ -86,10 +84,10 @@ public class StudentMain {
 
         bar = new BarStub(barServerHostName, barServerPortNum);
         table = new TableStub(tableServerHostName, tableServerPortNum);
-        genReposStub = new GenReposStub(genReposServerHostName, genReposServerPortNum);
+        genReposStub = new GeneralRepositoryStub(genReposServerHostName, genReposServerPortNum);
 
         for(int i=0; i<SimulPar.N; i++){
-            students[i] = new Student("Student_"+i, i, bar, table);
+            students[i] = new Student("Student_"+i, i, table, bar,genReposStub);
         }
 
 

@@ -400,13 +400,13 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.EHCREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.HECREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
         //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.EHCDONE)) {
+        if((inMessage.getMsgType() != MessageType.HECDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -415,7 +415,7 @@ public class TableStub {
         ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
         com.close();
 
-        return (inMessage.getMsgType() == MessageType.EHCDONE);
+        return (inMessage.getMsgType() == MessageType.HECDONE);
     }
 
     /**

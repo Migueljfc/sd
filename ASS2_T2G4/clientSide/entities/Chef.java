@@ -2,9 +2,12 @@
  *
  */
 package clientSide.entities;
+
+import clientSide.stubs.BarStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.KitchenStub;
 import serverSide.sharedRegions.Bar;
 import serverSide.sharedRegions.GeneralRepository;
-import serverSide.sharedRegions.Kitchen;
 
 /**
  * @author miguel cabral 93091
@@ -24,17 +27,17 @@ public class Chef extends Thread{
     /**
     *  Kitchen reference
     */
-    private Kitchen kitchen;
+    private KitchenStub kitchen;
 
      /**
     *  Bar reference
     */
-    private Bar bar;
+    private BarStub bar;
 
     /**
     *  Repository reference
     */
-    private GeneralRepository repository;
+    private GeneralRepositoryStub repository;
 
     /**
    *
@@ -43,7 +46,7 @@ public class Chef extends Thread{
    *     @param repository reference to the general repository
    */
 
-    public Chef(String name, Kitchen kitchen, Bar bar, GeneralRepository repository){
+    public Chef(String name, KitchenStub kitchen, BarStub bar, GeneralRepositoryStub repository){
         super(name);
         state = States.WAIT_FOR_AN_ORDER;
         this.kitchen = kitchen;

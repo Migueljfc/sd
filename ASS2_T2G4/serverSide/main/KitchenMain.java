@@ -1,6 +1,7 @@
 package serverSide.main;
 
-import clientSide.stubs.GeneralReposStub;
+
+import clientSide.stubs.GeneralRepositoryStub;
 import commInfra.ServerCom;
 import genclass.GenericIO;
 import serverSide.entities.KitchenClientProxy;
@@ -33,7 +34,7 @@ public class KitchenMain {
     public static void main(String[] args) {
         Kitchen kitchen;                                              // kitchen (service to be rendered)
         KitchenInterface kitchenInterface;                            // interface to the kitchen
-        GeneralReposStub genReposStub;                                // stub to the general repository stub
+        GeneralRepositoryStub genReposStub;                                // stub to the general repository stub
         ServerCom scon, sconi;                                        // communication channels
         int portNumb = -1;                                            // port number for listening to service requests
         String reposServerName;                                       // name of the platform where is located the server for the general repository
@@ -67,7 +68,7 @@ public class KitchenMain {
 
         /* service is established */
 
-        genReposStub = new GeneralReposStub (reposServerName, reposPortNumb);       // communication to the general repository is instantiated
+        genReposStub = new GeneralRepositoryStub (reposServerName, reposPortNumb);       // communication to the general repository is instantiated
         kitchen = new Kitchen(genReposStub);									// service is instantiated
         kitchenInterface = new KitchenInterface(kitchen);					// interface to the service is instantiated
         scon = new ServerCom (portNumb);                                        // listening channel at the public port is established

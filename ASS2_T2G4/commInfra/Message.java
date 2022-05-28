@@ -21,6 +21,8 @@ public class Message implements Serializable
 
     private static final long serialVersionUID = 2021L;
 
+
+
     /**
      *  Message type.
      */
@@ -68,6 +70,27 @@ public class Message implements Serializable
      * Id of the request made to the waiter
      */
     private int requestId = -1;
+
+    /**
+     * Nº of courses delivered
+     */
+    private int courses = 0;
+
+    /**
+     * Nº of portions delivered
+     */
+    private int portions = 0;
+    /**
+     * Seat identification
+     */
+    private int seat;
+
+    /**
+     *  seat where each student is.
+     */
+    private int [] seats = new int[SimulPar.N];
+
+
     /**
      *  Message instantiation (form 1).
      *
@@ -90,7 +113,7 @@ public class Message implements Serializable
     public Message (MessageType type, int id, States state)
     {
         msgType = type;
-        if ((msgType == MessageType.ALREQ) || (msgType == MessageType.ALDONE) || (msgType == MessageType.ENTREQ )|| (msgType == MessageType.ENTDONE) || (msgType == MessageType.RMREQ)|| (msgType == MessageType.RMDONE) || (msgType == MessageType.POREQ) || (msgType == MessageType.PODONE)|| (msgType == MessageType.EHCDONE)|| (msgType == MessageType.EHCREQ)|| (msgType == MessageType.AUOCREQ)|| (msgType == MessageType.AUOCDONE) || (msgType == MessageType.CWREQ)|| (msgType == MessageType.CWDONE)|| (msgType == MessageType.DOREQ)|| (msgType == MessageType.DODONE)|| (msgType == MessageType.JTREQ)|| (msgType == MessageType.JTDONE)|| (msgType == MessageType.ICREQ)|| (msgType == MessageType.ICDONE)|| (msgType == MessageType.HACDREQ)|| (msgType == MessageType.HACDDONE)|| (msgType == MessageType.SEREQ) || (msgType == MessageType.SEDONE)|| (msgType == MessageType.EEREQ)|| (msgType == MessageType.EEDONE)|| (msgType == MessageType.HEFREQ)|| (msgType == MessageType.HEFDONE)|| (msgType == MessageType.GLSREQ)|| (msgType == MessageType.GLSDONE)|| (msgType == MessageType.SWREQ)|| (msgType == MessageType.SWDONE)|| (msgType == MessageType.SHAEREQ)|| (msgType == MessageType.SHAEDONE) || (msgType == MessageType.HBREQ)|| (msgType == MessageType.HBDONE)|| (msgType == MessageType.EXITREQ)|| (msgType == MessageType.EXITDONE)|| (msgType == MessageType.GFSREQ)|| (msgType == MessageType.GFSDONE) )
+        if ((msgType == MessageType.ALREQ) || (msgType == MessageType.ALDONE) || (msgType == MessageType.ENTREQ )|| (msgType == MessageType.ENTDONE) || (msgType == MessageType.RMREQ)|| (msgType == MessageType.RMDONE) || (msgType == MessageType.POREQ) || (msgType == MessageType.PODONE)|| (msgType == MessageType.HEFREQ)|| (msgType == MessageType.HEFDONE)|| (msgType == MessageType.AUOCREQ)|| (msgType == MessageType.AUOCDONE) || (msgType == MessageType.CWREQ)|| (msgType == MessageType.CWDONE)|| (msgType == MessageType.DOREQ)|| (msgType == MessageType.DODONE)|| (msgType == MessageType.JTREQ)|| (msgType == MessageType.JTDONE)|| (msgType == MessageType.ICREQ)|| (msgType == MessageType.ICDONE)|| (msgType == MessageType.HACDREQ)|| (msgType == MessageType.HACDDONE)|| (msgType == MessageType.SEREQ) || (msgType == MessageType.SEDONE)|| (msgType == MessageType.EEREQ)|| (msgType == MessageType.EEDONE)|| (msgType == MessageType.HEFREQ)|| (msgType == MessageType.HEFDONE)|| (msgType == MessageType.GLSREQ)|| (msgType == MessageType.GLSDONE)|| (msgType == MessageType.SWREQ)|| (msgType == MessageType.SWDONE)|| (msgType == MessageType.SHAEREQ)|| (msgType == MessageType.SHAEDONE) || (msgType == MessageType.HBREQ)|| (msgType == MessageType.HBDONE)|| (msgType == MessageType.EXITREQ)|| (msgType == MessageType.EXITDONE)|| (msgType == MessageType.GFSREQ)|| (msgType == MessageType.GFSDONE) )
         {
             studentId= id;
             studentState = state;
@@ -136,7 +159,7 @@ public class Message implements Serializable
 
 
     /**
-     *  Message instantiation (form 6).
+     *  Message instantiation (form 5).
      *
      *     @param type message type
      *     @param studentId student identification
@@ -152,6 +175,13 @@ public class Message implements Serializable
         this.waiterState= waiterState;
     }
 
+    /**
+     * Message instantiation (form 6).
+     *
+     * @param type message type
+     * @param waiterState waiter state
+     * @param requestId request identification
+     */
     public Message (MessageType type, States waiterState, int requestId)
     {
         msgType = type;
@@ -174,6 +204,7 @@ public class Message implements Serializable
     }
 
     /**
+     * Message instantiation (form 8).
      *
      * @param type message type
      * @param waiterState waiter state
@@ -181,6 +212,37 @@ public class Message implements Serializable
     public Message (MessageType type, States waiterState){
         msgType = type;
         this.waiterState = waiterState;
+    }
+
+    /**
+     * Message instantiation (form 9).
+     *
+     * @param type Message type
+     * @param count count the nº of portions/courses
+     * @param choice actualize nº courses or nº portions delivered
+     */
+    public Message(MessageType type, int count, char choice) {
+        this.msgType = type;
+        if(choice == 'c'){
+            this.courses = count;
+        }
+        else{
+            this.portions = count;
+        }
+    }
+
+    /**
+     * Message instantiation (form 10).
+     *
+     * @param type Message type
+     * @param studentId Student identification
+     * @param seat Identification of the seat where the student will be
+     */
+    public Message(MessageType type, int seat, int studentId){
+        this.msgType = type;
+        this.studentId = studentId;
+        this.seat = seat;
+        this.seats[seat] = studentId;
     }
 
     /**
@@ -259,9 +321,19 @@ public class Message implements Serializable
     {
         return (fName);
     }
-
-
-
+    public int getRequest() {
+        return requestId;
+    }
+    /**
+     *
+     * @return seat
+     */
+    public int getSeat(int id){
+        for(int i = 0; i<seats.length;i++){
+            if(seats[i] == id) return i;
+        }
+        return -1;
+    }
     /**
      *  Printing the values of the internal fields.
      *
@@ -281,4 +353,6 @@ public class Message implements Serializable
                 "\nEnd of Operations (barber) = " + endOp +
                 "\nName of logging file = " + fName);
     }
+
+
 }

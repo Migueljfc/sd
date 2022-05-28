@@ -25,7 +25,7 @@ public class ChefMain {
         Chef chef;                   						    // remote reference to the chef
         BarStub bar;										    // remote reference to the bar
         KitchenStub kitchen;                                    // remote reference to the kitchen
-        GenReposStub genReposStub;								// remote reference to the general repository
+        GeneralRepositoryStub genReposStub;								// remote reference to the general repository
 
 
         /* getting problem runtime parameters */
@@ -83,9 +83,9 @@ public class ChefMain {
 
         bar = new BarStub(barServerHostName, barServerPortNum);
         kitchen = new KitchenStub(kitchenServerHostName, kitchenServerPortNum);
-        genReposStub = new GenReposStub(genReposServerHostName, genReposServerPortNum);
+        genReposStub = new GeneralRepositoryStub(genReposServerHostName, genReposServerPortNum);
 
-        chef = new Chef("Chef", kitchen, bar);
+        chef = new Chef("Chef", kitchen, bar,genReposStub);
 
 
         // Start of simulation

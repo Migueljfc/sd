@@ -1,6 +1,7 @@
 package serverSide.main;
 
-import clientSide.stubs.GeneralReposStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.GeneralRepositoryStub;
 import commInfra.ServerCom;
 import genclass.GenericIO;
 import serverSide.entities.TableClientProxy;
@@ -32,7 +33,7 @@ public class TableMain {
     public static void main(String[] args) {
         Table table;                                              // table (service to be rendered)
         TableInterface tableInterface;                            // interface to the table
-        GeneralReposStub genReposStub;                                // stub to the general repository
+        GeneralRepositoryStub genReposStub;                                // stub to the general repository
         ServerCom scon, sconi;                                        // communication channels
         int portNumb = -1;                                            // port number for listening to service requests
         String reposServerName;                                       // name of the platform where is located the server for the general repository
@@ -66,7 +67,7 @@ public class TableMain {
 
         /* service is established */
 
-        genReposStub = new GeneralReposStub (reposServerName, reposPortNumb);       // communication to the general repository is instantiated
+        genReposStub = new GeneralRepositoryStub(reposServerName, reposPortNumb);       // communication to the general repository is instantiated
         table = new Table(genReposStub);									// service is instantiated
         tableInterface = new TableInterface(table);					// interface to the service is instantiated
         scon = new ServerCom (portNumb);                                        // listening channel at the public port is established

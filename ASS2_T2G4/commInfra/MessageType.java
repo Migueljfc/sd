@@ -562,25 +562,60 @@ public enum MessageType
      * Set first student (REQUEST)
      */
     STFS,
+
     /**
-     * Set last student
+     * Set first student (REPLY)
+     */
+    FSDONE,
+    /**
+     * Set last student (REQUEST)
      */
     STLS,
     /**
-     * Set student seat
+     * Set last student (REPLY)
+     */
+    LSDONE,
+    /**
+     * Set student seat (REQUEST)
      */
     STSS,
 
     /**
-     * Set portions
+     * Set student seat (REPLY)
+     */
+    SSDONE,
+
+    /**
+     * Get student seat (REQUEST)
+     */
+    GSSREQ,
+
+    /**
+     * Get student seat (REPLY)
+     */
+    GSSDONE,
+    /**
+     * Set portions (REQUEST)
      */
     STPOR,
 
     /**
-     * Set courses
+     * Set portions (REPLY)
+     */
+    PORDONE,
+
+
+    /**
+     * Set courses (REQUEST)
      */
 
     STCOR,
+
+    /**
+     * Set courses (REPLY)
+     */
+
+    CORDONE,
     /**
      *  Setting acknowledged (REPLY).
      */

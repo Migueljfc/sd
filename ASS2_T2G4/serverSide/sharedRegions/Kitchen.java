@@ -1,9 +1,7 @@
 package serverSide.sharedRegions;
 
-import clientSide.entities.Chef;
 import clientSide.entities.States;
-import clientSide.entities.Waiter;
-import clientSide.stubs.GeneralReposStub;
+import clientSide.stubs.GeneralRepositoryStub;
 import serverSide.entities.KitchenClientProxy;
 import serverSide.main.KitchenMain;
 import serverSide.main.SimulPar;
@@ -25,7 +23,7 @@ public class Kitchen
 	/**
 	 * Reference to the General Repository.
 	 */
-	private final GeneralReposStub repository;
+	private final GeneralRepositoryStub repository;
 
 	/**
 	 *	Count the portions ready
@@ -57,7 +55,7 @@ public class Kitchen
 	 *
 	 * @param repository repository of information
 	 */
-	public Kitchen(GeneralReposStub repository)
+	public Kitchen(GeneralRepositoryStub repository)
 	{
 		this.repository = repository;
 		this.portionsReady = 0;

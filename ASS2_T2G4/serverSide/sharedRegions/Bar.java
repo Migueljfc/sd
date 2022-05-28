@@ -4,7 +4,9 @@ import clientSide.entities.Chef;
 import clientSide.entities.States;
 import clientSide.entities.Student;
 import clientSide.entities.Waiter;
-import clientSide.stubs.GeneralReposStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.TableStub;
 import commInfra.MemFIFO;
 import commInfra.MemException;
 import genclass.GenericIO;
@@ -30,7 +32,7 @@ public class Bar
 	/**
 	 * Reference to the table
 	 */
-	private final Table table;
+	private final TableStub table;
 
 	/**
 	 * Reference to students threads
@@ -70,7 +72,7 @@ public class Bar
 	/**
 	 * Reference to the general repository
 	 */
-	private GeneralReposStub repository;
+	private GeneralRepositoryStub repository;
 	
 	
 	/**
@@ -78,7 +80,7 @@ public class Bar
 	 * 
 	 * @param repository reference to the general repository 
 	 */
-	public Bar(GeneralReposStub repository, Table table) {
+	public Bar(GeneralRepositoryStub repository, TableStub table) {
 		this.repository = repository;
 		this.table = table;
 		this.courseHasReady = true;
