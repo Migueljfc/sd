@@ -1,6 +1,8 @@
 package serverSide.sharedRegions;
 
 import commInfra.*;
+import serverSide.entities.GeneralRepositoryClientProxy;
+import serverSide.entities.TableClientProxy;
 
 /**
  *  Interface to the General Repository of Information.
@@ -44,29 +46,67 @@ public class GeneralRepositoryInterface {
 
 
         switch (inMessage.getMsgType ()) {
-            case MessageType.SETNFIC:
-                repos.initSimul(inMessage.getLogFName(), inMessage.getNIter());
+            case SETNFIC:
+                repos.initSimulation(inMessage.getLogFName());
                 outMessage = new Message(MessageType.NFICDONE);
                 break;
 
-            case MessageType.STSST:
-                repos.setBarberState(inMessage.getStudentID(), inMessage.getStudentState());
+            case STSST:
+                repos.setStudentState(inMessage.getStudentId(), inMessage.getStudentState());
                 outMessage = new Message(MessageType.SACK);
                 break;
 
-            case MessageType.STCST:
-                repos.setChefState(inMessage.getChefID(), inMessage.getCustState());
+            case STCST:
+                repos.setChefState(inMessage.getChefState());
                 outMessage = new Message(MessageType.SACK);
                 break;
-            case MessageType.STWST:
-                repos.setWaiterState(inMessage.getWaiterID(), inMessage.getWaiterState());
-                outMessage = new Message (MessageType.SACK);
+
+            case STWST:
+                repos.setWaiterState(inMessage.getWaiterState());
+                outMessage = new Message(MessageType.SACK);
+                break;
+            case STFS:
+                repos.setFirstStudent(inMessage.getStudentId());
+                outMessage = new Message(MessageType.SACK);
+                break;
+            case STLS:
+                repos.setLastStudent(inMessage.getStudentId());
+                outMessage = new Message(MessageType.SACK);
+                break;
+            case STSS:
+                repos.setStudentSeat(Bar.studentCount,inMessage.getStudentId());  //VAI DAR MERDA
+                outMessage = new Message(MessageType.SACK);
+                break;
+            case GLSREQ:
+                ((GeneralRepositoryClientProxy) Thread.currentThread()).setStudentId(inMessage.getStudentId());
+                ((GeneralRepositoryClientProxy) Thread.currentThread ()).setStudentState(inMessage.getStudentState());
+                repos.getLastStudent();
+                outMessage = new Message(MessageType.GLSDONE,
+                        ((GeneralRepositoryClientProxy) Thread.currentThread()).getStudentId(),
+                        ((GeneralRepositoryClientProxy) Thread.currentThread()).getStudentState());
+                break;
+            case GFSREQ:
+                ((GeneralRepositoryClientProxy) Thread.currentThread()).setStudentId(inMessage.getStudentId());
+                ((GeneralRepositoryClientProxy) Thread.currentThread ()).setStudentState(inMessage.getStudentState());
+                repos.getFirstStudent();
+                outMessage = new Message(MessageType.GFSDONE,
+                        ((GeneralRepositoryClientProxy) Thread.currentThread()).getStudentId(),
+                        ((GeneralRepositoryClientProxy) Thread.currentThread()).getStudentState());
+                break;
+            case STPOR:
+                repos.setPortions(Kitchen.portionsDelivery);  //VAI DAR MERDA
+                outMessage = new Message(MessageType.SACK);
+                break;
+            case STCOR:
+                repos.setCourses(Kitchen.coursesDelivery);  //VAI DAR MERDA
+                outMessage = new Message(MessageType.SACK);
                 break;
 
-            case MessageType.SHUT:
+            case SHUT:
                 repos.shutdown();
-                outMessage = new Message (MessageType.SHUTDONE);
+                outMessage = new Message(MessageType.SHUTDONE);
                 break;
+
         }
 
         return (outMessage);

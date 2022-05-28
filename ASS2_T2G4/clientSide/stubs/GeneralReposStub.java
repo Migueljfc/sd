@@ -145,6 +145,18 @@ public class GeneralReposStub {
         com.close();
     }
 
+
+
+    /**
+     *   Set who is seated at the table.
+     *
+     *     @param id student id
+     *     @param seat of the student at the restaurant
+     */
+    public synchronized void setStudentSeat(int seat, int id) {
+
+    }
+
     /**
      *   Set number of portions.
      *
@@ -179,6 +191,13 @@ public class GeneralReposStub {
     }
 
     /**
+     * @param id student id
+     */
+    public int getStudentSeat(int id) {
+
+    }
+
+    /**
      *   Operation server shutdown.
      *
      *   New operation.
@@ -188,7 +207,7 @@ public class GeneralReposStub {
         Message outMessage,                                            // outgoing message
                 inMessage;                                             // incoming message
 
-        com = new ClientCom(serverHostName, serverPortNum);
+        com = new ClientCom(serverHostName, serverPortNumb);
         while (!com.open ()) {
             try {
                 Thread.sleep((long) (1000));
@@ -209,6 +228,7 @@ public class GeneralReposStub {
         }
         com.close();
     }
+
 
 
 }

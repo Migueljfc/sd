@@ -4,6 +4,7 @@ import java.io.*;
 
 import clientSide.entities.States;
 import genclass.GenericIO;
+import serverSide.sharedRegions.Request;
 
 /**
  *   Internal structure of the exchanged messages.
@@ -63,7 +64,10 @@ public class Message implements Serializable
 
     private String fName = null;
 
-
+    /**
+     * Id of the request made to the waiter
+     */
+    private int requestId = -1;
     /**
      *  Message instantiation (form 1).
      *
@@ -146,6 +150,13 @@ public class Message implements Serializable
         this.studentId= studentId;
         this.studentState = studentState;
         this.waiterState= waiterState;
+    }
+
+    public Message (MessageType type, States waiterState, int requestId)
+    {
+        msgType = type;
+        this.waiterState= waiterState;
+        this.requestId = requestId;
     }
 
     /**

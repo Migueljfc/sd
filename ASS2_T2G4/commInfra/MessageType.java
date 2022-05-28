@@ -216,13 +216,13 @@ public enum MessageType
     CUDONE ,
 
     /**
-     *  returnToBar (REQUEST)
+     *  Return from table to bar (REQUEST)
      */
 
     RTBREQ ,
 
     /**
-     *  returnToBar (REPLY)
+     *  Returned from table to bar (REPLY)
      */
 
     RTBDONE ,
@@ -347,14 +347,15 @@ public enum MessageType
 
     GLSDONE ,
 
+
     /**
-     *  seatAtTable (REQUEST)
+     *  Seat at Table (REQUEST)
      */
 
     SATREQ ,
 
     /**
-     *  seatAtTable (REPLY)
+     *  Seat at table (REPLY)
      */
 
     SATDONE ,
@@ -387,13 +388,13 @@ public enum MessageType
      *  has everybody chosen (REQUEST)
      */
 
-    EHCREQ ,
+    HECREQ ,
 
     /**
      *  has everybody chosen  (REPLY)
      */
 
-    EHCDONE ,
+    HECDONE ,
 
     /**
      *  Add up ones choices (REQUEST)
@@ -522,7 +523,7 @@ public enum MessageType
     GCSREQ ,
 
     /**
-     *  get current student (REPLY)
+     *  Get current student (REPLY)
      */
 
     GCSDONE ,
@@ -540,25 +541,48 @@ public enum MessageType
     SHUTDONE ,
 
     /**
-     *  setStudentState (REQUEST).
+     *  Set student state (REQUEST).
      */
 
     STSST ,
 
     /**
-     *  setWaiterState (REQUEST).
+     *  Set waiter State (REQUEST).
      */
 
     STWST ,
 
     /**
-     *  setChefState (REQUEST).
+     *  Set Chef State (REQUEST).
      */
 
     STCST ,
 
     /**
-     *  Setting acknowledged (reply).
+     * Set first student (REQUEST)
+     */
+    STFS,
+    /**
+     * Set last student
+     */
+    STLS,
+    /**
+     * Set student seat
+     */
+    STSS,
+
+    /**
+     * Set portions
+     */
+    STPOR,
+
+    /**
+     * Set courses
+     */
+
+    STCOR,
+    /**
+     *  Setting acknowledged (REPLY).
      */
 
     SACK ,

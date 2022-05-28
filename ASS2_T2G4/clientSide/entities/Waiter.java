@@ -38,6 +38,7 @@ public class Waiter extends Thread{
 	private final Table table;
 	
 	/**
+	 * Set waiter state
 	 * 	@param  state
 	 */
 	
@@ -46,6 +47,7 @@ public class Waiter extends Thread{
 	}
 	
 	/**
+	 * Get waiter state
 	 * 	@return waiter state
 	 */
 

@@ -6,6 +6,7 @@ package serverSide.sharedRegions;
 import clientSide.entities.States;
 import genclass.GenericIO;
 import genclass.TextFile;
+import serverSide.main.GeneralRepositoryMain;
 import serverSide.main.SimulPar;
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ public class GeneralRepository {
 	/**
 	 *  Name of the logging file.
 	 */
-	private final String logName;
+	private String logName;
 	
 	/**
 	 *  Number of portions served.
@@ -64,6 +65,11 @@ public class GeneralRepository {
 	 *  Id of last student
 	 */
 	private int lastStudent;
+
+	/**
+	 * Number of entities requesting to shut down
+	 */
+	private int entities;
 	   
 	public GeneralRepository(String logName) {
 		if ((logName == null) || Objects.equals (logName, "")) {
@@ -71,6 +77,7 @@ public class GeneralRepository {
 		} else {
 			this.logName = logName;
 		}
+		this.entities = 0;
 		studentStates = new States[SimulPar.N];
 		seats = new int[SimulPar.N];
 		for (int i = 0; i < SimulPar.N; i++) {
@@ -91,7 +98,7 @@ public class GeneralRepository {
    *  Print header.
    */
    private void printInitialStatus() {
-	   TextFile logFile = new TextFile();                      
+	   TextFile logFile = new TextFile();
 	   
 	   if (!logFile.openForWriting(".", logName)) { 
 		   GenericIO.writelnString("The operation of creating the file " + logName + " failed!");
@@ -267,7 +274,7 @@ public class GeneralRepository {
 		this.firstStudent = id;
 	}
 
-	/**
+	/**j
 	 * @return the lastStudent
 	 */
 	public synchronized int getLastStudent() {
@@ -280,5 +287,23 @@ public class GeneralRepository {
 	public synchronized void setLastStudent(int id) {
 		this.lastStudent = id;
 	}
-	
+
+	/**
+	 *
+	 * @param logFileName name of log file
+	 */
+	public synchronized void initSimulation(String logFileName) {
+		if(!Objects.equals(logFileName, ""))
+			this.logName = logFileName;
+		printInitialStatus();
+	}
+
+	/**
+	 * Operation of server shut down
+	 */
+	public synchronized void shutdown() {
+		entities += 1;
+		if (entities >= 3)
+			GeneralRepositoryMain.waitConnection = false;
+	}
 }

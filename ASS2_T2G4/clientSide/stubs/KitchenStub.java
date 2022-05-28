@@ -2,6 +2,7 @@ package clientSide.stubs;
 
 import clientSide.entities.Chef;
 import clientSide.entities.States;
+import clientSide.entities.Waiter;
 import commInfra.ClientCom;
 import commInfra.Message;
 import commInfra.MessageType;
@@ -94,13 +95,13 @@ public class KitchenStub {
         }
 
 
-        outMessage = new Message(MessageType.STPREQ, ((Chef) Thread.currentThread()).getChefState());
+        outMessage = new Message(MessageType.SPREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
 
-        if((inMessage.getMsgType() != MessageType.STPDONE)) {
+        if((inMessage.getMsgType() != MessageType.SPDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -133,14 +134,14 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.PTPREQ, ((Chef) Thread.currentThread()).getChefState());
+       
+        outMessage = new Message(MessageType.PPREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.PTPDONE)) {
+        
+        if((inMessage.getMsgType() != MessageType.PPDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -174,13 +175,12 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
+  
         outMessage = new Message(MessageType.HAPBDREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
         if((inMessage.getMsgType() != MessageType.HAPBDDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
@@ -211,14 +211,14 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.HOBCREQ, ((Chef) Thread.currentThread()).getChefState());
+       
+        outMessage = new Message(MessageType.HTOBCREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.HOBCDONE)) {
+        
+        if((inMessage.getMsgType() != MessageType.HTOBCDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -227,7 +227,7 @@ public class KitchenStub {
         ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
         com.close();
 
-        return (inMessage.getMsgType() == MessageType.HOBCDONE);
+        return (inMessage.getMsgType() == MessageType.HTOBCDONE);
     }
 
 
@@ -248,13 +248,11 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
         outMessage = new Message(MessageType.CPREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
         if((inMessage.getMsgType() != MessageType.CPDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
@@ -310,7 +308,7 @@ public class KitchenStub {
         ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
         com.close();
 
-        return (inMessage.getMsgType() == MessageType.HNPRDONE);
+        //return (inMessage.getMsgType() == MessageType.HNPRDONE);
     }
 
 
@@ -332,13 +330,12 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
+        
         outMessage = new Message(MessageType.CUREQ, ((Chef) Thread.currentThread()).getChefState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
         if((inMessage.getMsgType() != MessageType.CUDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
@@ -451,18 +448,18 @@ public class KitchenStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.CPORREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message(MessageType.CPOREQ, ((Waiter) Thread.currentThread()).getWaiterState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        if((inMessage.getMsgType() != MessageType.CPORDONE)) {
+        if((inMessage.getMsgType() != MessageType.CPODONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
 
-        if(inMessage.getWaiterState() != States.WAITING_FOR_PORTION) {
+        if(inMessage.getWaiterState() != States.WAITING_FOR_AN_PORTION) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);

@@ -1,5 +1,14 @@
 package clientSide.stubs;
 
+import clientSide.entities.States;
+import clientSide.entities.Student;
+import clientSide.entities.Waiter;
+import commInfra.ClientCom;
+import commInfra.Message;
+import commInfra.MessageType;
+import genclass.GenericIO;
+import serverSide.sharedRegions.Table;
+
 /**
  * Stub to the table
  */
@@ -61,8 +70,8 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != studentIDBeingAnswered) {
-            GenericIO.writelnString("Thread Student"+inMessage.getStudentID()+": Invalid Student ID!");
+        if(inMessage.getStudentId() != Table.currentStudent) {                         //VAI DAR MERDA VAI DAR MERDA
+            GenericIO.writelnString("Thread Student"+inMessage.getStudentId()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
@@ -125,13 +134,13 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.GBREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message(MessageType.GTPREQ, ((Waiter) Thread.currentThread()).getWaiterState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
         //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.GBDONE)) {
+        if((inMessage.getMsgType() != MessageType.GTPDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -165,13 +174,13 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.HACBSREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message(MessageType.HAPDREQ, ((Waiter) Thread.currentThread()).getWaiterState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
         //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.HACBSDONE)) {
+        if((inMessage.getMsgType() != MessageType.HAPDDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -267,7 +276,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.SATREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.SATREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -279,7 +288,7 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -310,7 +319,7 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.RMREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.RMREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -321,7 +330,7 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -352,7 +361,7 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.POREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.POREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -391,7 +400,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.EHCREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.EHCREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -425,7 +434,7 @@ public class TableStub {
             }
         }
 
-        outMessage = new Message(MessageType.AUOCREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.AUOCREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -455,7 +464,7 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.DOREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.DOREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -486,7 +495,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.JTREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.JTREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -498,7 +507,7 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentState() != States.CHATTING_WITH_COMPANIONS) {
+        if(inMessage.getStudentState() != States.CHATING_WITH_COMPANIONS) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student State!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -524,7 +533,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.ICREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.ICREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -536,13 +545,13 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
 
-        if(inMessage.getStudentState() != States.CHATTING_WITH_COMPANIONS) {
+        if(inMessage.getStudentState() != States.CHATING_WITH_COMPANIONS) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student State!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -570,13 +579,13 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.HACBEREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.HACDREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
         //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.HACBEDONE)) {
+        if((inMessage.getMsgType() != MessageType.HACDDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -585,7 +594,7 @@ public class TableStub {
         ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
         com.close();
 
-        return (inMessage.getMsgType() == MessageType.HACBEDONE);
+        return (inMessage.getMsgType() == MessageType.HACDDONE);
     }
 
     /**
@@ -606,7 +615,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.SEREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.SEREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -618,7 +627,7 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -650,7 +659,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.EEREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.EEREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -662,13 +671,13 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
 
-        if(inMessage.getStudentState() != States.CHATTING_WITH_COMPANIONS) {
+        if(inMessage.getStudentState() != States.CHATING_WITH_COMPANIONS) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student State!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -693,18 +702,18 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.REQHEFE, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.HEFREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        if((inMessage.getMsgType() != MessageType.HEFEDONE)) {
+        if((inMessage.getMsgType() != MessageType.HEFDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -713,7 +722,7 @@ public class TableStub {
         ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
         com.close();
 
-        return (inMessage.getMsgType() == MessageType.HEFEDONE);
+        return (inMessage.getMsgType() == MessageType.HEFDONE);
     }
 
     /**
@@ -734,7 +743,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.SHAEREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.SHAEREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -746,13 +755,13 @@ public class TableStub {
             System.exit(1);
         }
 
-        if(inMessage.getStudentID() != ((Student) Thread.currentThread()).getStudentID()) {
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
         }
 
-        if(inMessage.getStudentState() != States.PAYING_THE_MEAL) {
+        if(inMessage.getStudentState() != States.PAYING_THE_BILL) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student State!");
             GenericIO.writelnString(inMessage.toString());
             System.exit(1);
@@ -780,7 +789,7 @@ public class TableStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.HBREQ, ((Student) Thread.currentThread()).getStudentID(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.HBREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();

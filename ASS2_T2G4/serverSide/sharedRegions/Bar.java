@@ -4,9 +4,12 @@ import clientSide.entities.Chef;
 import clientSide.entities.States;
 import clientSide.entities.Student;
 import clientSide.entities.Waiter;
+import clientSide.stubs.GeneralReposStub;
 import commInfra.MemFIFO;
 import commInfra.MemException;
 import genclass.GenericIO;
+import serverSide.entities.BarClientProxy;
+import serverSide.main.BarMain;
 import serverSide.main.SimulPar;
 
 
@@ -19,12 +22,20 @@ import serverSide.main.SimulPar;
 
 public class Bar 
 {
+	/**
+	 *   Number of entity requesting the shutdown.
+	 */
+	private int entities;
+
+	/**
+	 * Reference to the table
+	 */
 	private final Table table;
 
 	/**
 	 * Reference to students threads
 	 */
-	private final Student[] students;
+	private final BarClientProxy[] students;
 
 	/**
 	 * Waiting portions
@@ -54,10 +65,12 @@ public class Bar
 	/**
 	 * Count the number of students in restaurant
 	 */
-	private int studentCount;
+	public static int studentCount;
 
-
-	private GeneralRepository repository;
+	/**
+	 * Reference to the general repository
+	 */
+	private GeneralReposStub repository;
 	
 	
 	/**
@@ -65,13 +78,14 @@ public class Bar
 	 * 
 	 * @param repository reference to the general repository 
 	 */
-	public Bar(GeneralRepository repository, Table table) {
+	public Bar(GeneralReposStub repository, Table table) {
 		this.repository = repository;
 		this.table = table;
 		this.courseHasReady = true;
 		this.currentStudent = -1;
+		this.entities = 0;
 
-		students = new Student[SimulPar.N];
+		students = new BarClientProxy[SimulPar.N];
 		this.goodbyeIds = new int[SimulPar.N];
 		for (int i = 0; i < SimulPar.N; i++){
 			goodbyeIds[i] = -1;
@@ -116,8 +130,8 @@ public class Bar
 		requestsCount++;
 		courseHasReady = false;
 
-		((Chef) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
-		repository.setChefState(((Chef) Thread.currentThread()).getChefState());
+		((BarClientProxy) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
+		repository.setChefState(((BarClientProxy) Thread.currentThread()).getChefState());
 
 		//Notify waiter
 		notifyAll();
@@ -167,8 +181,8 @@ public class Bar
 	 */
 	public synchronized void prepare_the_bill()
 	{
-		((Waiter) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		((BarClientProxy) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
+		repository.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
 	}
 	
 	
@@ -187,7 +201,7 @@ public class Bar
 		studentCount--;
 		currentStudent = -1;
 		
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		repository.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
 		
 		if(studentCount == 0)
 			return true;
@@ -205,9 +219,9 @@ public class Bar
 	{		
 		synchronized(this)
 		{
-			int id = ((Student) Thread.currentThread()).getStudentId();
+			int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
 
-			students[id] = ((Student) Thread.currentThread());
+			students[id] = ((BarClientProxy) Thread.currentThread());
 			students[id].setStudentState(States.GOING_TO_THE_RESTAURANT);
 			
 			studentCount++;
@@ -226,7 +240,7 @@ public class Bar
 				repository.setLastStudent(id);
 			}
 			students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
-			repository.setStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+			repository.setStudentState(id, ((BarClientProxy) Thread.currentThread()).getStudentState());
 			repository.setStudentSeat(studentCount-1, id);
 			//Notify waiter
 			notifyAll();
@@ -245,7 +259,7 @@ public class Bar
 	 */
 	public synchronized void call_the_waiter()
 	{
-		int id = ((Student) Thread.currentThread()).getStudentId();
+		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
 		Request req = new Request(id,1);
 
 		try {
@@ -264,9 +278,9 @@ public class Bar
 	 */
 	public synchronized void signal_the_waiter()
 	{
-		int id = ((Student) Thread.currentThread()).getStudentId();
+		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
 
-		if(((Student) Thread.currentThread()).getStudentState() == States.PAYING_THE_BILL)
+		if(((BarClientProxy) Thread.currentThread()).getStudentState() == States.PAYING_THE_BILL)
 		{
 			try {
 				requests.write(new Request(id, 3));
@@ -295,7 +309,7 @@ public class Bar
 	 */
 	public synchronized void exit()
 	{
-		int id = ((Student) Thread.currentThread()).getStudentId();
+		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
 		Request req = new Request(id,4);
 
 		try {
@@ -309,8 +323,8 @@ public class Bar
 		notifyAll();
 
 		students[id].setStudentState(States.GOING_HOME);
-		repository.setStudentState(id, ((Student) Thread.currentThread()).getStudentState());
-		repository.setStudentSeat(repository.getStudentSeat(id),-1);
+		repository.setStudentState(id, ((BarClientProxy) Thread.currentThread()).getStudentState());
+		repository.setStudentSeat(repository.getStudentSeat(id),-1);								// DEU MERDA
 
 		while(goodbyeIds[id] == -1) {
 			try {
@@ -323,6 +337,18 @@ public class Bar
 	 * @return Id of the student that are being attended
 	 */
 	public int getCurrentStudent() { return currentStudent; }
+
+	/**
+	 *   Operation server shutdown.
+	 *
+	 *   New operation.
+	 */
+	public synchronized void shutdown() {
+		entities += 1;
+		if (entities >= 3)
+			BarMain.waitConnection = false;
+		notifyAll();
+	}
 }
 
 

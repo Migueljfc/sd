@@ -125,7 +125,7 @@ public class BarClientProxy extends Thread implements StudentCloning, WaiterClon
      *     @param id student id
      */
 
-    public void setStudentID(int id) {
+    public void setStudentId(int id) {
         studentID = id;
     }
 
@@ -135,7 +135,7 @@ public class BarClientProxy extends Thread implements StudentCloning, WaiterClon
      *     @return student id
      */
 
-    public int getStudentID() {
+    public int getStudentId() {
         return studentID;
     }
 

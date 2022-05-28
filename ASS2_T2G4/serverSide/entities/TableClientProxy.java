@@ -126,7 +126,7 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
      *     @param id student id
      */
 
-    public void setStudentID(int id) {
+    public void setStudentId(int id) {
         studentID = id;
     }
 
@@ -136,7 +136,7 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
      *     @return student id
      */
 
-    public int getStudentID() {
+    public int getStudentId() {
         return studentID;
     }
 
