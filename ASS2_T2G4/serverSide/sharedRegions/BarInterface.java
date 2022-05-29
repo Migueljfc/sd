@@ -114,8 +114,7 @@ public class BarInterface {
             case LAREQ:
                 ((BarClientProxy) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
                 int request = bar.look_arround();
-                outMessage = new Message(MessageType.LADONE,
-                        ((BarClientProxy)Thread.currentThread()).getWaiterState(), request);
+                outMessage = new Message(MessageType.LADONE,((BarClientProxy) Thread.currentThread()).getWaiterState(), request);
                 //nao sei se falta alguma coisa
                 break;
 

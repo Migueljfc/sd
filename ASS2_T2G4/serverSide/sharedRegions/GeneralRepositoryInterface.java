@@ -61,7 +61,8 @@ public class GeneralRepositoryInterface {
                     throw new MessageException("Invalid Waiter state!", inMessage);
                 break;
             // verify Student state
-            case STSST:
+            case STSST1:
+            case STSST2:
                 if (inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
                     throw new MessageException("Invalid Student state!", inMessage);
                 break;
@@ -85,9 +86,16 @@ public class GeneralRepositoryInterface {
                 outMessage = new Message(MessageType.NFICDONE);
                 break;
 
-            case STSST:
-                repos.setStudentState(inMessage.getStudentId(), inMessage.getStudentState());
-                outMessage = new Message(MessageType.SACK);
+            case STSST1:
+            case STSST2:
+                if (inMessage.getMsgType() == MessageType.STSST1) {
+                    repos.setStudentSeat(inMessage.getSeat(), inMessage.getStudentId());
+                    outMessage = new Message(MessageType.STSST1);
+                    break;
+                } else {
+                    repos.setStudentState(inMessage.getStudentId(), inMessage.getStudentState());
+                    outMessage = new Message(MessageType.STSST2);
+                }
                 break;
 
             case STCST:

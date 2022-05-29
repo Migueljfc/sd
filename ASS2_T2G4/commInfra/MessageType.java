@@ -541,16 +541,28 @@ public enum MessageType
     SHUTDONE ,
 
     /**
-     *  Set student state (REQUEST).
+     *  Set student state 1 (REQUEST).
      */
 
-    STSST ,
+    STSST1 ,
 
     /**
-     *  Set student state (REPLY).
+     *  Set student state 1 (REPLY).
      */
 
-    SSTDONE ,
+    SST1DONE ,
+
+    /**
+     *  Set student state 2 (REQUEST).
+     */
+
+    STSST2 ,
+
+    /**
+     *  Set student state 2 (REPLY).
+     */
+
+    SST2DONE ,
 
     /**
      *  Set waiter State (REQUEST).
@@ -602,6 +614,16 @@ public enum MessageType
      * Set student seat (REPLY)
      */
     SSDONE,
+
+    /**
+     * Set student seat when exit (REQUEST)
+     */
+    STSSWE,
+
+    /**
+     * Set student seat when exit (REPLY)
+     */
+    SSWEDONE,
 
     /**
      * Get student seat (REQUEST)

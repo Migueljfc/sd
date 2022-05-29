@@ -35,6 +35,7 @@ public enum States {
     ENJOYING_THE_MEAL,
     PAYING_THE_BILL,
     GOING_HOME
-    
+
 }
+
 
