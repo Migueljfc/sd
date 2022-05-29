@@ -1,5 +1,6 @@
 package serverSide.sharedRegions;
 
+import clientSide.entities.States;
 import serverSide.entities.*;
 import commInfra.*;
 
@@ -42,6 +43,36 @@ public class KitchenInterface {
     public Message processAndReply(Message inMessage) throws MessageException {
         Message outMessage = null;                                     // outgoing message
 
+        /* Validation of the incoming message */
+        switch(inMessage.getMsgType())
+        {
+            // Chef Messages that require type and state verification
+            case WTNREQ: 		// Watching the news request
+            case SPREQ: 			// Start preparation of a course request
+            case PPREQ: 		// Proceed to presentation request
+            case HNPRREQ:	// Have next portion ready
+            case CPREQ: 		// Continue preparation
+            case CUREQ: 		// Clean up
+                if ((inMessage.getChefState() != States.WAIT_FOR_AN_ORDER) || (inMessage.getChefState() != States.CLOSING_SERVICE))
+                    throw new MessageException ("Invalid Chef state!", inMessage);
+                break;
+
+            // Chef Messages that require only type verification
+            case HAPBDREQ: 		// Have all portions been delivered
+            case HTOBCREQ: 		// Has the order been completed
+            case SHUT:		//Kitchen shutdown
+                break;
+
+            // Waiter Messages that require type and state verification
+            case HNTCREQ: 	// Hand note to chef
+            case RBREQ: 	// Return to bar
+            case CPOREQ: 		// Collect portion
+                if(inMessage.getWaiterState() != States.APPRAISING_SITUATION || inMessage.getWaiterState() != States.RECEIVING_PAYMENT)
+                    throw new MessageException ("Invalid Waiter state!", inMessage);
+                break;
+            default:
+                throw new MessageException ("Invalid message type!", inMessage);
+        }
 
         switch (inMessage.getMsgType()) {
             case WTNREQ:

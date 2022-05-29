@@ -11,7 +11,7 @@ import genclass.GenericIO;
  *    Implementation of a client-server model of type 2 (server replication).
  *    Communication is based on a communication channel under the TCP protocol.
  */
-public class TableClientProxy extends Thread implements StudentCloning, WaiterCloning, ChefCloning  {
+public class TableClientProxy extends Thread implements StudentCloning, WaiterCloning  {
 
     /**
      *  Number of instantiayed threads.
@@ -43,11 +43,6 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
 
     private States studentState;
 
-    /**
-     *  Chef state.
-     */
-
-    private States chefState;
 
     /**
      *  Waiter state.
@@ -55,6 +50,10 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
 
     private States waiterState;
 
+    /**
+     * Student being attended
+     */
+    private int currentStudent;
 
     /**
      *  Instantiation of a client proxy.
@@ -95,30 +94,7 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
         return proxyId;
     }
 
-    /**
-     *  Life cycle of the service provider agent.
-     */
 
-    @Override
-    public void run() {
-        Message inMessage = null,                                      // service request
-                outMessage = null;                                     // service reply
-
-        /* service providing */
-
-        inMessage = (Message) sconi.readObject();                     // get service request
-        try {
-            outMessage = tableInter.processAndReply (inMessage);         // process it
-        }
-        catch (MessageException e) {
-            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
-            GenericIO.writelnString(e.getMessageVal().toString());
-            System.exit(1);
-        }
-
-        sconi.writeObject(outMessage);                                // send service reply
-        sconi.close();                                                // close the communication channel
-    }
 
     /**
      *   Set student id.
@@ -181,22 +157,37 @@ public class TableClientProxy extends Thread implements StudentCloning, WaiterCl
     }
 
     /**
-     *   Set chef state.
-     *
-     *     @param state new chef state
+     * Set student being attended
+     * 	@param id student being attended
      */
-
-    public void setChefState(States state) {
-        chefState = state;
-    }
+    public void setCurrentStudent(int id) {	currentStudent = id; }
 
     /**
-     *   Get chef state.
-     *
-     *     @return chef state
+     * Get student being attended
+     *	@return id studentBeingAnswered
      */
+    public int getCurrentStudent() { return currentStudent;	}
 
-    public States getChefState() {
-        return chefState;
+
+
+    @Override
+    public void run() {
+        Message inMessage = null,                                      // service request
+                outMessage = null;                                     // service reply
+
+        /* service providing */
+
+        inMessage = (Message) sconi.readObject();                     // get service request
+        try {
+            outMessage = tableInter.processAndReply (inMessage);         // process it
+        }
+        catch (MessageException e) {
+            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
+            GenericIO.writelnString(e.getMessageVal().toString());
+            System.exit(1);
+        }
+
+        sconi.writeObject(outMessage);                                // send service reply
+        sconi.close();                                                // close the communication channel
     }
 }

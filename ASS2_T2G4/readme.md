@@ -1,5 +1,4 @@
 TODO:
 
-Corrigir Stubs 🟥
-
-Erros no Table 🟥
+Acabar Message 🟥
+Ver se faltam MessageTypes 🟥

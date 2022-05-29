@@ -38,6 +38,21 @@ public class GeneralRepositoryClientProxy extends Thread {
     private States studentState;
 
     /**
+     * Chef State
+     */
+    private int chefState;
+
+    /**
+     * Waiter State
+     */
+    private int waiterState;
+
+    /**
+     * value of either number courses, number portions, seats
+     */
+    private int count;
+
+    /**
      * Instantiation of a client proxy.
      *
      * @param sconi      communication channel
@@ -61,9 +76,9 @@ public class GeneralRepositoryClientProxy extends Thread {
         int proxyId;                                                   // instantiation identifier
 
         try {
-            cl = Class.forName("serverSide.entities.GeneralReposClientProxy");
+            cl = Class.forName("serverSide.entities.GeneralRepositoryClientProxy");
         } catch (ClassNotFoundException e) {
-            GenericIO.writelnString("Data type GeneralReposClientProxy was not found!");
+            GenericIO.writelnString("Data type GeneralRepositoryClientProxy was not found!");
             e.printStackTrace();
             System.exit(1);
         }
@@ -79,6 +94,7 @@ public class GeneralRepositoryClientProxy extends Thread {
      * @param studentId student identification
      */
     public void setStudentId(int studentId) {
+
         this.studentId = studentId;
     }
     /**
@@ -86,6 +102,7 @@ public class GeneralRepositoryClientProxy extends Thread {
      * @param studentState Student State
      */
     public void setStudentState(States studentState) {
+        
         this.studentState = studentState;
     }
 
@@ -103,6 +120,54 @@ public class GeneralRepositoryClientProxy extends Thread {
      */
     public States getStudentState() {
         return studentState;
+    }
+
+    /**
+     * Get chef state
+     * @return chef state
+     */
+    public int getChefState() {
+        return chefState;
+    }
+
+    /**
+     * Set chef state
+     * @param chefState state of the chef
+     */
+    public void setChefState(int chefState) {
+        this.chefState = chefState;
+    }
+
+    /**
+     * Get waiter state
+     * @return waiter state
+     */
+    public int getWaiterState() {
+        return waiterState;
+    }
+
+    /**
+     * Set waiter state
+     * @param waiterState state of the waiter
+     */
+    public void setWaiterState(int waiterState) {
+        this.waiterState = waiterState;
+    }
+
+    /**
+     * Get value of number courses, portions or seats
+     * 	@return number of courses/portions/seats
+     */
+    public int getCount() {
+        return count;
+    }
+
+    /**
+     * Set value of number courses, portions or seats
+     * 	@param count number of courses/portions/seats
+     */
+    public void setCount(int count) {
+        this.count = count;
     }
 
     /**

@@ -1,7 +1,6 @@
 package serverSide.main;
 
 import clientSide.stubs.GeneralRepositoryStub;
-import clientSide.stubs.GeneralRepositoryStub;
 import commInfra.ServerCom;
 import genclass.GenericIO;
 import serverSide.entities.TableClientProxy;

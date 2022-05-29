@@ -297,13 +297,12 @@ public class GeneralRepositoryStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
+
         outMessage = new Message(MessageType.STLS, id);
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
         if((inMessage.getMsgType() != MessageType.LSDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
@@ -370,7 +369,7 @@ public class GeneralRepositoryStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.GLSREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.GLSREQ);
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -401,7 +400,7 @@ public class GeneralRepositoryStub {
         }
 
         //MESSAGES
-        outMessage = new Message(MessageType.GFSREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message(MessageType.GFSREQ);
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();

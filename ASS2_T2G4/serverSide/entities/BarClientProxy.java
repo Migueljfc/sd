@@ -95,29 +95,6 @@ public class BarClientProxy extends Thread implements StudentCloning, WaiterClon
         return proxyId;
     }
 
-    /**
-     *  Life cycle of the service provider agent.
-     */
-
-    @Override
-    public void run() {
-        Message inMessage = null,                                      // service request
-                outMessage = null;                                     // service reply
-
-        /* service providing */
-
-        inMessage = (Message) sconi.readObject();                     // get service request
-        try {
-            outMessage = barInter.processAndReply(inMessage);         // process it
-        } catch (MessageException e) {
-            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
-            GenericIO.writelnString(e.getMessageVal().toString());
-            System.exit(1);
-        }
-
-        sconi.writeObject(outMessage);                                // send service reply
-        sconi.close();                                                // close the communication channel
-    }
 
     /**
      *   Set student id.
@@ -197,5 +174,29 @@ public class BarClientProxy extends Thread implements StudentCloning, WaiterClon
 
     public States getChefState() {
         return chefState;
+    }
+
+    /**
+     *  Life cycle of the service provider agent.
+     */
+
+    @Override
+    public void run() {
+        Message inMessage = null,                                      // service request
+                outMessage = null;                                     // service reply
+
+        /* service providing */
+
+        inMessage = (Message) sconi.readObject();                     // get service request
+        try {
+            outMessage = barInter.processAndReply(inMessage);         // process it
+        } catch (MessageException e) {
+            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
+            GenericIO.writelnString(e.getMessageVal().toString());
+            System.exit(1);
+        }
+
+        sconi.writeObject(outMessage);                                // send service reply
+        sconi.close();                                                // close the communication channel
     }
 }

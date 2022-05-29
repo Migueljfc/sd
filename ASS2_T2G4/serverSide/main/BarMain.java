@@ -30,6 +30,8 @@ public class BarMain {
      *        args[0] - port nunber for listening to service requests
      *        args[1] - name of the platform where is located the server for the general repository
      *        args[2] - port nunber where the server for the general repository is listening to service requests
+     *        args[3] - name of the platform where is located the server for the table
+     *        args[4] - port number where the server for the table is listening to service requests
      */
     public static void main(String[] args) {
         TableStub table;

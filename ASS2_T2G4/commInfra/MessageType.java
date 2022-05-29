@@ -547,16 +547,34 @@ public enum MessageType
     STSST ,
 
     /**
+     *  Set student state (REPLY).
+     */
+
+    SSTDONE ,
+
+    /**
      *  Set waiter State (REQUEST).
      */
 
     STWST ,
 
     /**
+     *  Set waiter State (REPLY).
+     */
+
+    WSDONE ,
+
+    /**
      *  Set Chef State (REQUEST).
      */
 
     STCST ,
+
+    /**
+     *  Set Chef State (REPLY).
+     */
+
+    CSTDONE ,
 
     /**
      * Set first student (REQUEST)
@@ -616,9 +634,43 @@ public enum MessageType
      */
 
     CORDONE,
+
+    /**
+     * Kitchen shutdown (REQUEST)
+     */
+    KSREQ,
+    /**
+     * Kitchen shutdown (REPLY)
+     */
+    KSDONE,
+    /**
+     * Bar shutdown (REQUEST)
+     */
+    BSREQ,
+    /**
+     * Bar shutdown (REPLY)
+     */
+    BSDONE,
+    /**
+     * Table shutdown (REQUEST)
+     */
+    TSREQ,
+    /**
+     * Table shutdown (REPLY)
+     */
+    TSDONE,
+
+    /**
+     * GeneralRepository shutdown (REQUEST)
+     */
+    GRSREQ,
+    /**
+     * GeneralRepository shutdown (REPLY)
+     */
+    GRSDONE,
+
     /**
      *  Setting acknowledged (REPLY).
      */
-
     SACK ,
 }

@@ -11,7 +11,7 @@ import genclass.GenericIO;
  *    Implementation of a client-server model of type 2 (server replication).
  *    Communication is based on a communication channel under the TCP protocol.
  */
-public class KitchenClientProxy extends Thread implements StudentCloning, WaiterCloning, ChefCloning  {
+public class KitchenClientProxy extends Thread implements  WaiterCloning, ChefCloning  {
 
     /**
      *  Number of instantiayed threads.
@@ -31,17 +31,6 @@ public class KitchenClientProxy extends Thread implements StudentCloning, Waiter
 
     private KitchenInterface kitchenInter;
 
-    /**
-     *  Student identification.
-     */
-
-    private int studentID;
-
-    /**
-     *  Student state.
-     */
-
-    private States studentState;
 
     /**
      *  Chef state.
@@ -95,79 +84,9 @@ public class KitchenClientProxy extends Thread implements StudentCloning, Waiter
         return proxyId;
     }
 
-    /**
-     *  Life cycle of the service provider agent.
-     */
 
-    @Override
-    public void run() {
-        Message inMessage = null,                                      // service request
-                outMessage = null;                                     // service reply
 
-        /* service providing */
 
-        inMessage = (Message) sconi.readObject();                     // get service request
-        try {
-            outMessage = kitchenInter.processAndReply(inMessage);         // process it
-        } catch (MessageException e) {
-            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
-            GenericIO.writelnString(e.getMessageVal().toString());
-            System.exit(1);
-        }
-
-        sconi.writeObject(outMessage);                                // send service reply
-        sconi.close();                                                // close the communication channel
-    }
-
-    /**
-     *   Set student id.
-     *
-     *     @param id student id
-     */
-
-    public void setStudentID(int id) {
-        studentID = id;
-    }
-
-    /**
-     *   Get student id.
-     *
-     *     @return student id
-     */
-
-    public int getStudentID() {
-        return studentID;
-    }
-
-    /**
-     *   Set student state.
-     *
-     *     @param state new student state
-     */
-
-    public void setStudentState(States state) {
-        studentState = state;
-    }
-
-    @Override
-    public void setStudentId(int id) {
-        this.studentID = id;
-    }
-
-    /**
-     *   Get student state.
-     *
-     *     @return student state
-     */
-
-    public States getStudentState() {
-        return studentState;
-    }
-
-    @Override
-    public int getStudentId() {
-        return studentID;
-    }
 
     /**
      *   Set waiter state.
@@ -207,5 +126,28 @@ public class KitchenClientProxy extends Thread implements StudentCloning, Waiter
 
     public States getChefState() {
         return chefState;
+    }
+    /**
+     *  Life cycle of the service provider agent.
+     */
+
+    @Override
+    public void run() {
+        Message inMessage = null,                                      // service request
+                outMessage = null;                                     // service reply
+
+        /* service providing */
+
+        inMessage = (Message) sconi.readObject();                     // get service request
+        try {
+            outMessage = kitchenInter.processAndReply(inMessage);         // process it
+        } catch (MessageException e) {
+            GenericIO.writelnString("Thread "+getName()+": "+e.getMessage()+"!");
+            GenericIO.writelnString(e.getMessageVal().toString());
+            System.exit(1);
+        }
+
+        sconi.writeObject(outMessage);                                // send service reply
+        sconi.close();                                                // close the communication channel
     }
 }

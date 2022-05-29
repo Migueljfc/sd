@@ -296,7 +296,8 @@ public class Table {
 		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
 
 		students[id].setStudentState(States.SELECTING_THE_COURSES);
-		repository.setStudentState(id, ((TableClientProxy) Thread.currentThread()).getStudentState());
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.SELECTING_THE_COURSES);
+		repository.setStudentState(id, students[id].getStudentState());
 
 		read[id] = id;
 
@@ -313,8 +314,9 @@ public class Table {
 	{
 		ordersCount++;
 
-		students[repository.getFirstStudent()].setStudentState(States.ORGANIZING_THE_ORDER);									// DEU MERDA
-		repository.setStudentState(repository.getFirstStudent(), ((TableClientProxy) Thread.currentThread()).getStudentState());			// DEU MERDA
+		students[repository.getFirstStudent()].setStudentState(States.ORGANIZING_THE_ORDER);
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.ORGANIZING_THE_ORDER);
+		repository.setStudentState(repository.getFirstStudent(), students[repository.getFirstStudent()].getStudentState());			// DEU MERDA
 
 	}
 
@@ -387,8 +389,9 @@ public class Table {
 	 */
 	public synchronized void join_the_talk()
 	{
-		students[repository.getFirstStudent()].setStudentState(States.CHATING_WITH_COMPANIONS);								// DEU MERDA
-		repository.setStudentState(repository.getFirstStudent(), ((TableClientProxy) Thread.currentThread()).getStudentState()); 	// DEU MERDA
+		students[repository.getFirstStudent()].setStudentState(States.CHATING_WITH_COMPANIONS);
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.setStudentState(repository.getFirstStudent(), students[repository.getFirstStudent()].getStudentState()); 	// DEU MERDA
 	}
 
 
@@ -416,7 +419,8 @@ public class Table {
 		notifyAll();
 
 		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.setStudentState(id, ((TableClientProxy) Thread.currentThread()).getStudentState());
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.setStudentState(id, students[id].getStudentState());
 
 
 	}
@@ -455,7 +459,8 @@ public class Table {
 		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
 
 		students[id].setStudentState(States.ENJOYING_THE_MEAL);
-		repository.setStudentState(id, ((TableClientProxy) Thread.currentThread()).getStudentState());
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.ENJOYING_THE_MEAL);
+		repository.setStudentState(id, students[id].getStudentState());
 
 		try
 		{ Thread.sleep ((long) (1 + 100 * Math.random ()));
@@ -481,7 +486,8 @@ public class Table {
 		}
 
 		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.setStudentState(id, ((TableClientProxy) Thread.currentThread()).getStudentState());
+		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.setStudentState(id, students[id].getStudentState());
 	}
 
 
@@ -535,9 +541,10 @@ public class Table {
 	{
 		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
 
-		if(id == repository.getLastStudent()) {										// DEU MERDA
+		if(id == repository.getLastStudent()) {
 			students[id].setStudentState(States.PAYING_THE_BILL);
-			repository.setStudentState(id, ((TableClientProxy) Thread.currentThread()).getStudentState());
+			((TableClientProxy) Thread.currentThread()).setStudentState(States.PAYING_THE_BILL);
+			repository.setStudentState(id, students[id].getStudentState());
 			return true;
 		}
 		else

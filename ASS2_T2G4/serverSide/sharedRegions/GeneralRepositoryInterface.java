@@ -1,8 +1,10 @@
 package serverSide.sharedRegions;
 
-import commInfra.*;
+import clientSide.entities.States;
+import commInfra.Message;
+import commInfra.MessageException;
+import commInfra.MessageType;
 import serverSide.entities.GeneralRepositoryClientProxy;
-import serverSide.entities.TableClientProxy;
 
 /**
  *  Interface to the General Repository of Information.
@@ -42,8 +44,40 @@ public class GeneralRepositoryInterface {
 
 
     public Message processAndReply (Message inMessage) throws MessageException {
-        Message outMessage = null;                                     // mensagem de resposta
+        Message outMessage = null;
 
+        /* Validation of the incoming message */
+
+        switch(inMessage.getMsgType())
+        {
+            // verify Chef state
+            case STCST:
+                if (inMessage.getChefState() != States.WAIT_FOR_AN_ORDER || inMessage.getChefState() != States.CLOSING_SERVICE)
+                    throw new MessageException ("Invalid Chef state!", inMessage);
+                break;
+            // verify Waiter state
+            case STWST:
+                if (inMessage.getWaiterState() != States.APPRAISING_SITUATION || inMessage.getWaiterState() != States.RECEIVING_PAYMENT)
+                    throw new MessageException("Invalid Waiter state!", inMessage);
+                break;
+            // verify Student state
+            case STSST:
+                if (inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
+                    throw new MessageException("Invalid Student state!", inMessage);
+                break;
+            // verify only message type
+            case STCOR:
+            case STPOR:
+            case SETNFIC:
+            case STFS:
+            case STLS:
+            case GLSREQ:
+            case GFSREQ:
+            case SHUT:
+                break;
+            default:
+                throw new MessageException ("Invalid message type!", inMessage);
+        }
 
         switch (inMessage.getMsgType ()) {
             case SETNFIC:

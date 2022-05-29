@@ -1,5 +1,7 @@
 package serverSide.sharedRegions;
 
+import clientSide.entities.States;
+import genclass.GenericIO;
 import serverSide.entities.*;
 import commInfra.*;
 
@@ -41,12 +43,59 @@ public class TableInterface {
     public Message processAndReply(Message inMessage) throws MessageException {
         Message outMessage = null; // mensagem de resposta
 
+        /* Validation of the incoming message */
+
+        switch(inMessage.getMsgType())
+        {
+            //Waiter Messages that require only type verification
+            case HAPDREQ:		// Have all clients been served
+            case DPREQ:				// Deliver portion
+            case SHUT:			// Table shutdown
+                break;
+            // Waiter Messages that require type and state verification
+            case SCREQ:			// Salute the clients
+            case RTBREQ:			// Return to the bar
+            case GTPREQ:				// Get the pad
+            case PREBREQ:			// Present the bill
+                if (inMessage.getWaiterState() != States.APPRAISING_SITUATION || inMessage.getWaiterState() != States.RECEIVING_PAYMENT)
+                    throw new MessageException("Invalid Waiter state!", inMessage);
+                break;
+            //Student Messages that require only type verification
+            case HECREQ:		// Has everybody chosen
+            case AUOCREQ:			// Add up ones choices
+            case DOREQ:			// Describe order
+            case HEFREQ:	// Has everybody finished eating
+            case HBREQ:			// Honour the bill
+            case HACDREQ:		// Have all courses been eaten
+                break;
+            // Student Messages that require type, state and id verification (done in Message Constructor)
+            case SATREQ:			// Seat at table
+            case RMREQ:				// Read menu
+            case POREQ:			// Prepare the order
+            case JTREQ:			// Join the talk
+            case ICREQ:			// Inform companion
+            case SEREQ:			// Start eating
+            case EEREQ:			// End eating
+            case SHAEREQ:		// Should have arrived earlier
+                if (inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
+                    throw new MessageException("Inavlid Student state!", inMessage);
+                break;
+            //Aditional messages that require type verification
+            //case MessageType.REQGETFRSTARR:			//Get first to arrive
+            //case MessageType.REQGETLSTEAT:			//Get last to eat
+            //case MessageType.REQSETFRSTARR:			//Set first to arrive
+            //case MessageType.REQSETLSTARR:			//Set last to arrive
+                //break;
+            //default:
+                //throw new MessageException ("Invalid message type!", inMessage);
+        }
 
         switch (inMessage.getMsgType()) {
             case SCREQ:
                 ((TableClientProxy) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
                 table.salute_client(inMessage.getStudentId());
                 outMessage = new Message(MessageType.SCDONE, ((TableClientProxy) Thread.currentThread()).getWaiterState());
+
 
                 break;
 

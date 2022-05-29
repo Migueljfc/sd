@@ -224,6 +224,22 @@ public class ClientCom
 
     public void writeObject (Object toServer)
     {
+        if(serverPortNumb == 22169) { // ---------------- DEBUG ---------------
+            GenericIO.writelnString("MESSAGE OUT to GenRepos:\n"+toServer.toString());
+            GenericIO.writelnString();
+        }
+        if(serverPortNumb == 22160) {
+            GenericIO.writelnString("MESSAGE OUT to Bar:\n"+toServer.toString());
+            GenericIO.writelnString();
+        }
+        if(serverPortNumb == 22161) {
+            GenericIO.writelnString("MESSAGE OUT to Kitchen:\n"+toServer.toString());
+            GenericIO.writelnString();
+        }
+        if(serverPortNumb == 22162) {
+            GenericIO.writelnString("MESSAGE OUT to Table:\n"+toServer.toString());
+            GenericIO.writelnString();
+        }
         try
         { out.writeObject (toServer);
         }

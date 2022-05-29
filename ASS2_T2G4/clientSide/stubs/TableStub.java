@@ -64,6 +64,13 @@ public class TableStub {
             System.exit(1);
         }
 
+        if(inMessage.getStudentId() != -1)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+
         if(inMessage.getWaiterState() != States.PRESENTING_THE_MENU) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
             GenericIO.writelnString(inMessage.toString());
@@ -95,13 +102,12 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
         outMessage = new Message(MessageType.RBREQ, ((Waiter) Thread.currentThread()).getWaiterState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
+
         if((inMessage.getMsgType() != MessageType.RBDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());
@@ -133,13 +139,11 @@ public class TableStub {
             } catch(InterruptedException e) {}
         }
 
-        //MESSAGES
         outMessage = new Message(MessageType.GTPREQ, ((Waiter) Thread.currentThread()).getWaiterState());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
         if((inMessage.getMsgType() != MessageType.GTPDONE)) {
             GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
             GenericIO.writelnString(inMessage.toString());

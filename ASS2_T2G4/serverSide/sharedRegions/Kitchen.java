@@ -48,7 +48,9 @@ public class Kitchen
 	 */
 	private boolean startOrder;
 
-
+	/**
+	 * start preparation
+	 */
 	private  boolean startPreparation;
 
 	/**

@@ -56,10 +56,15 @@ public class BarStub {
             }
             catch (InterruptedException e) {}
         }
+
+        System.out.println("TÁ A ENTRAR \n");
+
         outMessage = new Message (MessageType.ENTREQ, ((Student) Thread.currentThread ()).getStudentId (),
                 ((Student) Thread.currentThread ()).getStudentState ());
         com.writeObject (outMessage);
         inMessage = (Message) com.readObject ();
+
+        GenericIO.writelnString(inMessage.toString());
 
         if ((inMessage.getMsgType () != MessageType.ENTDONE) )
         {
