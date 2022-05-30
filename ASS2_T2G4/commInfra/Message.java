@@ -36,20 +36,20 @@ public class Message implements Serializable {
      * Student state.
      */
 
-    private States studentState;
+    private States studentState = States.GOING_TO_THE_RESTAURANT;
 
 
     /**
      * Chef state.
      */
 
-    private States chefState;
+    private States chefState = States.WAIT_FOR_AN_ORDER;
 
     /**
      * Waiter state.
      */
 
-    private States waiterState;
+    private States waiterState = States.APPRAISING_SITUATION;
 
     /**
      *  End of operations (student).
@@ -246,21 +246,19 @@ public class Message implements Serializable {
      *     @param sOS  state of an entitie or seat at the table
      */
 
-    public Message (MessageType type, int id, States sOS)
+    public Message (MessageType type, int id, int sOS)
     {
         msgType = type;
         int entity = getEntitieType(type);
 
-
-            //salute a client (waiter in the table)
-        if (msgType == MessageType.SCREQ || msgType == MessageType.SCDONE){
+        if(msgType == MessageType.SATREQ){
+            seat = sOS;
+        } else if (msgType == MessageType.SCREQ || msgType == MessageType.SCDONE){
             currentStudent = id;
-            waiterState = sOS;
+            waiterState = States.values()[sOS];
             return;
-        }
-        else
-        {
-            studentState = sOS;
+        } else {
+            studentState = States.values()[sOS];
         }
 
         studentId = id;

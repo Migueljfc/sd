@@ -1,5 +1,5 @@
 TODO:
 
 
-Ver se faltam MessageTypes 🟥
-Corrigir Messages no projeto Todo 🟥
+Não dá é nada 🟥
+

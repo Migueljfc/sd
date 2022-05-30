@@ -201,10 +201,11 @@ public class Bar
 		notifyAll();
 
 		studentCount--;
+		repository.setSeatsAtLeaving(currentStudent);
 		currentStudent = -1;
 		
 		repository.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
-		
+
 		if(studentCount == 0)
 			return true;
 		return false;
@@ -326,7 +327,6 @@ public class Bar
 
 		students[id].setStudentState(States.GOING_HOME);
 		repository.setStudentState(id, ((BarClientProxy) Thread.currentThread()).getStudentState());
-		repository.setStudentSeat(repository.getStudentSeat(id),-1);								// DEU MERDA
 
 		while(goodbyeIds[id] == -1) {
 			try {

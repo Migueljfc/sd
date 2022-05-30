@@ -96,7 +96,7 @@ public class Kitchen
 	 */
 	public synchronized void start_preparation()
 	{
-
+		repository.setCourses(coursesDelivery+1);
 		((KitchenClientProxy) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
 		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
 		startPreparation = true;
@@ -112,6 +112,7 @@ public class Kitchen
 	 */
 	public synchronized void proceed_preparation()
 	{
+
 		((KitchenClientProxy) Thread.currentThread()).setChefState(States.DISHING_THE_PORTIONS);
 		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
 

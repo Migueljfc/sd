@@ -223,6 +223,17 @@ public class GeneralRepository {
 		studentStates[id] = studentState;
         printStatus();
 	}
+
+	/**
+	 *   Set Student state.
+	 *
+	 *	@param id student id
+	 *  @param studentState student state
+	 * @param print control if printStatus or print a line
+	 */
+	public synchronized void setStudentState(int id, States studentState, boolean print) {
+		studentStates[id] = studentState;
+	}
 	
 	/**
 	   *   Set who is seated at the table.
@@ -242,6 +253,21 @@ public class GeneralRepository {
 		return -1;
 	}
 
+	/**
+	 * Remove seat when student leaving
+	 *
+	 * @param id student id
+	 */
+	public synchronized void setSeatAtLeaving(int id) {
+		int seat = 0;
+
+		for(int i=0; i < this.seats.length; i++) {
+			if(this.seats[i] == id)
+				seat = i;
+		}
+
+		this.seats[seat] = -1;
+	}
 	/**
 	   *   Set number of portions.
 	   *
@@ -292,11 +318,11 @@ public class GeneralRepository {
 	 *
 	 * @param logFileName name of log file
 	 */
-	public synchronized void initSimulation(String logFileName) {
+	/*public synchronized void initSimulation(String logFileName) {
 		if(!Objects.equals(logFileName, ""))
 			this.logName = logFileName;
 		printInitialStatus();
-	}
+	}*/
 
 	/**
 	 * Operation of server shut down

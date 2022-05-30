@@ -43,56 +43,51 @@ public class BarStub {
      * Is the part of student life cycle when we decide to enter the restaurant adding a new request to wake up the waiter
      */
     public void enter(){
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open ())                                           // waits for a connection to be established
-        {
-            try
-            {
-                Thread.currentThread ().sleep ((long) (10));
-            }
-            catch (InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        System.out.println("TÁ A ENTRAR \n");
+        outMessage = new Message (MessageType.ENTREQ, ((Student) Thread.currentThread()).getStudentId(),((Student) Thread.currentThread()).getStudentState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        outMessage = new Message (MessageType.ENTREQ, ((Student) Thread.currentThread ()).getStudentId (),
-                ((Student) Thread.currentThread ()).getStudentState ());
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
-
-        GenericIO.writelnString(inMessage.toString());
-
-        if ((inMessage.getMsgType () != MessageType.ENTDONE) )
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.ENTDONE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if (inMessage.getStudentId () != ((Student) Thread.currentThread ()).getStudentId ())
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId())
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student id!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if ((inMessage.getStudentState () != States.GOING_TO_THE_RESTAURANT) || (inMessage.getStudentState() != States.TAKING_A_SEAT_AT_THE_TABLE ))
+        if(inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student state!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
 
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
+        ((Student) Thread.currentThread ()).setStudentState (inMessage.getStudentState());
+        //Close communication channel
         com.close ();
     }
 
     /**
-     * Part of the 1º student lifecycle to alert the waiter that the order has ready to he get
+     * Part of the 1ยบ student lifecycle to alert the waiter that the order has ready to he get
      */
-    public void callWaiter() {
+    public void call_the_waiter() {
         ClientCom com;                                                 // communication channel
         Message outMessage,                                            // outgoing message
                 inMessage;                                             // incoming message
@@ -106,31 +101,31 @@ public class BarStub {
             }
             catch (InterruptedException e) {}
         }
-        outMessage = new Message (MessageType.CWREQ, ((Student) Thread.currentThread ()).getStudentId (),
-                ((Student) Thread.currentThread ()).getStudentState ());
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
+        outMessage = new Message (MessageType.CWREQ, ((Student) Thread.currentThread()).getStudentId());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        if ((inMessage.getMsgType () != MessageType.CWDONE) )
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.CWDONE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if (inMessage.getStudentId () != ((Student) Thread.currentThread ()).getStudentId ()) {
-            GenericIO.writelnString("Thread " + Thread.currentThread().getName() + ": Invalid student id!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId())
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student id!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
+        //Close communication channel
         com.close ();
     }
 
     /**
      * Part of the student lifecycle to signal the waiter that he ends the current course or that the last student wants to pay the bill
      */
-    public void signalWaiter()
+    public void signal_the_waiter()
     {
         ClientCom com;                                                 // communication channel
         Message outMessage,                                            // outgoing message
@@ -145,31 +140,31 @@ public class BarStub {
             }
             catch (InterruptedException e) {}
         }
-        outMessage = new Message (MessageType.SWREQ , ((Student) Thread.currentThread ()).getStudentId (),
-                ((Student) Thread.currentThread ()).getStudentState ());
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
+        outMessage = new Message (MessageType.SWREQ, ((Student) Thread.currentThread()).getStudentId(),((Student) Thread.currentThread()).getStudentState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        if ((inMessage.getMsgType () != MessageType.SWDONE) )
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SWDONE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-
-        if (inMessage.getStudentId () != ((Student) Thread.currentThread ()).getStudentId ()) {
-            GenericIO.writelnString("Thread " + Thread.currentThread().getName() + ": Invalid student id!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId())
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student id!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if ((inMessage.getStudentState () != States.PAYING_THE_BILL)){
+        if(inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
+        {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student state!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
+        ((Student) Thread.currentThread ()).setStudentState (inMessage.getStudentState());
+        //Close communication channel
         com.close ();
     }
 
@@ -191,31 +186,31 @@ public class BarStub {
             }
             catch (InterruptedException e) {}
         }
-        outMessage = new Message (MessageType.EXITREQ , ((Student) Thread.currentThread ()).getStudentId (),
-                ((Student) Thread.currentThread ()).getStudentState ());
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
+        outMessage = new Message (MessageType.EXITREQ, ((Student) Thread.currentThread()).getStudentId(),((Student) Thread.currentThread()).getStudentState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        if ((inMessage.getMsgType () != MessageType.EXITDONE) )
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.EXITDONE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-
-        if (inMessage.getStudentId () != ((Student) Thread.currentThread ()).getStudentId ()) {
-            GenericIO.writelnString("Thread " + Thread.currentThread().getName() + ": Invalid student id!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId())
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student id!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if ((inMessage.getStudentState () != States.GOING_HOME)){
+        if(inMessage.getStudentState() != States.GOING_TO_THE_RESTAURANT || inMessage.getStudentState() != States.GOING_HOME)
+        {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid student state!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
+        ((Student) Thread.currentThread ()).setStudentState (inMessage.getStudentState());
+        //Close communication channel
         com.close ();
     }
 
@@ -223,7 +218,7 @@ public class BarStub {
      * Is the part of the waiter life cycle where he waits for requests or served the pending and returns the id of the request
      * @return request id
      */
-    public int look_around()
+    public int look_arround()
     {
         ClientCom com;                                                 // communication channel
         Message outMessage,                                            // outgoing message
@@ -237,22 +232,20 @@ public class BarStub {
         }
 
 
-        outMessage = new Message(MessageType.LAREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message (MessageType.LAREQ);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-
-        if((inMessage.getMsgType() != MessageType.LADONE)) {
-            GenericIO.writelnString("Thread " + Thread.currentThread().getName() + ": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.LADONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
-        com.close();
-
-        return inMessage.getRequest();        // DEU MERDA
+        //Close communication channel
+        com.close ();
+        return inMessage.getRequestId();
     }
 
     /**
@@ -272,26 +265,26 @@ public class BarStub {
         }
 
 
-        outMessage = new Message(MessageType.PBREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message (MessageType.PBREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-
-        if((inMessage.getMsgType() != MessageType.PBDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.PBDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if((inMessage.getWaiterState() != States.PROCESSING_THE_BILL)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getWaiterState() != States.APPRAISING_SITUATION || inMessage.getWaiterState() != States.RECEIVING_PAYMENT)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid waiter state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
-        com.close();
+        ((Waiter) Thread.currentThread ()).setWaiterState (inMessage.getWaiterState());
+        //Close communication channel
+        com.close ();
     }
 
     /**
@@ -311,21 +304,21 @@ public class BarStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.SGREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message (MessageType.SGREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.SGDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SGDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
 
-        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
-        com.close();
-
-        return (inMessage.getMsgType() == MessageType.SGDONE);
+        //Close communication channel
+        com.close ();
+        return inMessage.getAllLeave();
     }
 
     /**
@@ -344,25 +337,26 @@ public class BarStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.ALREQ, ((Chef) Thread.currentThread()).getChefState());
+        outMessage = new Message (MessageType.ALREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.ALDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.ALDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if((inMessage.getChefState() != States.DELIVERING_THE_PORTIONS)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getChefState() != States.WAIT_FOR_AN_ORDER || inMessage.getChefState() != States.CLOSING_SERVICE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Chef) Thread.currentThread()).setChefState(inMessage.getChefState());
-        com.close();
+        ((Chef) Thread.currentThread ()).setChefState (inMessage.getChefState());
+        //Close communication channel
+        com.close ();
     }
 
     /**
@@ -381,7 +375,7 @@ public class BarStub {
             } catch(InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.GCSREQ, ((Waiter) Thread.currentThread()).getWaiterState());
+        outMessage = new Message(MessageType.GCSREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
 
         com.writeObject(outMessage);
         inMessage = (Message) com.readObject();
@@ -404,139 +398,35 @@ public class BarStub {
      *   New operation.
      */
     public void shutdown(){
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
-
-        com = new ClientCom(serverHostName, serverPortNumb);
-        while (!com.open ()) {
-            try {
-                Thread.sleep((long) (1000));
-            }
-            catch (InterruptedException e) {}
-        }
-
-        //MESSAGES
-        outMessage = new Message(MessageType.SHUT);
-
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if (inMessage.getMsgType() != MessageType.SHUTDONE) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid message type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-        com.close();
-    }
-
-    public void call_the_waiter() {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.CWREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
+        outMessage = new Message (MessageType.SHUT);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.CWDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SHUTDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
-        com.close();
+        //Close communication channel
+        com.close ();
     }
 
-    public void signal_the_waiter() {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
 
-        com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
-        }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.SWREQ, ((Student) Thread.currentThread()).getStudentId(), ((Student) Thread.currentThread()).getStudentState());
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
 
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.SWDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        if(inMessage.getStudentId() != ((Student) Thread.currentThread()).getStudentId()) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
-        com.close();
-    }
-
-    public int look_arround() {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
-
-        com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
-        }
-
-        //MESSAGES
-        outMessage = new Message(MessageType.LAREQ, ((Waiter) Thread.currentThread()).getWaiterState());
-
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.LADONE)) { // && (inMessage.getMsgType() != MessageType.FALTA_DAR_NOME_A_ESTA_MERDA)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        //if((inMessage.getWaiterState() < WaiterStates.APPRAISING_SITUATION && inMessage.getWaiterState() > WaiterStates.RECEIVING_PAYMENT)) {
-        if(inMessage.getWaiterState() != States.APPRAISING_SITUATION) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        ((Waiter) Thread.currentThread()).setWaiterState(inMessage.getWaiterState());
-        com.close();
-
-        return inMessage.getRequest();
-    }
 }
-
-

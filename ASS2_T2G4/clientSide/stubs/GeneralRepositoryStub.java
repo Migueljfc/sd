@@ -37,24 +37,30 @@ public class GeneralRepositoryStub {
      * @param chefState chef state
      */
     public void setChefState(States chefState) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
+
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open ())
-        { try
-        { Thread.sleep ((long) (1000));
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
         }
         catch (InterruptedException e) {}
         }
-        outMessage = new Message (MessageType.STCST, chefState);
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
-        if (inMessage.getMsgType() != MessageType.SACK)
-        { GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+
+        outMessage = new Message (MessageType.STCST, chefState.ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.STCST)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
+        //Close communication channel
         com.close ();
     }
     /**
@@ -63,25 +69,30 @@ public class GeneralRepositoryStub {
      * @param waiterState waiter state
      */
     public void setWaiterState(States waiterState) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open ())
-        { try
-        { Thread.sleep ((long) (1000));
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
         }
         catch (InterruptedException e) {}
         }
-        outMessage = new Message (MessageType.STWST, 1, waiterState);
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
-        if (inMessage.getMsgType() != MessageType.SACK)
-        { GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+
+        outMessage = new Message (MessageType.STWST, waiterState.ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.STWST)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
+        //Close communication channel
         com.close ();
     }
 
@@ -92,31 +103,68 @@ public class GeneralRepositoryStub {
      * @param studentState student state
      */
     public void setStudentState(int id, States studentState) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
+
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open ())
-        {
-            try {
-                Thread.sleep ((long) (1000));
-            }
-            catch (InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.STSST, id, studentState);
-        com.writeObject (outMessage);
-        inMessage = (Message) com.readObject ();
-        if (inMessage.getMsgType() != MessageType.SACK)
+        outMessage = new Message (MessageType.STSST1, id, studentState.ordinal());
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SST1DONE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
+        //Close communication channel
         com.close ();
 
     }
 
+    /**
+     * Write in the logging file the updated student state
+     * @param id student id
+     * @param state student state to be set
+     * @param hold specifies if prints line of report status
+     */
+    public void setStudentState(int id, int state, boolean hold)
+    {
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
+
+        com = new ClientCom (serverHostName, serverPortNumb);
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
+        }
+
+        outMessage = new Message (MessageType.STSST2, id, States.values()[state], hold);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SST2DONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+        //Close communication channel
+        com.close ();
+    }
 
 
     /**
@@ -124,7 +172,7 @@ public class GeneralRepositoryStub {
      *
      * @param fileName logging file name
      */
-    public void initSimul(String fileName) {
+    /*public void initSimul(String fileName) {
         ClientCom com;                                                 // communication channel
         Message outMessage,                                            // outgoing message
                 inMessage;                                             // incoming message
@@ -145,7 +193,7 @@ public class GeneralRepositoryStub {
             System.exit(1);
         }
         com.close();
-    }
+    }*/
 
 
 
@@ -156,32 +204,31 @@ public class GeneralRepositoryStub {
      *     @param seat of the student at the restaurant
      */
     public synchronized void setStudentSeat(int seat, int id) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.STSS,seat,id );
+        outMessage = new Message (MessageType.STSS, id, seat);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.SSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-        if(inMessage.getStudentId() != id) {
-            GenericIO.writelnString("Thread Student"+inMessage.getStudentId()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
+        //Close communication channel
+        com.close ();
     }
 
     /**
@@ -190,29 +237,32 @@ public class GeneralRepositoryStub {
      *     @param i number of portions delivered
      */
     public void setPortions(int i) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {
+            try
+            { Thread.currentThread ().sleep ((long) (10));
+            }
+            catch (InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.STPOR,i,'p' );
+        outMessage = new Message (MessageType.STPOR, i);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.PORDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.STPOR)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-
+        //Close communication channel
+        com.close ();
 
     }
 
@@ -222,63 +272,132 @@ public class GeneralRepositoryStub {
      *     @param i number of courses
      */
     public void setCourses(int i) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.STCOR,i,'c' );
+        outMessage = new Message (MessageType.STCOR, i);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.CORDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.CORDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-
+        //Close communication channel
+        com.close ();
     }
+
+    /**
+     * Write in the logging file the updated seats value at the table
+     * @param seat seat at the table
+     * @param id student id to sit
+     */
+    public void setSeatsAtTable(int seat, int id)
+    {
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
+
+        com = new ClientCom (serverHostName, serverPortNumb);
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
+        }
+
+        outMessage = new Message (MessageType.STSS, id, seat);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+        //Close communication channel
+        com.close ();
+    }
+
+    /**
+     * Remove seat when student leaving
+     * @param id student id
+     */
+    public void setSeatsAtLeaving(int id)
+    {
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
+
+        com = new ClientCom (serverHostName, serverPortNumb);
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
+        }
+
+        outMessage = new Message (MessageType.STSSWE, id);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
+
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.SSWEDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
+        }
+        //Close communication channel
+        com.close ();
+    }
+
+
 
     /**
      * Set first student that enter in restaurant
      * @param id the firstStudent to set
      */
     public void setFirstStudent(int id) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        outMessage = new Message(MessageType.STFS, id);
+        outMessage = new Message (MessageType.STFS, id);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.FSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.STFS)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        if(inMessage.getStudentId() != id) {
-            GenericIO.writelnString("Thread Student"+inMessage.getStudentId()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
+        //Close communication channel
+        com.close ();
     }
 
     /**
@@ -286,136 +405,90 @@ public class GeneralRepositoryStub {
      * @param id the lastStudent to set
      */
     public void setLastStudent(int id) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
-
-        com = new ClientCom (serverHostName,serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
-        }
-
-
-        outMessage = new Message(MessageType.STLS, id);
-
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if((inMessage.getMsgType() != MessageType.LSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        if(inMessage.getStudentId() != id) {
-            GenericIO.writelnString("Thread Student"+inMessage.getStudentId()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-    }
-
-    /**
-     * get student seat of student id passed as argument
-     * @param id student id
-     */
-    public int getStudentSeat(int id) {
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.GSSREQ, ((Student) Thread.currentThread()).getStudentId());
+        outMessage = new Message (MessageType.STLS, id);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.GSSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.LSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-        if(inMessage.getStudentId() != id) {
-            GenericIO.writelnString("Thread Student"+inMessage.getStudentId()+": Invalid Student ID!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
-        }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
-        com.close();
-
-        return inMessage.getSeat(id);
+        //Close communication channel
+        com.close ();
     }
+
 
     public int getLastStudent(){
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.GLSREQ);
+        outMessage = new Message (MessageType.GLSREQ);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.GLSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.GLSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
-        com.close();
-
-        return inMessage.getStudentId();
+        //Close communication channel
+        com.close ();
+        return inMessage.getLastStudent();
     }
 
     public int getFirstStudent(){
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
         com = new ClientCom (serverHostName, serverPortNumb);
-        while (!com.open()) {
-            try {
-                Thread.currentThread().sleep((long)(10));
-            } catch(InterruptedException e) {}
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.GFSREQ);
+        outMessage = new Message (MessageType.GFSREQ);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        //TODO Message Types - enter
-        if((inMessage.getMsgType() != MessageType.GFSDONE)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Message Type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.GFSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
-        ((Student) Thread.currentThread()).setStudentState(inMessage.getStudentState());
-        com.close();
-
-        return inMessage.getStudentId();
+        //Close communication channel
+        com.close ();
+        return inMessage.getFirstStudent();
     }
 
     /**
@@ -424,33 +497,33 @@ public class GeneralRepositoryStub {
      *   New operation.
      */
     public void shutdown(){
-        ClientCom com;                                                 // communication channel
-        Message outMessage,                                            // outgoing message
-                inMessage;                                             // incoming message
+        ClientCom com;					//Client communication
+        Message outMessage, inMessage; 	//outGoing and inGoing messages
 
-        com = new ClientCom(serverHostName, serverPortNumb);
-        while (!com.open ()) {
-            try {
-                Thread.sleep((long) (1000));
-            }
-            catch (InterruptedException e) {}
+        com = new ClientCom (serverHostName, serverPortNumb);
+        //Wait for a connection to be established
+        while(!com.open())
+        {	try
+        { Thread.currentThread ().sleep ((long) (10));
+        }
+        catch (InterruptedException e) {}
         }
 
-        //MESSAGES
-        outMessage = new Message(MessageType.SHUT);
+        outMessage = new Message (MessageType.GRSREQ);
+        com.writeObject (outMessage); 			//Write outGoing message in the communication channel
+        inMessage = (Message) com.readObject(); //Read inGoing message
 
-        com.writeObject(outMessage);
-        inMessage = (Message) com.readObject();
-
-        if (inMessage.getMsgType() != MessageType.SHUTDONE) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid message type!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        //Validate inGoing message type and arguments
+        if(inMessage.getMsgType() != MessageType.GRSDONE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid message type!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-        com.close();
+        //Close communication channel
+        com.close ();
     }
 
 
 
 }
-

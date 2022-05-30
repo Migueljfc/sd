@@ -15,35 +15,32 @@ import java.net.*;
 
 public class ClientCom
 {
+
     /**
      *  Communication socket.
      */
-
     private Socket commSocket = null;
 
     /**
      *  Name of the computational system where the server is located.
      */
-
     private String serverHostName;
 
     /**
      *  Number of the listening port at the computational system where the server is located.
      */
-
     private int serverPortNumb;
 
     /**
      *  Input stream of the communication channel.
      */
-
     private ObjectInputStream in = null;
 
     /**
      *  Output stream of the communication channel.
      */
-
     private ObjectOutputStream out = null;
+
 
     /**
      *  Instantiation of a communication channel.
@@ -141,13 +138,13 @@ public class ClientCom
         return (success);
     }
 
+
     /**
      *  Close the communication channel.
      *
      *  The socket input and output streams are closed.
      *  The communication socket is closed.
      */
-
     public void close ()
     {
         try
@@ -224,22 +221,6 @@ public class ClientCom
 
     public void writeObject (Object toServer)
     {
-        if(serverPortNumb == 22169) { // ---------------- DEBUG ---------------
-            GenericIO.writelnString("MESSAGE OUT to GenRepos:\n"+toServer.toString());
-            GenericIO.writelnString();
-        }
-        if(serverPortNumb == 22160) {
-            GenericIO.writelnString("MESSAGE OUT to Bar:\n"+toServer.toString());
-            GenericIO.writelnString();
-        }
-        if(serverPortNumb == 22161) {
-            GenericIO.writelnString("MESSAGE OUT to Kitchen:\n"+toServer.toString());
-            GenericIO.writelnString();
-        }
-        if(serverPortNumb == 22162) {
-            GenericIO.writelnString("MESSAGE OUT to Table:\n"+toServer.toString());
-            GenericIO.writelnString();
-        }
         try
         { out.writeObject (toServer);
         }
