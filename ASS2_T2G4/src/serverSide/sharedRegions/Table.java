@@ -1,587 +1,759 @@
 package serverSide.sharedRegions;
 
-import clientSide.entities.States;
-import clientSide.stubs.GeneralRepositoryStub;
+import serverSide.main.*;
+import clientSide.entities.WaiterStates;
+import clientSide.entities.StudentStates;
 import serverSide.entities.TableClientProxy;
-import serverSide.main.SimulPar;
-import serverSide.main.TableMain;
-
+import clientSide.stubs.GeneralReposStub;
 
 /**
- *  @summary
- * Implementation of the Table shared region
- * @author miguel cabral 93091
- * @author rodrigo santos 93173
+ * 	Table
+ * 
+ *  It is responsible for keeping track of the courses being eaten.
+ *  Implemented as an implicit monitor
+ *	Public methods executed in mutual exclusion
+ *	Synchronisation points for the waiter include:
+ *		If saluting a student waiter must wait for him to seat at table and then wait for him to read menu
+ *		Waiter has to wait for first student to arrive to describe him the order
+ *		Waiter blocks waiting for student to pay the bill
+ *	Synchronisation points for the student include:	
+ *		Student waits for waiter to bring menu specifically to him
+ *		First student to arrive blocks if everybody has not chosen yet and while companions are not describing their choices
+ *		First student to arrive waits for waiter to come with the pad
+ *		If some student is informing about his choice, then a student must wait for his companion to finish telling his preference
+ *		Students must wait that everybody is served before they can start eating
+ *		When a student finishes his course must wait for his companions to finish
+ *		Student that was last to eat must wait for his companions to woken up before he can signal waiter to bring next course
+ *		Last student to arrive must wait for waiter to bring him the bill	
+ *		
  */
 
 public class Table {
-
+	
 	/**
-	 * Count the number of orders
+	 * Id of student first to arrive at restaurant
 	 */
-	private int ordersCount;
-
+	private int firstToArrive;
+	
 	/**
-	 * Count the number of finished courses
+	 * Id of student last to arrive at restaurant
 	 */
-	private int finishedCourses;
-
+	private int lastToArrive;
+	
 	/**
-	 * Number of courses eaten
+	 * Used to count number of orders made by students
 	 */
-	private int currentCourse;
-
+	private int numOrders;
+	
 	/**
-	 * Count the number of portions Delivered
+	 * Used to count number of students that finished the course
 	 */
-	private int portionsDelivery;
-
+	private int numStudentsFinishedCourse;
+	
 	/**
-	 * Current student that is being attended
+	 * Id of last student to eat
 	 */
-	public static int currentStudent;
-
+	private int lastToEat;
+	
 	/**
-	 * Control if a student is reading the menu
+	 * Used to count number of courses eaten
 	 */
-	private boolean isReading;
-
+	private int numOfCoursesEaten;
+	
 	/**
-	 * Control if waiter already receives the order
+	 * Used to count number of students served
 	 */
-	private boolean receiveTheOrder;
-
+	private int numStudentsServed;	
+	
 	/**
-	 * Control if first student has waiting for the other students choices
+	 * Id of the student whose request the waiter is taking care of
 	 */
-	private boolean waitingForChoices;
-
+	private int studentBeingAnswered;
+	
 	/**
-	 * Count the number of students that wake up after the last student end the
-	 * course
+	 * Boolean variable to check if waiter is presenting the menu or not
 	 */
-	private int studentsCount;
-
-
+	private boolean presentingTheMenu;
+	
 	/**
-	 * Control if the paying process already have initiated
+	 * Boolean variable to check if waiter is taking the order
 	 */
-	private boolean paying;
-
+	private boolean takingTheOrder;
+	
 	/**
-	 * Last student id to finish the current course
+	 * Boolean variable to check if a student is informing his companion about the order
 	 */
-	private int lastFinish;
+	private boolean informingCompanion;
+	
 	/**
-	 * Check if student already seated
+	 * Used to count number of students that woke up after last student to eat has signalled them to
 	 */
-	private int seat[];
-
-
+	private int numStudentsWokeUp;
+	
 	/**
-	 * Check if student have read the menu
+	 * Boolean variable to check if waiter is processing the bill
 	 */
-	private int read[];
-
+	private boolean processingBill;
+	
+	/**
+	 * Boolean array to check which students have seated already
+	 */
+	private boolean studentsSeated[];
+	
+	/**
+	 * Boolean array to check which students have already read the menu 
+	 */
+	private boolean studentsReadMenu[];
+	
 	/**
 	 * Reference to the student threads
 	 */
-	private final TableClientProxy[] students;
-
+	private final TableClientProxy [] students;
+	
 	/**
-	 * Reference to the GeneralRepository.
-	 */
-	private final GeneralRepositoryStub repository;
-
-	/**
-	 * Number of entities requesting to shut down
-	 */
-	private int entities;
-
-
-	public Table(GeneralRepositoryStub repository)
-	{
-		this.repository = repository;
-		this.ordersCount = 0;
-		this.finishedCourses = 0;
-		this.currentCourse = 0;
-		this.portionsDelivery = 0;
-		this.currentStudent = 0;
-		this.studentsCount = 0;
-		this.isReading = false;
-		this.receiveTheOrder = false;
-		this.waitingForChoices = false;
-		this.paying = false;
-
-		this.entities = 0;
-
-
-		seat = new int[SimulPar.N];
-		read = new int[SimulPar.N];
-		students = new TableClientProxy[SimulPar.N];
-		for(int i = 0; i < SimulPar.N; i++)
-		{
-			seat[i] = -1;
-			read[i] = -1;
+     * Reference to the stub of the General Repository.
+     */
+    private final GeneralReposStub reposStub;
+    
+    /**
+     * Number of entities that must make shutdown
+     */
+    private int nEntities;   
+    
+    
+    /**
+     * Table instantiation
+     * 
+     * @param reposStub reference to the stub of the general repository
+     */    
+    public Table(GeneralReposStub reposStub)
+    {
+    	//Initialisation of attributes
+    	this.firstToArrive = -1;
+    	this.lastToArrive = -1;
+    	this.numOrders = 0;
+    	this.numStudentsFinishedCourse = 0;
+    	this.lastToEat = -1;
+    	this.numOfCoursesEaten = 0;
+    	this.numStudentsServed = 0;
+    	this.studentBeingAnswered = 0;
+    	this.numStudentsWokeUp = 0;
+    	this.presentingTheMenu = false;
+    	this.takingTheOrder = false;
+    	this.informingCompanion = false;
+    	this.processingBill = false;
+    	this.reposStub = reposStub;
+    	this.nEntities = 0;
+    	
+    	//initialisation of the boolean arrays
+    	studentsSeated = new boolean[ExecuteConst.N];
+    	studentsReadMenu = new boolean[ExecuteConst.N];
+    	for(int i = 0; i < ExecuteConst.N; i++)
+    	{
+    		studentsSeated[i] = false;
+    		studentsReadMenu[i] = false;
+    	}
+    	
+		//Initialisation of students thread
+		students = new TableClientProxy[ExecuteConst.N];
+		for(int i = 0; i < ExecuteConst.N; i++ ) 
 			students[i] = null;
-		}
-
-
-	}
-
-
-
-	/**
-	 * Part of the waiter lifecycle is called when a student enter the restaurant
-	 */
-	public synchronized void salute_client(int id)
-	{
-		currentStudent = id;
-
-		((TableClientProxy) Thread.currentThread()).setWaiterState(States.PRESENTING_THE_MENU);
-		repository.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
-
-		isReading = true;
-
-		while(seat[currentStudent] == -1)
-		{
+    	
+    }
+    
+    
+    
+    
+    /**
+     * Obtain id of the first student to arrive
+     * @return id of the first student to arrive at the restaurant
+     */
+    public int getFirstToArrive() { return firstToArrive; }
+    
+    /**
+     * Obtain id of the last student to arrive
+     * @return id of the last student to finish eating a meal
+     */
+    public int getLastToEat() { return lastToEat; }
+    
+    /**
+     * Set id of the first student to arrive
+     * @param firstToArrive id of the first student to arrive
+     */
+    public synchronized void setFirstToArrive(int firstToArrive) { this.firstToArrive = firstToArrive; }
+    
+    /**
+     * Set id of the last student to arrive
+     * @param lastToArrive if of the last student to arrive to the restaurant
+     */
+    public synchronized void setLastToArrive(int lastToArrive) { this.lastToArrive = lastToArrive; }
+    
+    
+    
+    
+    
+    
+    /**
+     * Operation salute the client
+     * 
+     * It is called by the waiter when a student enters the restaurant and needs to be saluted
+     * Waiter waits for the student to take a seat (if he hasn't done it yet)
+     * Waiter waits for student to finish reading the menu
+     */
+    public synchronized void saluteClient(int studentIdBeingAnswered)
+    {
+    	studentBeingAnswered = studentIdBeingAnswered;
+    	//Update Waiter state
+    	((TableClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.PRESENTING_THE_MENU);
+    	reposStub.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
+    	
+    	presentingTheMenu = true;
+    	
+    	
+    	//Waiter must wait while student hasn't taken a seat
+    	while(studentsSeated[studentBeingAnswered] == false)
+    	{
 			try {
 				wait();
-			} catch (InterruptedException e) {
-
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-		}
-
-		//Notify student
-		notifyAll();
-
-		while(read[currentStudent] == -1)
-		{
-			try {
+    	}
+    	
+    	//Waiter wakes student that has just arrived in order to greet him
+    	notifyAll();
+    	//Block waiting for student to read the menu
+    	while(studentsReadMenu[studentBeingAnswered] == false)
+    	{
+	    	try {
 				wait();
 			} catch (InterruptedException e) {
-			}
-		}
-
-		currentStudent = -1;
-		isReading  = false;
-	}
-
-
-
-
-	/**
-	 * Part of the waiter lifecycle is called when we return to bar
-	 */
-	public synchronized void return_to_bar()
-	{
-		((TableClientProxy) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
-		repository.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
-	}
-
-
-	/**
-	 *Part of the waiter lifecycle is called when the first student intent to describe the order
-	 */
-	public synchronized void get_the_pad()
-	{
-		((TableClientProxy) Thread.currentThread()).setWaiterState(States.TAKING_THE_ORDER);
-		repository.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
-
-		receiveTheOrder = true;
-
-		//Notify student
-		notifyAll();
-
-		while(receiveTheOrder)
-		{
-			try {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}    
+    	}
+    	//When student has finished reading the menu his request was completed
+    	studentBeingAnswered = -1;
+    	presentingTheMenu  = false;
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation return to the bar
+     * 
+     * It is called by the waiter to return to the bar to the appraising situation state
+     */
+    public synchronized void returnBar()
+    {
+    	//Update Waiter state
+    	((TableClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.APRAISING_SITUATION);
+    	reposStub.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());    	
+    }
+    
+    
+    
+    
+    /**
+     * Operation get the pad
+     * 
+     * It is called by the waiter when an order is going to be described by the first student to arrive
+     * Waiter Blocks waiting for student to describe him the order
+     */
+    public synchronized void getThePad()
+    {
+    	//Update Waiter state
+    	((TableClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.TAKING_THE_ORDER);
+    	reposStub.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
+    	
+    	takingTheOrder = true;
+    	
+    	//notify student that he can describe the order 
+    	notifyAll();
+    	
+    	//Waiter blocks waiting for first student to arrive to describe him the order
+    	while(takingTheOrder)
+    	{
+	    	try {
 				wait();
 			} catch (InterruptedException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+    	}    	
+    }
+    
+    
+    
+    
+    /**
+     * Operation have all clients been served
+     * 
+     * Called by the waiter to check if all clients have been served or not
+     * @return true if all clients have been served, false otherwise
+     */
+    public synchronized boolean haveAllClientsBeenServed()
+    {    	
+    	//If all clients have been served they must be notified
+    	if(numStudentsServed == ExecuteConst.N) {
+    		//Reset lastToEat and number of students who woke up
+    		lastToEat = -1;
+    		numStudentsWokeUp = 0;
+    		notifyAll();
+    		return true;
+    	}
+    	return false;
+    	
+    }
+    
+    
+    
+    /**
+     * Operation deliver portion
+     * 
+     * Called by the waiter, to deliver a portion
+     */
+    public synchronized void deliverPortion()
+    {
+    	//Update number of Students server after portion delivery
+    	numStudentsServed++; 
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation present the bill
+     * 
+     * Called by the waiter to present the bill to the last student to arrive
+     */
+    public synchronized void presentBill()
+    {
+    	processingBill = true;
+    	
+    	//Signal student the he can pay
+    	notifyAll();
+    	
+    	((TableClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.RECEIVING_PAYMENT);
+    	reposStub.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
+    	//Block waiting for his payment
+    	try {
+			wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+    	
+    }
+    
+    
+    
+    /**
+     * Operation siting at the table
+     * 
+     * Student comes in the table and sits (blocks) waiting for waiter to bring him the menu
+     * Called by the student (inside enter method in the bar)
+     */
+    public synchronized void seatAtTable()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
 
-	}
+		students[studentId] = (TableClientProxy) Thread.currentThread();
+		students[studentId].setStudentState(StudentStates.TAKING_A_SEAT_AT_THE_TABLE);
 
-
-
-
-	/**
-	 * Part of the waiter lifecycle is called to check if all portions have been delivered
-	 * @return true if all portions been delivered
-	 */
-	public synchronized boolean have_all_portions_delivered()
-	{
-		if(portionsDelivery == SimulPar.N) {
-			lastFinish = -1;
-			studentsCount = 0;
-			notifyAll();
-			return true;
-		}
-		return false;
-
-	}
-
-
-
-	/**
-	 * Part of the waiter lifecycle is used to signal that a portion have been delivered
-	 */
-	public synchronized void deliver_portion()
-	{
-		portionsDelivery++;
-	}
-
-
-
-	/**
-	 *  Part of the waiter lifecycle is used present the bill and signal the last student to pay
-	 */
-	public synchronized void present_the_bill()
-	{
-		paying = true;
-		//Notify student to pay
-		notifyAll();
-
-		((TableClientProxy) Thread.currentThread()).setWaiterState(States.RECEIVING_PAYMENT);
-		repository.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
-
-		while(paying){
-			/**Fita cola preta*/
-			try {
+    	//Register that student took a seat
+    	studentsSeated[studentId] = true;
+    	//notify waiter that student took a seat (waiter may be waiting)
+    	notifyAll();
+    	
+    	//Block waiting for waiter to bring menu specifically to him
+    	// Student also blocks if he wakes up when waiter is bringing the menu to another student
+    	do
+    	{
+	    	try {
 				wait();
 			} catch (InterruptedException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
+	    }
+    	while(studentId != studentBeingAnswered && presentingTheMenu == false);
+    	
+    	
+    }
+    
+    
+    
+    /**
+     * Operation read the menu
+     * 
+     * Called by the student to read a menu, wakes up waiter to signal that he already read the menu
+     */
+    public synchronized void readMenu()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
+    	
+    	//Update student state
+    	students[studentId].setStudentState(StudentStates.SELECTING_THE_COURSES);
+		((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.SELECTING_THE_COURSES);
+    	reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+		studentsReadMenu[studentId] = true;
+    	//Signal waiter that menu was already read
+    	notifyAll();
+    }    
+    
+    
+    
+    
+    
+    
+    /**
+     * Operation prepare the order
+     * 
+     * Called by the student to begin the preparation of the order (options of his companions) 
+     */
+    public synchronized void prepareOrder()
+    {    	
+    	//Register that first student to arrive already choose his own option
+    	numOrders++;
 
+    	//Update student state
+    	students[firstToArrive].setStudentState(StudentStates.ORGANIZING_THE_ORDER);
+		((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.ORGANIZING_THE_ORDER);
+    	reposStub.updateStudentState(firstToArrive, students[firstToArrive].getStudentState());
+    }
+    
+    
 
-	}
-
-
-
-	/**
-	 * Called when a student enter in the bar to register the position in the table and to wait by the waiter to present the menu
-	 */
-	public synchronized void seat()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		students[id] = ((TableClientProxy) Thread.currentThread());
-		students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
-
-		seat[id] = id;
-
-		//notify waiter
-		notifyAll();
-
-		while (!(currentStudent == id && isReading == true))
-		{
-			try {
+    
+    /**
+     * Operation everybody has chosen
+     * 
+     * Called by the first student to arrive to check if all his companions have choose or not
+     * Blocks if not waiting to be waker up be a companion to give him his preference
+     * @return true if everybody choose their course choice, false otherwise
+     */
+    public synchronized boolean everybodyHasChosen()
+    {
+    	if(numOrders == ExecuteConst.N)
+    		return true;
+    	else {
+	    	//Block if not everybody has choosen and while companions are not describing their choices
+	    	while(informingCompanion == false)
+	    	{
+	    		try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	    	}
+	    	return false;
+    	}
+    	
+    }
+    
+    
+    
+    
+    /**
+     * Operation add up ones choices
+     * 
+     * Called by the first student to arrive to add up a companions choice to the order
+     */
+    public synchronized void addUpOnesChoices()
+    {
+    	numOrders++;
+    	informingCompanion = false;
+    	//Notify sleeping student threads that order was registered
+    	notifyAll();
+    }
+    
+    
+    
+    
+    /**
+     * Operation describe the order
+     * 
+     * Called by the first student to arrive to describe the order to the waiter
+     * Blocks waiting for waiter to come with pad
+     * Wake waiter up so he can take the order
+     */
+    public synchronized void describeOrder()
+    {
+    	//After student just putted a request in the queue in the bar
+    	// now it must block waiting for waiter to come with the pad
+    	while(takingTheOrder == false) 
+    	{
+	    	try {
 				wait();
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
-
+    	}
+    	
+    	takingTheOrder = false;
+    	//Wake waiter to describe him the order
+    	notifyAll();
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation join the talk
+     * 
+     * Called by the first student to arrive so he can join his companions 
+     * while waiting for the courses to be delivered
+     */
+    public synchronized void joinTalk()
+    {
+    	//Update student state
+    	students[firstToArrive].setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+    	((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+		reposStub.updateStudentState(firstToArrive, students[firstToArrive].getStudentState());
 	}
+    
+    
+    
+    
+    
+    /**
+     * Operation inform companion
+     * 
+     * Called by a student to inform the first student to arrive about their preferences 
+     * Blocks if someone else is informing at the same time
+     */
+    public synchronized void informCompanion()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
+    	
+    	//If some other student is informing about his order then wait must be done
+    	while(informingCompanion)
+    	{
+    		try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+    	informingCompanion = true;
+    	//notify first student to arrive, so that he can register ones preference
+    	notifyAll();
+    	
+    	//Update student state
+    	students[studentId].setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+		((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+    	reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+    }
+    
+    
+    
+    
+    /**
+     * Operation start eating
+     * 
+     * Called by the student to start eating the meal (During random time)
+     */    
+    public void startEating()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
+    	//Update student state
+    	students[studentId].setStudentState(StudentStates.ENJOYING_THE_MEAL);
+		((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.ENJOYING_THE_MEAL);
+    	reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+    	
+    	//Enjoy meal during random time
+        try
+        { Thread.sleep ((long) (1 + 100 * Math.random ()));
+        }
+        catch (InterruptedException e) {}
+    }
 
 
 
 	/**
-	 * Part of the student lifecycle used to update the student state and update the read array to notify that the student already read the menu
-	 */
-	public synchronized void read_menu()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		students[id].setStudentState(States.SELECTING_THE_COURSES);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.SELECTING_THE_COURSES);
-		repository.setStudentState(id, students[id].getStudentState());
-
-		read[id] = id;
-
-		//Notify waiter
-		notifyAll();
-
-	}
-
-
-	/**
-	 *  Part of the 1º student lifecycle to update his state and signal that is organizing the order
-	 */
-	public synchronized void prepare_the_order()
-	{
-		ordersCount++;
-
-		students[repository.getFirstStudent()].setStudentState(States.ORGANIZING_THE_ORDER);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.ORGANIZING_THE_ORDER);
-		repository.setStudentState(repository.getFirstStudent(), students[repository.getFirstStudent()].getStudentState());			// DEU MERDA
-
-	}
-
-
-
-
-	/**
-	 *  Part of the 1º student lifecycle to check if the others students chosen their orders
-	 * @return true if the others students already chosen their orders
-	 */
-	public synchronized boolean has_everybody_chosen()
-	{
-		if(ordersCount == SimulPar.N)
+     * Operation end eating
+     * 
+     * Called by the student to signal that he has finished eating his meal
+     */
+    public synchronized void endEating()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
+    	
+    	//Update number of students that finished course
+    	numStudentsFinishedCourse++;
+    	
+    	//If all students have finished means that one more course was eaten
+    	if(numStudentsFinishedCourse == ExecuteConst.N)
+    	{
+    		numOfCoursesEaten++;
+    		//register last to eat
+    		lastToEat = studentId;
+    	}
+    	//Update student state
+    	students[studentId].setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+		((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.CHATING_WITH_COMPANIONS);
+    	reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation has everybody finished eating
+     * 
+     * Called by the student to wait for his companions to finish eating
+     */
+    public synchronized boolean hasEverybodyFinishedEating()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
+    	
+    	//Notify all students that the last one to eat has already finished
+    	if(studentId == lastToEat)
+    	{
+    		//Reset number of students that finished the course
+    		numStudentsFinishedCourse = 0;
+    		//Reset number of students served
+    		numStudentsServed = 0;
+    		numStudentsWokeUp++;
+    		notifyAll();
+    		
+    		//Last student to eat must wait for every companion to wake up from waiting for everybody to finish eating
+    		//before he can proceed to signal waiter
+    		while(numStudentsWokeUp != ExecuteConst.N)
+    		{
+    			try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}
+    	}
+    	
+    	//Wait while not all students have finished
+    	while(numStudentsFinishedCourse != 0) {
+    		try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	//Update that a student woke up
+    	numStudentsWokeUp++;
+    	//If all students have woken up from last to eat signal, then student that was last to eat
+    	//must be notified
+    	if(numStudentsWokeUp == ExecuteConst.N)
+    		notifyAll();
+    	
+    	return true;
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation honour the bill
+     * 
+     * Called by the student to pay the bill
+     * Student blocks waiting for bill to be presented and signals waiter when it's time to pay it
+     */
+    public synchronized void honourBill()
+    {    	
+    	//Block waiting for waiter to present the bill
+    	while(!processingBill)
+    	{
+    		try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+	    	
+    	//After waiter presents the bill, student signals waiter so he can wake up and receive it
+    	notifyAll();
+    }
+    
+    
+    
+    
+    
+    
+    /**
+     * 	Operation have all courses been eaten
+     * 
+     * 	Called by the student to check if there are more courses to be eaten
+     * 	Student blocks waiting for the course to be served
+     * 	@return true if all courses have been eaten, false otherwise
+     */
+    public synchronized boolean haveAllCoursesBeenEaten()
+    {
+    	if(numOfCoursesEaten == ExecuteConst.M)
 			return true;
 		else {
-
-			while(waitingForChoices == false)
-			{
-				try {
+    		//Student blocks waiting for all companions to be served
+    		while(numStudentsServed != ExecuteConst.N)
+    		{
+	    		try {
 					wait();
 				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
-			return false;
-		}
+    		}
+	    	return false;
+    	}
+    	
+    }
+    
+    
+    
+    
+    
+    /**
+     * Operation should have arrived earlier
+     * 
+     * Called by the student to check which one was last to arrive
+     * @return True if current student was the last to arrive, false otherwise
+     */
+    public synchronized boolean shouldHaveArrivedEarlier()
+    {
+    	int studentId = ((TableClientProxy) Thread.currentThread()).getStudentId();
 
-	}
-
-
-
-
+    	if(studentId == lastToArrive) {
+	    	//Update student state
+	    	students[studentId].setStudentState(StudentStates.PAYING_THE_BILL);
+			((TableClientProxy) Thread.currentThread()).setStudentState(StudentStates.PAYING_THE_BILL);
+			reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+	    	return true;
+    	}
+    	else
+    		return false;
+    }
+    
+    
 	/**
-	 * Part of the 1º student lifecycle to update the number os orders and notify the other students of that
+	 * Operation Table server shutdown
 	 */
-	public synchronized void add_up_ones_choice()
+	public synchronized void shutdown()
 	{
-		ordersCount++;
-		waitingForChoices = false;
-		//Notify students
-		notifyAll();
+		nEntities += 1;
+		if(nEntities >= ExecuteConst.E)
+			ServerRestaurantTable.waitConnection = false;
+		notifyAll ();
 	}
-
-
-
-
-	/**
-	 * Part of the 1º student lifecycle to wake up the waiter and describe the order
-	 */
-	public synchronized void describe_the_order()
-	{
-		while(receiveTheOrder == false)
-		{
-			try {
-				wait();
-			} catch (InterruptedException e) {
-			}
-		}
-
-		receiveTheOrder = false;
-		//Notify waiter
-		notifyAll();
-	}
-
-
-
-
-
-	/**
-	 * Part of the 1º student lifecycle to join the talk with the other students
-	 */
-	public synchronized void join_the_talk()
-	{
-		students[repository.getFirstStudent()].setStudentState(States.CHATING_WITH_COMPANIONS);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.setStudentState(repository.getFirstStudent(), students[repository.getFirstStudent()].getStudentState()); 	// DEU MERDA
-	}
-
-
-
-
-
-	/**
-	 * Part of the students' lifecycle to inform the 1º student about his course option
-	 */
-	public synchronized void inform_companion()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		while(waitingForChoices)
-		{
-			try {
-				wait();
-			} catch (InterruptedException e) {
-
-			}
-		}
-
-		waitingForChoices = true;
-		//notify student
-		notifyAll();
-
-		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.setStudentState(id, students[id].getStudentState());
-
-
-	}
-
-
-	/**
-	 *  Part of the students' lifecycle to check if all courses have been delivered or not
-	 * 	@return true if all courses have been delivered
-	 */
-	public synchronized boolean have_all_courses_delivery()
-	{
-		if(currentCourse == SimulPar.M)
-			return true;
-		else {
-			while(portionsDelivery != SimulPar.N)
-			{
-				try {
-					wait();
-				} catch (InterruptedException e) {
-				}
-			}
-			return false;
-		}
-
-	}
-
-
-
-	/**
-	 * Operation start eating
-	 *
-	 *  Part of the students' lifecycle to start eating and update his state, for simulate that is used the function sleep
-	 */
-	public synchronized void start_eating()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		students[id].setStudentState(States.ENJOYING_THE_MEAL);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.ENJOYING_THE_MEAL);
-		repository.setStudentState(id, students[id].getStudentState());
-
-		try
-		{ Thread.sleep ((long) (1 + 100 * Math.random ()));
-		}
-		catch (InterruptedException e) {}
-	}
-
-
-
-	/**
-	 * Part of the student lifecycle to update his state and signal that he end his course and register last student to eat
-	 */
-	public synchronized void end_eating()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		finishedCourses++;
-
-		if(finishedCourses == SimulPar.N)
-		{
-			currentCourse++;
-			lastFinish = id;
-		}
-
-		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		((TableClientProxy) Thread.currentThread()).setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.setStudentState(id, students[id].getStudentState());
-	}
-
-
-
-
-
-	/**
-	 * Part of the student lifecycle to wait for the last student to finish his course
-	 */
-	public synchronized boolean has_everybody_finished()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-
-		if(id == lastFinish)
-		{
-			finishedCourses = 0;
-			portionsDelivery = 0;
-			studentsCount++;
-			//Notify students
-			notifyAll();
-			while(studentsCount != SimulPar.N)
-			{
-				try {
-					wait();
-				} catch (InterruptedException e) {
-
-				}
-			}
-		}
-		while(finishedCourses != 0) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-
-			}
-		}
-		studentsCount++;
-		if(studentsCount == SimulPar.N)
-			notifyAll();
-
-		return true;
-	}
-
-
-	/**
-	 * Part of the student lifecycle to check if he is the last to arrive and change his state to pay the bill
-	 * @return True if student was the last to arrive
-	 */
-	public synchronized boolean should_have_arrived_earlier()
-	{
-		int id = ((TableClientProxy) Thread.currentThread()).getStudentId();
-
-		if(id == repository.getLastStudent()) {
-			students[id].setStudentState(States.PAYING_THE_BILL);
-			((TableClientProxy) Thread.currentThread()).setStudentState(States.PAYING_THE_BILL);
-			repository.setStudentState(id, students[id].getStudentState());
-			return true;
-		}
-		else
-			return false;
-	}
-
-
-
-
-	/**
-	 * Part of the student lifecycle to wait for the waiter to give him the bill
-	 */
-	public synchronized void honor_the_bill()
-	{
-		//Block waiting for waiter to present the bill
-		while(!paying)
-		{
-			try {
-				wait();
-			} catch (InterruptedException e) {
-			}
-		}
-		paying = false;
-		//Notify waiter
-		notifyAll();
-	}
-
-	/**
-	 * Operation of server shut down
-	 */
-	public synchronized void shutdown() {
-		entities += 1;
-		if (entities >= 3)
-			TableMain.waitConnection = false;
-		notifyAll();
-
-	}
-
-
-}
+    
+}  

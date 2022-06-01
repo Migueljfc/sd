@@ -1,541 +1,591 @@
 package commInfra;
 
-import clientSide.entities.States;
+import java.io.*;
 import genclass.GenericIO;
-
-import java.io.Serializable;
+import serverSide.main.ExecuteConst;
 
 /**
- * Internal structure of the exchanged messages.
- * <p>
- * Implementation of a client-server model of type 2 (server replication).
- * Communication is based on a communication channel under the TCP protocol.
+ *   Internal structure of the exchanged messages.
+ *
+ *   Implementation of a client-server model of type 2 (server replication).
+ *   Communication is based on a communication channel under the TCP protocol.
  */
 
-public class Message implements Serializable {
-    /**
-     * Serialization key.
-     */
-
-    private static final long serialVersionUID = 2021L;
-
-
-    /**
-     * Message type.
-     */
-
-    private final MessageType msgType;
-
-    /**
-     * Student identification.
-     */
-
-    private int studentId = -1;
-
-    /**
-     * Student state.
-     */
-
-    private States studentState = States.NULL;
-
-
-    /**
-     * Chef state.
-     */
-
-    private States chefState = States.NULL;
-
-    /**
-     * Waiter state.
-     */
-
-    private States waiterState = States.NULL;
-
-    /**
-     *  End of operations (student).
-     */
-
-    /**
-     * student being attended
-     */
-    private int currentStudent = -1;
-
-    private boolean endOp = false;
-
-    /**
-     * Name of the logging file.
-     */
-
-    private String fName = null;
-
-    /**
-     * Id of the request made to the waiter
-     */
-    private int requestId = -1;
-
-    /**
-     * Nº of courses delivered
-     */
-    private int courses = -1;
-
-    /**
-     * Nº of portions delivered
-     */
-    private int portions = -1;
-    /**
-     * Seat identification
-     */
-    private int seat=-1;
-
-
-    /**
-     * controll if all portions have been delivered
-     */
-    private boolean haveallPortionsBeenDelivered;
-
-    /**
-     * control if order has been completed
-     */
-    private boolean hasTheOrderBeenCompleted;
-
-    /**
-     * Control if all students leave
-     */
-    private boolean allLeave;
-
-
-    /**
-     * Control if all clients have been served
-     */
-    private boolean allClientsBeenServed;
-
-    /**
-     * Control if everybody has chosen
-     */
-    private boolean hasEverybodyChosen;
-
-    /**
-     * Control if everybody has finished eating, false otherwise
-     */
-    private boolean hasEverybodyFinished;
-
-    /**
-     * Control if all courses have been eaten
-     */
-    private boolean haveAllCoursesBeenEaten;
-
-    /**
-     * Control which student was the last to arrive at the Table
-     */
-    private boolean shouldArrivedEarlier;
-
-    /**
-     * Id of the first student to arrive
-     */
-    private int firstStudent=-1;
-
-    /**
-     * Id of the last student to eat
-     */
-    private int lastToEat=-1;
-
-    /**
-     * Id of the last student to arrive
-     */
-    private int lastStudent=-1;
-
-
-    /**
-     * Control if is necessary to print in reportStatus
-     */
-    private boolean print;
-
-    /**
-     * Message instantiation (form 1).
-     *
-     * @param type message type
-     */
-
-    public Message(MessageType type) {
-        msgType = type;
-    }
-
-    /**
-     * Message instantiation (form 2).
-     *
-     * @param type  message type
-     * @param iOS   student identification or student / chef / waiter state or Nº courses / portions
-     */
-
-    public Message(MessageType type, int iOS) {
-        msgType = type;
-        int entitieType = getEntitieType(type);
-        if (entitieType == 1) {
-            chefState = States.values()[iOS];
-        } else if (entitieType == 2) {
-            waiterState = States.values()[iOS];
-        } else if (entitieType == 3) {
-            if ((msgType == MessageType.CWREQ) || (msgType == MessageType.CWDONE) || (msgType == MessageType.HEFREQ)) {
-                studentId = iOS;
-            } else if ((msgType == MessageType.POREQ) || (msgType == MessageType.PORDONE) || (msgType == MessageType.JTREQ) || (msgType == MessageType.JTDONE)) {
-                studentState = States.values()[iOS];
-            }
-        } else if (entitieType == 4) {
-            if (msgType == MessageType.GFSDONE) {
-                firstStudent = iOS;
-            } else if (msgType == MessageType.GLSDONE) {
-                lastStudent = iOS;
-            } else if (msgType == MessageType.STFS) {
-                firstStudent = iOS;
-            } else if (msgType == MessageType.STLS) {
-                lastStudent = iOS;
-            } else if (msgType == MessageType.GCSDONE) {
-                currentStudent = iOS;
-            }
-        } else if (entitieType == 5) {
-            if (msgType == MessageType.STCST) {
-                chefState = States.values()[iOS];
-            } else if (msgType == MessageType.STWST) {
-                waiterState = States.values()[iOS];
-            } else if (msgType == MessageType.STCOR) {
-                courses = iOS;
-            } else if (msgType == MessageType.STPOR) {
-                portions = iOS;
-            } else if (msgType == MessageType.STSSWE) {
-                studentId = iOS;
-            }
-
-        } else {
-            GenericIO.writelnString("Message type = " + msgType + ": non-implemented instantiation!");
-            System.exit(1);
-        }
-    }
-   
-
-    /**
-     * Message instantiation (form 3).
-     *
-     * @param type  message type
-     * @param bol flag of control variables
-     */
-
-    public Message(MessageType type,  boolean bol) {
-        msgType = type;
-        if (msgType == MessageType.HAPBDDONE)
-            haveallPortionsBeenDelivered = bol;
-        else if (msgType == MessageType.HTOBCDONE)
-            hasTheOrderBeenCompleted = bol;
-        else if (msgType == MessageType.SGDONE)
-            allLeave = bol;
-        else if (msgType == MessageType.HAPDDONE)
-            allClientsBeenServed = bol;
-        else if (msgType == MessageType.HECDONE)
-            hasEverybodyChosen = bol;
-        else if (msgType == MessageType.HACDDONE)
-            haveAllCoursesBeenEaten = bol;
-        else if (msgType == MessageType.HEFDONE)
-            hasEverybodyFinished = bol;
-
-    }
-
-    /**
-     *  Message instantiation (form 4).
-     *
-     *     @param type message type
-     *     @param id student identification
-     *     @param sOS  state of an entitie or seat at the table
-     */
-
-    public Message (MessageType type, int id, int sOS)
-    {
-        msgType = type;
-        int entity = getEntitieType(type);
-
-        if(msgType == MessageType.SATREQ){
-            seat = sOS;
-        } else if (msgType == MessageType.SCREQ || msgType == MessageType.SCDONE){
-            currentStudent = id;
-            waiterState = States.values()[sOS];
-            return;
-        } else {
-            studentState = States.values()[sOS];
-        }
-
-        studentId = id;
-    }
-
-
-    /**
-     * Message instantiation (form 5).
-     *
-     * 		@param type message type
-     * 		@param id id of the student
-     * 		@param hasEverybodyFinished control if everybody has finished eating
-     */
-    public Message (MessageType type, int id, boolean hasEverybodyFinished)
-    {
-        msgType = type;
-        studentId = id;
-        this.hasEverybodyFinished = hasEverybodyFinished;
-
-    }
-
-    /**
-     *  Message instantiation (form 6).
-     *
-     *     @param type message type
-     *     @param id student identification
-     *     @param state student state
-     *     @param bol control if a student should have arrived earlier or not
-     */
-
-    public Message (MessageType type, int id, States state, boolean bol)
-    {
-        msgType = type;
-        studentId = id;
-        studentState = state;
-        if(msgType == MessageType.SHAEDONE)
-            shouldArrivedEarlier = bol;
-        else if (msgType == MessageType.STSST2)
-            print = bol;
-    }
-
-    /**
-     * Message instantiation (form 7).
-     *
-     * @param type message type
-     * @param requestId request id
-     * @param s string to identify a request message
-     */
-
-    public Message(MessageType type, int requestId, String s) {
-        msgType = type;
-        this.requestId = requestId;
-    }
-
-
-    /**
-     * Getting message type.
-     *
-     * @return message type
-     */
-
-    public MessageType getMsgType() {
-        return (msgType);
-    }
-
-    /**
-     * Getting student identification.
-     *
-     * @return student identification
-     */
-
-    public int getStudentId() {
-        return (studentId);
-    }
-
-    /**
-     * Getting student state.
-     *
-     * @return student state
-     */
-
-    public States getStudentState() {
-        return (studentState);
-    }
-
-    /**
-     * Getting chef state.
-     *
-     * @return chef state
-     */
-
-    public States getChefState() {
-        return (chefState);
-    }
-
-    /**
-     * Getting waiter state.
-     *
-     * @return waiter state
-     */
-
-    public States getWaiterState() {
-        return (waiterState);
-    }
-
-    /**
-     * Getting end of operations flag .
-     *
-     * @return end of operations flag
-     */
-
-    public boolean getEndOp() {
-        return (endOp);
-    }
-
-    /**
-     * Getting name of logging file.
-     *
-     * @return name of the logging file
-     */
-
-    public String getLogFName() {
-        return (fName);
-    }
-
-    public int getRequest() {
-        return requestId;
-    }
-
-    public int getCurrentStudent(){
-        return currentStudent;
-    }
-
-    public boolean getHaveallPortionsBeenDelivered(){
-        return haveallPortionsBeenDelivered;
-    }
-    /**
-     * Get has the order been completed value
-     * @return true if order has been completed, false otherwise
-     */
-    public boolean getHasTheOrderBeenCompleted() { return (hasTheOrderBeenCompleted); }
-
-    /**
-     * Get request id
-     * @return request id
-     */
-    public int getRequestId() { return (requestId); }
-
-    /**
-     * Get if all students left the restaurant
-     * @return true if all students left the restaurant
-     */
-    public boolean getAllLeave() { return (allLeave); }
-
-
-    /**
-     * Get all clients have been served
-     * @return true if all clients have been served
-     */
-    public boolean getAllClientsBeenServed() { return (allClientsBeenServed); }
-
-    /**
-     * Get has everybody chosen
-     * @return true if everybody has chosen their preference, false otherwise
-     */
-    public boolean getHasEverybodyChosen() { return (hasEverybodyChosen); }
-
-    /**
-     * Get everybody has finished eating
-     * @return true if everybody has eaten
-     */
-    public boolean getHasEverybodyFinishedEating() { return (hasEverybodyFinished); }
-
-    /**
-     * Get the value of have all courses been eaten
-     * @return true if all courses have been eaten, false otherwise
-     */
-    public boolean getAllCoursesEaten() { return (haveAllCoursesBeenEaten); }
-
-    /**
-     * Get should have arrived earlier
-     * @return  true if shouldArrivedEarlier
-     */
-    public boolean getArrivedEarlier() { return (shouldArrivedEarlier); }
-
-    /**
-     * Get id of the first student
-     * @return id of the student to arrive the restaurant
-     */
-    public int getFirstStudent() { return (firstStudent); }
-
-    /**
-     * Get id of the last student to eat
-     * @return id of the last student to eat
-     */
-    public int gestLastToEat() { return (lastToEat); }
-
-    /**
-     * Get id of the last student to arrive
-     * @return id of the last student tha arrive in restaurant
-     */
-    public int getLastStudent() { return (lastStudent); }
-
-    /**
-     * Get seat
-     * @return seat
-     */
-    public int getSeat() { return (seat); }
-
-    /**
-     * Get Courses
-     * @return nCourses value
-     */
-    public int getCourses() { return (courses); }
-
-    /**
-     * Get Portions
-     * @return Portions
-     */
-    public int getPortions() { return (portions); }
-
-    /**
-     * Get hold variable value
-     * @return the value of hold variable used to specify if is necessary to print report status or not
-     */
-    public boolean getPrint() { return (print); }
-
-
-    public int getEntitieType(MessageType msgType) {
-        if ((msgType == MessageType.WTNREQ) || (msgType == MessageType.WTNDONE) || (msgType == MessageType.SPREQ) || (msgType == MessageType.SPDONE) || (msgType == MessageType.CPREQ) || (msgType == MessageType.CPDONE) || (msgType == MessageType.PPREQ) || (msgType == MessageType.PPDONE) || (msgType == MessageType.ALREQ) || (msgType == MessageType.ALDONE) || (msgType == MessageType.HAPBDREQ) || (msgType == MessageType.HAPBDDONE) || (msgType == MessageType.HNPRREQ) || (msgType == MessageType.HNPRDONE) || (msgType == MessageType.HTOBCREQ) || (msgType == MessageType.HTOBCDONE) || (msgType == MessageType.CUREQ) || (msgType == MessageType.CUDONE)) {
-            return 1; //Chef
-        } else if ((msgType == MessageType.LAREQ) || (msgType == MessageType.LADONE) || (msgType == MessageType.SCREQ) || (msgType == MessageType.SCDONE) || (msgType == MessageType.RTBREQ) || (msgType == MessageType.RTBDONE) || (msgType == MessageType.GTPREQ) || (msgType == MessageType.GTPDONE) || (msgType == MessageType.HNTCREQ) || (msgType == MessageType.HNTCDONE) || (msgType == MessageType.CPOREQ) || (msgType == MessageType.CPODONE) || (msgType == MessageType.RBREQ) || (msgType == MessageType.RBDONE) || (msgType == MessageType.HAPDREQ) || (msgType == MessageType.HAPDDONE) || (msgType == MessageType.DPREQ) || (msgType == MessageType.DPDONE) || (msgType == MessageType.PREBREQ) || (msgType == MessageType.PREBDONE) || (msgType == MessageType.PBREQ) || (msgType == MessageType.PBDONE) || (msgType == MessageType.SGREQ) || (msgType == MessageType.SGDONE)) {
-            return 3; //Waiter
-        } else if ( (msgType == MessageType.ENTREQ) || (msgType == MessageType.ENTDONE) || (msgType == MessageType.RMREQ) || (msgType == MessageType.RMDONE) || (msgType == MessageType.POREQ) || (msgType == MessageType.PODONE) || (msgType == MessageType.HEFREQ) || (msgType == MessageType.HEFDONE) || (msgType == MessageType.AUOCREQ) || (msgType == MessageType.AUOCDONE) || (msgType == MessageType.CWREQ) || (msgType == MessageType.CWDONE) || (msgType == MessageType.DOREQ) || (msgType == MessageType.DODONE) || (msgType == MessageType.JTREQ) || (msgType == MessageType.JTDONE) || (msgType == MessageType.ICREQ) || (msgType == MessageType.ICDONE) || (msgType == MessageType.HACDREQ) || (msgType == MessageType.HACDDONE) || (msgType == MessageType.SEREQ) || (msgType == MessageType.SEDONE) || (msgType == MessageType.EEREQ) || (msgType == MessageType.EEDONE) || (msgType == MessageType.SWREQ) || (msgType == MessageType.SWDONE) || (msgType == MessageType.SHAEREQ) || (msgType == MessageType.SHAEDONE) || (msgType == MessageType.HBREQ) || (msgType == MessageType.HBDONE) || (msgType == MessageType.EXITREQ) || (msgType == MessageType.EXITDONE) || (msgType == MessageType.SATREQ) || (msgType == MessageType.SATDONE) ||(msgType == MessageType.HECREQ) || (msgType == MessageType.HECDONE)) {
-                return 2; //Student
-        } else if ((msgType == MessageType.GCSREQ) || (msgType == MessageType.GCSDONE) || (msgType == MessageType.GFSREQ) || (msgType == MessageType.GFSDONE) || (msgType == MessageType.GLSREQ) || (msgType == MessageType.GLSDONE) || (msgType == MessageType.STFS) || (msgType == MessageType.FSDONE) || (msgType == MessageType.STLS) || (msgType == MessageType.LSDONE) || (msgType == MessageType.KSREQ) || (msgType == MessageType.KSDONE) || (msgType == MessageType.BSREQ) || (msgType == MessageType.BSDONE) || (msgType == MessageType.TSREQ) || (msgType == MessageType.TSDONE)) {
-            return 4; //Support Messages
-        } else if ((msgType == MessageType.STCST) || (msgType == MessageType.CSTDONE) || (msgType == MessageType.STSST1) || (msgType == MessageType.SST1DONE) || (msgType == MessageType.STSST2) || (msgType == MessageType.SST2DONE) || (msgType == MessageType.STWST) || (msgType == MessageType.WSDONE) || (msgType == MessageType.STPOR) || (msgType == MessageType.PORDONE) || (msgType == MessageType.STSS) || (msgType == MessageType.SSDONE) || (msgType == MessageType.STCOR) || (msgType == MessageType.CORDONE) || (msgType == MessageType.GRSREQ) || (msgType == MessageType.GRSDONE) || (msgType == MessageType.STSSWE) || (msgType == MessageType.SSWEDONE)) {
-            return 5; //GeneralRepository Messages
-        } else {
-            return -1;
-        }
-    }
-
-
-
-    /**
-     * Printing the values of the internal fields.
-     * <p>
-     * It is used for debugging purposes.
-     *
-     * @return string containing, in separate lines, the pair field name - field value
-     */
-
-    @Override
-    public String toString() {
-        return ("Message type = " + msgType +
-                "\nChef State = " + chefState +
-                "\nWaiter State = " + waiterState +
-                "\nStudentId = " + studentId + " StudentState = " + studentState +
-                "\nCurrentStudent = " + currentStudent +
-                "\nHave All Portions Been Delivered ? " + haveallPortionsBeenDelivered +
-                "\nHas the Order been completed = " + hasTheOrderBeenCompleted +
-                "\nRequest id = " + requestId +
-                "\nHave all clients been served = " + allClientsBeenServed +
-                "\nHas everybody has chosen = " + hasEverybodyChosen +
-                "\nHas everybody finished  = " + hasEverybodyFinished +
-                "\nHave all courses been eaten = " + haveAllCoursesBeenEaten +
-                "\nShould have arrived earlier = " + shouldArrivedEarlier +
-                "\nFirst to arrive = " + firstStudent + " Lat to arrive = " +lastStudent +
-                "\nLast to eat = " + lastToEat +
-                "\nCourses = " + courses + " Portions = "+ portions +
-                "\nPrint status = " + print + " Seat at the table = " + seat +
-                "");
-    }
-
-
-
-
+public class Message implements Serializable
+{
+	/**
+	 *  Serialization key.
+	 */
+	private static final long serialVersionUID = 2021L;
+
+	/**
+	 *  Message type.
+	 */
+	private int msgType = -1;
+
+	/**
+	 * Chef State
+	 */
+	private int chefState = -1;
+
+	/**
+	 * Waiter State
+	 */
+	private int waiterState = -1;
+
+	/**
+	 * Student State
+	 */
+	private int studentState = -1;
+
+	/**
+	 * Student Id
+	 */
+	private int studentId = -1;
+	
+	/**
+	 * student Id Being Answered
+	 */	
+	private int studentIdBeingAnswered = -1;
+	
+	/**
+	 * Boolean value to be transported that holds true if all portions have been delivered, false otherwise
+	 */
+	private boolean allPortionsDelivered;
+
+	/**
+	 * Boolean value to be transported that holds true if order has been completed, false otherwise
+	 */
+	private boolean orderCompleted;
+	
+	/**
+	 * Holds true if there are no students at the restaurant, false otherwise
+	 */
+	private boolean studentsAtRestaurant;
+	
+	/**
+	 * Holds the value of the type of request that must be answered by the waiter
+	 */
+	private char requestType;
+	
+	/**
+	 * Holds the id of the student whose request is being answered by the waiter
+	 */
+	private int studentBeingAnswered;
+	
+	/**
+	 * Holds true if all clients have been served, false otherwise
+	 */
+	private boolean allClientsBeenServed;
+	
+	/**
+	 * Holds true if everybody has choose their preference, false otherwise
+	 */
+	private boolean everybodyHasChosen;
+	
+	/**
+	 * Holds true if everybody has finished eating, false otherwise
+	 */
+	private boolean everybodyHasEaten;
+	
+	/**
+	 * Holds true if all courses have been eaten, false otherwise
+	 */
+	private boolean haveAllCoursesBeenEaten;
+	
+	/**
+	 * Used to check which student was the last to arrive in the Table
+	 */
+	private boolean shouldArrivedEarlier;
+	
+	/**
+	 * Holds the id of the first student to arrive
+	 */
+	private int firstToArrive;
+	
+	/**
+	 * Holds the id of the last student to eat
+	 */
+	private int lastToEat;
+	
+	/**
+	 * Holds the id of the last student to arrive
+	 */
+	private int lastToArrive;
+	
+	/**
+	 * Holds the number of courses served (to be used in general repo)
+	 */
+	private int nCourses;
+	
+	/**
+	 * Holds the number of portions served (to be used in general repo)
+	 */
+	private int nPortions;
+	
+	/**
+	 * Holds the value of a specific seat at the table
+	 */
+	private int seatAtTable;
+	
+	/**
+	 * Holds a value true or false depending if is necessary to print a reportStatus line or not
+	 */
+	private boolean hold;
+	
+
+	/**
+	 *  Message instantiation (form 1).
+	 *
+	 *     @param type message type
+	 */
+	public Message (int type)
+	{
+		msgType = type;
+	}
+
+	/**
+	 *  Message instantiation (form 2).
+	 *
+	 *     @param type message type
+	 *     @param stateOrId chef, waiter or student state. It can also hold student id or id of studentBeingAnswered 
+	 *     	or nCourses value or nPortions value.
+	 */
+	public Message (int type, int stateOrId)
+	{
+		msgType = type;
+		int entitie = getEntitieFromMessageType(type);
+
+		if(entitie == 1) //Chef message
+			chefState = stateOrId;
+		else if (entitie == 2) //Waiter message
+			waiterState = stateOrId;
+		else if (entitie == 3) { //Student message
+			if(msgType == MessageType.REQCALLWAI || msgType == MessageType.REPCALLWAI || msgType == MessageType.REQEVERYBDFINISHEAT)
+				studentId = stateOrId;
+			else if(msgType == MessageType.REQPREPORDER || msgType == MessageType.REPPREPORDER || 
+				    msgType == MessageType.REQJOINTALK || msgType == MessageType.REPJOINTALK)
+				studentState = stateOrId;
+		}
+		else if (entitie == 4) {  //Additional message
+			if (msgType == MessageType.REPGETFRSTARR)
+				firstToArrive = stateOrId;
+			else if (msgType == MessageType.REPGETLSTEAT)
+				lastToEat = stateOrId;
+			else if (msgType == MessageType.REQSETFRSTARR)
+				firstToArrive = stateOrId;
+			else if (msgType == MessageType.REQSETLSTARR)
+				lastToArrive = stateOrId;
+			else if (msgType == MessageType.REPGETSTDBEIANSW)
+				studentBeingAnswered = stateOrId;
+		}
+		else if (entitie == 5) {	//General repository messages
+			if (msgType == MessageType.REQSETCHST)
+				chefState = stateOrId;
+			else if (msgType == MessageType.REQSETWAIST)
+				waiterState = stateOrId;
+			else if (msgType == MessageType.REQSETNCOURSES) {
+				if ( stateOrId < 0 || stateOrId  > ExecuteConst.M) {	// Not a valid number of courses
+					GenericIO.writelnString ("Invalid number of courses");
+					System.exit (1);
+				} 
+				nCourses = stateOrId;
+			}
+			else if (msgType == MessageType.REQSETNPORTIONS) {
+				if ( stateOrId < 0 || stateOrId  > ExecuteConst.N) {	// Not a valid number of portions
+					GenericIO.writelnString ("Invalid number of portions");
+					System.exit (1);
+				}
+				nPortions = stateOrId;
+			}
+			else if (msgType == MessageType.REQUPDSEATSTABLELV){
+				if ( stateOrId < 0 || stateOrId  >= ExecuteConst.N) {	// Not a valid Student id
+					GenericIO.writelnString ("Invalid student id");
+					System.exit (1);
+				}
+				studentId = stateOrId;
+			}
+		}
+		else { 
+			GenericIO.writelnString ("Message type = " + msgType + ": non-implemented instantiation!");
+			System.exit (1);
+		}
+
+	}
+
+	/**
+	 * Message instantiation (form 3).
+	 * 
+	 * 	@param type message type
+	 * 	@param bValue boolean that can have haveAllPortionsBeenDelivered, hasOrderBeenCompleted, number of studentsAtRestaurant 
+	 * 		or allBeenClientsServed value.
+	 */
+	public Message(int type, boolean bValue)
+	{
+		msgType = type;
+		if (msgType == MessageType.REPHVPRTDLVD)
+			allPortionsDelivered = bValue;
+		else if (msgType == MessageType.REPHORDCOMPL)
+			orderCompleted = bValue;   
+		else if (msgType == MessageType.REPSAYGDBYE)
+			studentsAtRestaurant = bValue;
+		else if (msgType == MessageType.REPALLCLISERVED)
+			allClientsBeenServed = bValue;
+		else if (msgType == MessageType.REPEVERYBDYCHO)
+			everybodyHasChosen = bValue;
+		else if (msgType == MessageType.REPALLCOURBEENEAT)
+			haveAllCoursesBeenEaten = bValue;
+		else if (msgType == MessageType.REPEVERYBDFINISHEAT)
+			everybodyHasEaten = bValue;
+
+			
+	}
+
+	/**
+	 *  Message instantiation (form 4).
+	 *
+	 *     @param type message type
+	 *     @param id student identification or student being answered by the waiter identification
+	 *     @param stateOrSeat student state, waiter state or seat at the table (when used in the general repos functions)
+	 */
+
+	public Message (int type, int id, int stateOrSeat)
+	{
+		msgType = type;
+		int entity = getEntitieFromMessageType(type);
+		
+		//Update seats at the table (general repos)
+		if (msgType == MessageType.REQUPDSEATSTABLE)
+			seatAtTable = stateOrSeat;
+		//salute a client (waiter in the table)
+		else if (msgType == MessageType.REQSALUTCLI || msgType == MessageType.REPSALUTCLI){
+			studentBeingAnswered = id;
+			waiterState = stateOrSeat;
+			return;
+		}
+		else 
+		{
+			if ((entity != 3) && msgType != MessageType.REQUPDTSTUST1) {	// Not a Student entity Type Message
+				GenericIO.writelnString ("Message type = " + msgType + ": non-implemented instantiation on Student!");
+				System.exit (1);
+			}
+			studentState = stateOrSeat;
+		}
+		
+		//Update studentId
+		if ( id < 0 || id  >= ExecuteConst.N) {	// Not a valid Student id
+			GenericIO.writelnString ("Invalid student id");
+			System.exit (1);
+		}
+		studentId = id;
+	}
+	
+	
+	/**
+	 * Message instantiation (form 5).
+	 * 
+	 * 		@param type message type
+	 * 		@param id id of the student
+	 * 		@param everybodyEaten holds the value of everybody has eaten (true if yes, false otherwise)
+	 */
+	public Message (int type, int id, boolean everybodyEaten)
+	{
+		msgType = type;
+		studentId = id;
+		everybodyHasEaten = everybodyEaten;	
+
+	}
+	
+	
+	/**
+	 *  Message instantiation (form 6).
+	 *
+	 *     @param type message type
+	 *     @param id of the student
+	 *     @param state student state
+	 *     @param bValue that can hold shouldHaveArrivedEarlier value or hold value (used in general repos)
+	 */
+
+	public Message (int type, int id, int state, boolean bValue)
+	{
+		//Check if student id is valid
+		if ( id < 0 || id  >= ExecuteConst.N) {	// Not a valid Student id
+			GenericIO.writelnString ("Invalid student id");
+			System.exit (1);
+		}
+
+		msgType = type;
+		studentId = id;
+		studentState = state;
+		if(msgType == MessageType.REPSHOULDARREARLY)
+			shouldArrivedEarlier = bValue;
+		else if (msgType == MessageType.REQUPDTSTUST2)
+			hold = bValue;
+	}
+	
+	
+	/**
+	 * 	Message instantiation (form 7).
+	 * 		@param type message type
+	 * 		@param c character that identifies which request should the waiter attend
+	 */
+	public Message(int type, char c)
+	{
+		msgType = type;
+		requestType = c;		
+	}
+	
+	/**
+	 *  Getting message type.
+	 *     @return message type
+	 */
+	public int getMsgType () { return (msgType); }
+
+	/**
+	 * Getting chef state
+	 * 	@return chef state
+	 */
+	public int getChefState() { return (chefState); }
+
+	/**
+	 * Getting waiter state
+	 * 	@return waiter state
+	 */
+	public int getWaiterState() { return (waiterState); }
+
+	/**
+	 * Getting student state
+	 * 	@return student state
+	 */
+	public int getStudentState() { return (studentState); }
+
+	/**
+	 * Getting student id
+	 * 	@return student id
+	 */
+	public int getStudentId() { return (studentId); }
+	
+	/**
+	 * Getting student being answered id
+	 * @return studentIdBeingAnswered
+	 */
+	public int getStudentIdBeingAnswered() {return (studentIdBeingAnswered); }
+
+	/**
+	 * Get have all portions been delivered
+	 * @return true if all portions have been delivered, false otherwise
+	 */
+	public boolean getAllPortionsBeenDelivered() { return (allPortionsDelivered); }
+
+	/**
+	 * Get has the order been completed value
+	 * @return true if order has been completed, false otherwise
+	 */
+	public boolean getHasOrderBeenCompleted() { return (orderCompleted); }
+
+	/**
+	 * Get request type
+	 * @return character that represents request type
+	 */
+	public char getRequestType() { return (requestType); }
+	
+	/**
+	 * Get if there students at restaurant or not
+	 * @return true if there aren't students at the restaurant, false otherwise
+	 */
+	public boolean getStudentsAtRestaurant() { return (studentsAtRestaurant); }
+	
+	/**
+	 * Get id of the student whose request is being answered by the waiter
+	 * @return id of the student
+	 */
+	public int getStudentBeingAnswered() { return (studentBeingAnswered); }
+	
+	/**
+	 * Get the value of have all clients been served
+	 * @return true if all clients have been served, false otherwise
+	 */
+	public boolean getAllClientsBeenServed() { return (allClientsBeenServed); }
+	
+	/**
+	 * Get the value of everybody has chosen
+	 * @return true if everybody has chosen their preference, false otherwise
+	 */
+	public boolean getEverybodyHasChosen() { return (everybodyHasChosen); }
+	
+	/**
+	 * Get the value of everybody has finished eating
+	 * @return true if everybody has eaten, false otherwise
+	 */
+	public boolean getHasEverybodyFinishedEating() { return (everybodyHasEaten); }
+	
+	/**
+	 * Get the value of have all courses been eaten
+	 * @return true if all courses have been eaten, false otherwise
+	 */
+	public boolean getAllCoursesEaten() { return (haveAllCoursesBeenEaten); }
+	
+	/**
+	 * Get the value of should have arrived earlier
+	 * @return value of shouldArrivedEarlier
+	 */
+	public boolean getArrivedEarlier() { return (shouldArrivedEarlier); }
+	
+	/**
+	 * Get id of the first student to arrive
+	 * @return id of the student
+	 */
+	public int getFirstToArrive() { return (firstToArrive); }
+	
+	/**
+	 * Get id of the last student to eat
+	 * @return id of the student
+	 */
+	public int getLastToEat() { return (lastToEat); }
+	
+	/**
+	 * Get id of the last student to arrive
+	 * @return id of the student
+	 */
+	public int getLastToArrive() { return (lastToArrive); }
+	
+	/**
+	 * Get seatAtTable value
+	 * @return the value of the variable seatAtTable
+	 */
+	public int getSeatAtTable() { return (seatAtTable); }
+	
+	/**
+	 * Get nCourses value
+	 * @return nCourses value
+	 */
+	public int getNCourses() { return (nCourses); }
+	
+	/**
+	 * Get nPortions value
+	 * @return nPortions value
+	 */
+	public int getNPortions() { return (nPortions); }
+	
+	/**
+	 * Get hold variable value
+	 * @return the value of hold variable used to specify if is necessary to print report status or not
+	 */
+	public boolean getHold() { return (hold); }
+	
+	
+	
+	
+	/**
+	 * For a given message type, get the entity that called it (chef, waiter or student) 
+	 * @param messageType type of the message
+	 * @return 1 if called by chef, 2 if called bye waiter and 3 if called by student
+	 */
+	public int getEntitieFromMessageType(int messageType)
+	{
+		///FALTAM AQUI MENSAGENS
+		switch(messageType)
+		{
+			// Chef messages
+			case MessageType.REQWATTNWS: 		case MessageType.REPWATTNWS:
+			case MessageType.REQSTRPR: 			case MessageType.REPSTRPR:
+			case MessageType.REQPROCPREP: 		case MessageType.REPPROCPREP:
+			case MessageType.REQHVPRTDLVD: 		case MessageType.REPHVPRTDLVD:
+			case MessageType.REQHORDCOMPL: 		case MessageType.REPHORDCOMPL:
+			case MessageType.REQCONTPREP: 		case MessageType.REPCONTPREP :
+			case MessageType.REQHAVNEXPORRD: 	case MessageType.REPHAVNEXPORRD:
+			case MessageType.REQCLEANUP: 		case MessageType.REPCLEANUP:
+			case MessageType.REQALRTWAIT: 		case MessageType.REPALRTWAIT:
+				return 1;
+			// Waiter messages
+			case MessageType.REQHNDNOTCHEF:		case MessageType.REPHNDNOTCHEF:
+			case MessageType.REQRETURNTOBAR: 	case MessageType.REPRETURNTOBAR:
+			case MessageType.REQCOLLPORT: 		case MessageType.REPCOLLPORT:
+			case MessageType.REQLOOKARND:		case MessageType.REPLOOKARND:
+			case MessageType.REQPRPREBILL: 		case MessageType.REPPRPREBILL:
+			case MessageType.REQSAYGDBYE: 		case MessageType.REPSAYGDBYE:
+			case MessageType.REQSALUTCLI: 		case MessageType.REPSALUTCLI:
+			case MessageType.REQRTRNBAR:		case MessageType.REPRTRNBAR:
+			case MessageType.REQGETPAD:			case MessageType.REPGETPAD:
+			case MessageType.REQALLCLISERVED:	case MessageType.REPALLCLISERVED:
+			case MessageType.REQDELPOR:			case MessageType.REPDELPOR:
+			case MessageType.REQPRESBILL:		case MessageType.REPPRESBILL:
+				return 2;
+			// Student messages
+			case MessageType.REQENTER: 				case MessageType.REPENTER:
+			case MessageType.REQCALLWAI: 			case MessageType.REPCALLWAI:
+			case MessageType.REQSIGWAI: 			case MessageType.REPSIGWAI:
+			case MessageType.REQEXIT: 				case MessageType.REPEXIT:
+			case MessageType.REQSEATTABLE:			case MessageType.REPSEATTABLE:
+			case MessageType.REQRDMENU:				case MessageType.REPRDMENU:
+			case MessageType.REQPREPORDER:			case MessageType.REPPREPORDER:
+			case MessageType.REQEVERYBDYCHO:		case MessageType.REPEVERYBDYCHO:
+			case MessageType.REQADDUP1CHOI:			case MessageType.REPADDUP1CHOI:
+			case MessageType.REQDESCRORDER:			case MessageType.REPDESCRORDER:
+			case MessageType.REQJOINTALK:			case MessageType.REPJOINTALK:
+			case MessageType.REQINFORMCOMP:			case MessageType.REPINFORMCOMP:
+			case MessageType.REQSRTEATING:			case MessageType.REPSRTEATING:
+			case MessageType.REQENDEATING:			case MessageType.REPENDEATING:
+			case MessageType.REQEVERYBDFINISHEAT:	case MessageType.REPEVERYBDFINISHEAT:
+			case MessageType.REQHONBILL:			case MessageType.REPHONBILL:
+			case MessageType.REQALLCOURBEENEAT:		case MessageType.REPALLCOURBEENEAT:
+			case MessageType.REQSHOULDARREARLY:		case MessageType.REPSHOULDARREARLY:
+				return 3;
+			//Additional Messages
+			case MessageType.REQGETSTDBEIANSW:	case MessageType.REPGETSTDBEIANSW:
+			case MessageType.REQGETFRSTARR:		case MessageType.REPGETFRSTARR:
+			case MessageType.REQGETLSTEAT:		case MessageType.REPGETLSTEAT:
+			case MessageType.REQSETFRSTARR:		case MessageType.REPSETFRSTARR:
+			case MessageType.REQSETLSTARR:		case MessageType.REPSETLSTARR:
+			case MessageType.REQKITSHUT:		case MessageType.REPKITSHUT:
+			case MessageType.REQBARSHUT:		case MessageType.REPBARSHUT:
+			case MessageType.REQTABSHUT:		case MessageType.REPTABSHUT:
+				return 4;
+			//GeneralRepo Message
+			case MessageType.REQSETCHST:		 case MessageType.REPSETCHST:
+			case MessageType.REQSETWAIST:		 case MessageType.REPSETWAIST:
+			case MessageType.REQUPDTSTUST1:		 case MessageType.REPUPDTSTUST1:
+			case MessageType.REQUPDTSTUST2:		 case MessageType.REPUPDTSTUST2:
+			case MessageType.REQSETNCOURSES:	 case MessageType.REPSETNCOURSES:
+			case MessageType.REQSETNPORTIONS:	 case MessageType.REPSETNPORTIONS:
+			case MessageType.REQUPDSEATSTABLE:	 case MessageType.REPUPDSEATSTABLE:
+			case MessageType.REQUPDSEATSTABLELV: case MessageType.REPUPDSEATSTABLELV:
+			case MessageType.REQGENERALREPOSHUT: case MessageType.REPGENERALREPOSHUT:
+				return 5;
+			default:
+				return -1;
+		}
+	}
+
+
+	/**
+	 *  Printing the values of the internal fields.
+	 *
+	 *  It is used for debugging purposes.
+	 *  @return string containing, in separate lines, the pair field name - field value
+	 */
+
+	@Override
+	public String toString ()
+	{
+		return ("Message type = " + msgType +
+				"\nChef State = " + chefState +
+				"\nWaiter State = " + waiterState +
+				"\nStudentId = " + studentId + " StudentState = " + studentState + 
+				"\nStudentIdBeingAnswered = " + studentIdBeingAnswered +
+				"\nNumber of studentsAtRestaurant = " + studentsAtRestaurant +
+				"\nAll Portions Been Delivered = " + allPortionsDelivered + 
+				"\nHas the Order been completed = " + orderCompleted + 
+				"\nRequest type = " + requestType + 
+				"\nHave all clients been served = " + allClientsBeenServed +
+				"\nEverybody has chosen = " + everybodyHasChosen +
+				"\nEverybody has eaten = " + everybodyHasEaten + 
+				"\nHave all courses been eaten = " + haveAllCoursesBeenEaten +
+				"\nShould have arrived earlier = " + shouldArrivedEarlier +
+				"\nFirst to arrive = " + firstToArrive + " Lat to arrive = " +lastToArrive +
+				"\nLast to eat = " + lastToEat +
+				"\nnCourses = " + nCourses + " nPortions = "+ nPortions +
+				"\nHold = " + hold + " Seat at the table = " + seatAtTable +
+				"");
+	}
 }

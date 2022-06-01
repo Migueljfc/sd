@@ -1,294 +1,339 @@
 package serverSide.sharedRegions;
 
-import clientSide.entities.States;
-import clientSide.stubs.GeneralRepositoryStub;
+import serverSide.main.*;
+import clientSide.entities.ChefStates;
+import clientSide.entities.WaiterStates;
+import clientSide.stubs.GeneralReposStub;
 import serverSide.entities.KitchenClientProxy;
-import serverSide.main.KitchenMain;
-import serverSide.main.SimulPar;
 
 /**
- *  @summary
- * Implementation of the kitchen shared region
- * @author miguel cabral 93091
- * @author rodrigo santos 93173
+ * 	Kitchen
+ * 
+ * 	It is responsible for keeping track of portions prepared and delivered.
+ *  Is implemented as an implicit monitor.
+ *  All public methods are executed in mutual exclusion.
+ *	Synchronisation points include:
+ *		Chef has to wait for the note that describes the order given by the waiter
+ *		Chef has to wait for waiter to collect portions
+ *		Waiter has to wait for chef to start preparing the order
+ *		Waiter has to wait for portions from the chef
+ *
  */
 
 public class Kitchen
 {
 	/**
-	 *   Number of entity groups requesting the shutdown.
+	 *	Number of portions ready
 	 */
-	private int entities;
+	private int numberOfPortionsReady;
 
 	/**
-	 * Reference to the General Repository.
+	 *	Number of portions delivered in at each course
 	 */
-	private final GeneralRepositoryStub repository;
+	private int numberOfPortionsDelivered;
 
 	/**
-	 *	Count the portions ready
+	 *	Number of courses delivered
 	 */
-
-	private int portionsReady;
-
+	private int numberOfCoursesDelivered;
+	
 	/**
-	 *	Count the portions been delivered
+	 * Number of portions prepared by the chef
 	 */
-
-	public static int portionsDelivery;
-
+	private int numberOfPortionsPrepared;
+	
 	/**
-	 *	count courses delivered
-	 */
-
-	public static int coursesDelivery;
-
-	/**
-	 *	control if an order has been requested
-	 */
-	private boolean startOrder;
-
-	/**
-	 * start preparation
-	 */
-	private  boolean startPreparation;
-
-	/**
-	 *
-	 * @param repository repository of information
-	 */
-	public Kitchen(GeneralRepositoryStub repository)
+     * Reference to the stub of the General Repository.
+     */
+    private final GeneralReposStub reposStub;
+    
+    /**
+     * Number of entities that requested shutdown
+     */
+    private int nEntities;	
+    
+    /**
+     * Kitchen instantiation
+     * 
+     * @param reposStub reference to general repository
+     */
+	public Kitchen(GeneralReposStub reposStub)
 	{
-		this.repository = repository;
-		this.portionsReady = 0;
-		this.portionsDelivery = 0;
-		this.coursesDelivery = 0;
-		this.startOrder = false;
-		this.startPreparation = false;
-		this.entities = 0;
-
+		this.numberOfPortionsReady = 0;
+		this.numberOfPortionsDelivered = 0;
+		this.numberOfCoursesDelivered = 0;
+		this.reposStub = reposStub;
+		this.nEntities = 0;
 	}
 
+	
+	
 	/**
-	 * 	Part of the chef lifecycle to signal that is waiting the order
+	 * 	Operation watch the news
+	 * 
+	 * 	It is called by the chef, he waits for waiter to notify him of the order
 	 */
-	public synchronized void watch_news()
+	public synchronized void watchTheNews()
 	{
-		//KitchenClientProxy chef = ((KitchenClientProxy) Thread.currentThread());
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.WAIT_FOR_AN_ORDER);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
-		while(!startOrder) {
-
-			try {
-				wait();
-			} catch (InterruptedException e) {
-
-			}
+		//Set chef state
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.WAITING_FOR_AN_ORDER);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		
+		//Block waiting for waiter to notify of the order
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-
 	}
-
-
+	
+	
 
 	/**
-	 *  Part of the chef lifecycle to start the preparation and signal the waiter of that
+	 * 	Operation start presentation
+	 * 
+	 * 	It is called by the chef after waiter has notified him of the order to be prepared 
+	 * 	to signal that preparation of the course has started
 	 */
-	public synchronized void start_preparation()
+	public synchronized void startPreparation()
 	{
-		repository.setCourses(coursesDelivery+1);
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
-		startPreparation = true;
-		//Notify waiter
+		//Update new Chef State
+		reposStub.setnCourses(numberOfCoursesDelivered+1);
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.PREPARING_THE_COURSE);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		
+		//Notify Waiter that the preparation of the order has started
 		notifyAll();
 	}
 
 
-
-
+	
+	
 	/**
-	 * 	Part of the chef lifecycle to signal that the preparation was continued
+	 * 	Operation proceed presentation
+	 * 
+	 * 	It is called by the chef when a portion needs to be prepared
 	 */
-	public synchronized void proceed_preparation()
+	public synchronized void proceedPreparation()
 	{
-
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.DISHING_THE_PORTIONS);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
-
-		portionsReady++;
+		//Update new Chef state
+		numberOfPortionsPrepared++;
+		reposStub.setnPortions(numberOfPortionsPrepared);
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.DISHING_THE_PORTIONS);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		
+		//Update numberOfPortionsReady
+		numberOfPortionsReady++;
 	}
 
-
-
-
-
-
+	
+	
+	
+	
+	
 	/**
-	 * 	Part of the chef lifecycle to check if he needs to prepare another portion or not
+	 * 	Operation have all portions been delivered
+	 * 
+	 * 	It is called by the chef when he finishes a portion and checks if another one needs to be prepared or not
+	 * 	It is also here were the chef blocks waiting for waiter do deliver the current portion
+	 * 	@return true if all portions have been delivered, false otherwise
 	 */
-
-	public synchronized boolean have_all_portions_been_delivered()
+	public synchronized boolean haveAllPortionsBeenDelivered()
 	{
-		while( portionsReady != 0) {
+		//Wait for waiter to collect the portion
+		while( numberOfPortionsReady != 0) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-
-		if(portionsDelivery == SimulPar.N)
+		
+		//Check if all portions of the course have been delivered or not
+		if(numberOfPortionsDelivered == ExecuteConst.N) 
 		{
-			coursesDelivery++;
+			//If all portions have been delivered means that a course was completed
+			numberOfCoursesDelivered++;
 			return true;
 		}
-
 		return false;
 
 	}
 
-
-
-
+	
+	
+	
 	/**
-	 * 	Part of the chef lifecycle to check if all courses have been delivered
+	 *	Operation has order been completed
+	 * 
+	 * 	It is called by the chef when he finishes preparing all courses to check if order has been completed or not
+	 * 	@return true if all courses have been completed, false or not
 	 */
-
-	public synchronized boolean has_the_order_been_completed()
+	public synchronized boolean hasOrderBeenCompleted()
 	{
-		if (coursesDelivery == SimulPar.M)
+		//Check if all courses have been delivered
+		if (numberOfCoursesDelivered == ExecuteConst.M)
 			return true;
 		return false;
 	}
 
-
-
-
+	
+	
+	
 	/**
-	 * 	Part of the chef lifecycle when we need to continue the preparation of another portion of the same course
+	 * 	Operation continue preparation
+	 * 
+	 * 	It is called by the chef when all portions have been delivered, but the course has not been completed yet
 	 */
-
-	public synchronized void continue_preparation()
+	public synchronized void continuePreparation()
 	{
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.PREPARING_A_COURSE);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		//Update chefs state
+		reposStub.setnCourses(numberOfCoursesDelivered+1);
+		numberOfPortionsPrepared = 0;
+		reposStub.setnPortions(numberOfPortionsPrepared);
+		
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.PREPARING_THE_COURSE);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
 	}
-
-
-
-
+	
+	
+	
+	
 	/**
-	 * 	Part of the chef lifecycle to signal waiter that a portion has ready to be delivered
+	 * Operation have next portion ready
+	 * 
+	 * It is called by the chef after a portion has been delivered and another one needs to be prepared
 	 */
-
-	public synchronized void have_next_portion_ready()
-	{
-
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.DISHING_THE_PORTIONS);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
-
-		portionsReady++;
-
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
-
-		//Notify waiter
+	public synchronized void haveNextPortionReady()
+	{	
+		//Update chefs state
+		numberOfPortionsPrepared++;		
+		reposStub.setnPortions(numberOfPortionsPrepared);
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.DISHING_THE_PORTIONS);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		
+		//Update numberOfPortionsReady
+		numberOfPortionsReady++;
+		
+		//Update chefs state
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.DELIVERING_THE_PORTIONS);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+		
+		//Notify Waiter that there is a portion waiting to be delivered
 		notifyAll();
 	}
-
-
-
-
+	
+	
+	
+	
 	/**
-	 * 	Part of the chef lifecycle when the order has completed
+	 * Operation clean up
+	 * 
+	 * It is called by the chef when he finishes the order, to close service
 	 */
-
-	public synchronized void clean_up()
-	{
-		((KitchenClientProxy) Thread.currentThread()).setChefState(States.CLOSING_SERVICE);
-		repository.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
+	public synchronized void cleanUp()
+	{	
+		//Update chefs state to terminate life cycle
+		((KitchenClientProxy) Thread.currentThread()).setChefState(ChefStates.CLOSING_SERVICE);
+		reposStub.setChefState(((KitchenClientProxy) Thread.currentThread()).getChefState());
 	}
-
-
-
-
-
+	
+	
+	
+	
+	
 	/**
-	 * 	Part of the waiter lifecycle to signal the waiter that a new order was started
-	 */
-
-	public synchronized void hand_note_to_the_chef()
-	{
-		((KitchenClientProxy) Thread.currentThread()).setWaiterState(States.PLACING_THE_ORDER);
-		repository.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
-		startOrder = true;
-		//Notify chef
+	 * Operation hand note to chef
+	 * 
+	 * Called by the waiter to wake chef up chef to give him the description of the order
+	 */	
+	public synchronized void handNoteToChef()
+	{		
+		//Update waiter state
+		((KitchenClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.PLACING_ODER);
+		reposStub.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
+		
+		//Notify chef that he can start the preparation of the order
 		notifyAll();
-
-		while(!startPreparation){
-			/** Fita cola preta */
-			try {
-				wait();
-			} catch (InterruptedException e) {
-
-			}
+		
+		//Block waiting for chef to start the preparation of the order
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-
+		
 	}
-
+	
+	
+	
+	
+	
 	/**
-	 * 	Part of the waiter lifecycle to signal that he is returning to bar
+	 * Operation return to the bar
+	 * 
+	 * Called by the waiter when he is the kitchen and returns to the bar
 	 */
-
-	public synchronized void return_to_bar()
+	public synchronized void returnToBar()
 	{
-		((KitchenClientProxy) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
-		repository.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
+		//Update waiter state
+		((KitchenClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.APRAISING_SITUATION);
+		reposStub.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
 	}
-
-
+	
+	
+	
+	
+	
 	/**
-	 * 	Part of the waiter lifecycle when he is waiting for a portion and one is ready and will be delivered
+	 * Operation collect portion
+	 * 
+	 * Called by the waiter when there is a portion to be delivered. Collect and signal chef that the portion was delivered
 	 */
 	public synchronized void collectPortion()
 	{
-		((KitchenClientProxy) Thread.currentThread()).setWaiterState(States.WAITING_FOR_AN_PORTION);
-		repository.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
-
-		while ( portionsReady == 0) {
+		((KitchenClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.WAITING_FOR_PORTION);
+		reposStub.setWaiterState(((KitchenClientProxy) Thread.currentThread()).getWaiterState());
+		
+		//If there are no portions to deliver waiter must block
+		while (numberOfPortionsReady == 0) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-
-		portionsReady--;
-		portionsDelivery++;
-		if(portionsDelivery > SimulPar.N)
-			portionsDelivery = 1;
-
-		repository.setPortions(portionsDelivery);
-		repository.setCourses(coursesDelivery+1);
-
-		//Notify chef
+		
+		//Update number of portions ready and delivered
+		numberOfPortionsReady--;
+		numberOfPortionsDelivered++;
+		
+		//If a new course is being delivered then numberOfPortionsDelivered must be "reseted"
+		if(numberOfPortionsDelivered > ExecuteConst.N)
+			numberOfPortionsDelivered = 1;
+		
+		//Update portion number and course number in general repository
+		reposStub.setnPortions(numberOfPortionsDelivered);
+		reposStub.setnCourses(numberOfCoursesDelivered+1);
+		
+		//Signal chef that portion was delivered
 		notifyAll();
-
+		
 	}
-
+	
+	
 	/**
-	 *   Operation server shutdown.
-	 *
-	 *   New operation.
+	 * Operation kitchen server shutdown
 	 */
-	public synchronized void shutdown() {
-		entities += 1;
-		if (entities >= SimulPar.N)
-			KitchenMain.waitConnection = false;
+	public synchronized void shutdown()
+	{
+		nEntities += 1;
+		if(nEntities >= ExecuteConst.E)
+			ServerRestaurantKitchen.waitConnection = false;
+		notifyAll ();
 	}
-
-
-
 }

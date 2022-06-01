@@ -1,177 +1,207 @@
 package serverSide.sharedRegions;
 
-import clientSide.entities.Chef;
-import clientSide.entities.States;
-import clientSide.entities.Student;
-import clientSide.entities.Waiter;
-import clientSide.stubs.GeneralRepositoryStub;
-import clientSide.stubs.GeneralRepositoryStub;
-import clientSide.stubs.TableStub;
-import commInfra.MemFIFO;
-import commInfra.MemException;
-import genclass.GenericIO;
+import commInfra.*;
+import serverSide.main.*;
+import clientSide.entities.ChefStates;
+import clientSide.entities.WaiterStates;
+import clientSide.entities.StudentStates;
 import serverSide.entities.BarClientProxy;
-import serverSide.main.BarMain;
-import serverSide.main.SimulPar;
-
+import clientSide.stubs.GeneralReposStub;
+import clientSide.stubs.TableStub;
 
 /**
- *  @summary
- * Implementation of the Bar shared region
- * @author miguel cabral 93091
- * @author rodrigo santos 93173
+ * 
+ * Bar
+ *
+ *	It is responsible for keeping track of the several requests that must be full filled by the waiter
+ *	Implemented as an implicit monitor.
+ *	Public methods executed in mutual exclusion
+ *	Synchronisation points include:
+ *		Waiter waits for pending requests if there are none
+ *		When a student has to wait for the waiter to say goodbye to him so he can leave the restaurant
+ *		Chef must wait for everybody to eat before alerting the waiter
  */
 
 public class Bar 
 {
 	/**
-	 *   Number of entity requesting the shutdown.
-	 */
-	private int entities;
-
+	 *	Used to control number of students present in the restaurant
+	 */	
+	private int numberOfStudentsAtRestaurant;
+	
 	/**
-	 * Reference to the table
+	 *  Used to control number of pending requests to be answered by the waiter
 	 */
-	private final TableStub table;
-
+	private int numberOfPendingRequests;
+	
 	/**
-	 * Reference to students threads
+	 * Boolean variable used to store if a course was finished or not
 	 */
-	private final BarClientProxy[] students;
-
+	private boolean courseFinished;
+	
 	/**
-	 * Waiting portions
+	 * Queue of pending Requests
 	 */
-	private MemFIFO<Request> requests;
-
+	private MemFIFO<Request> pendingServiceRequestQueue;
+	
 	/**
-	 * Array to control if the waiter already said good bye to students
+	 * Reference to the student threads
 	 */
-	private final int[] goodbyeIds;
-
+	private final BarClientProxy [] students;
+	
 	/**
-	 * Current student that is being attended
+	 * Reference to the stub of the general repository
 	 */
-	private int currentStudent;
-
+	private final GeneralReposStub reposStub;
+	
 	/**
-	 * Control if the Chef has completed the course
+	 * Auxiliary variable to keep track of the id of the student whose request is being answered by waiter
 	 */
-	private boolean courseHasReady;
-
+	private int studentBeingAnswered;
+	
 	/**
-	 * Count the number of requests that have not been attended
+	 * Array of booleans to keep track of the students which the waiter has already said goodbye
 	 */
-	private int requestsCount;
-
+	private boolean[] studentsGreeted;
+	
 	/**
-	 * Count the number of students in restaurant
+	 * Reference to the stub of the table
 	 */
-	public static int studentCount;
-
+	private final TableStub tabStub;
+	
 	/**
-	 * Reference to the general repository
+	 * Number of entity groups requesting the shutdown
 	 */
-	private GeneralRepositoryStub repository;
+	private int nEntities;
 	
 	
 	/**
 	 * Bar instantiation
-	 * 
-	 * @param repository reference to the general repository 
+	 *  
+	 * @param reposStub reference to the stub of the general repository
+	 * @param tabStub reference to the stub of the table
 	 */
-	public Bar(GeneralRepositoryStub repository, TableStub table) {
-		this.repository = repository;
-		this.table = table;
-		this.courseHasReady = true;
-		this.currentStudent = -1;
-		this.entities = 0;
-
-		students = new BarClientProxy[SimulPar.N];
-		this.goodbyeIds = new int[SimulPar.N];
-		for (int i = 0; i < SimulPar.N; i++){
-			goodbyeIds[i] = -1;
-			students[i] = null;
-		}
-
-
-		try {
-			requests = new MemFIFO<>(new Request[SimulPar.N * SimulPar.M]);
-		} catch (MemException e) {
-			GenericIO.writelnString("Instantiation of requests FIFO failed: " + e.getMessage());
-			requests = null;
-			System.exit(1);
-		}
-
-	}
-
-
-
-
-	/**
-	 * Part of the chef lifecycle is called to alert the waiter that a portion has ready
-	 */
-	public synchronized void alert_the_waiter()
+	public Bar(GeneralReposStub reposStub, TableStub tabStub)
 	{
-		while(!courseHasReady)
+		//Initizalization of students threads
+		students = new BarClientProxy[ExecuteConst.N];
+		for(int i = 0; i < ExecuteConst.N; i++ ) 
+			students[i] = null;
+		
+		//Initialisation of the queue of pending requests
+		try {
+			pendingServiceRequestQueue = new MemFIFO<> (new Request [ExecuteConst.N * ExecuteConst.M]);
+		} catch (MemException e) {
+			pendingServiceRequestQueue = null;
+		    System.exit (1);
+		}
+	
+		this.courseFinished = true;
+		this.studentBeingAnswered = -1;
+		this.reposStub = reposStub;
+		this.tabStub = tabStub;
+		this.nEntities = 0;
+		
+		this.studentsGreeted = new boolean[ExecuteConst.N];
+		for(int i = 0 ;i < ExecuteConst.N; i++)
+			studentsGreeted[i] = false;
+	}
+	
+	
+	/**
+	 * Return id of the student whose request is being answered
+	 * @return Id of the student whose request is being answered
+	 */
+	public int getStudentBeingAnswered() { return studentBeingAnswered; }
+	
+	
+	
+	
+	/**
+	 * Operation alert the waiter
+	 * 
+	 * It is called by the chef to alert the waiter that a portion was dished
+	 * 	A request is putted in the queue (chef id will be N+1)
+	 */
+	public synchronized void alertWaiter()
+	{
+		//Chef must not alert Waiter while previous course is not finished by the students
+		while(!courseFinished)
 		{
 			try {
 				wait();
 			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 		
-		Request req = new Request(SimulPar.N+1,2);
-
+		Request r = new Request(ExecuteConst.N+1,'p');
+		
+		//Add a new service request to queue of pending requests (portion to be collected)
 		try {
-			requests.write(req);
+			pendingServiceRequestQueue.write(r);
 		} catch (MemException e) {
-
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		requestsCount++;
-		courseHasReady = false;
-
-		((BarClientProxy) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
-		repository.setChefState(((BarClientProxy) Thread.currentThread()).getChefState());
-
-		//Notify waiter
+		
+		//Update number of pending requests and set courseFinished to false
+		numberOfPendingRequests++;
+		courseFinished = false;
+		
+		//Update chefs state
+		((BarClientProxy) Thread.currentThread()).setChefState(ChefStates.DELIVERING_THE_PORTIONS);
+		reposStub.setChefState(((BarClientProxy) Thread.currentThread()).getChefState());
+		
+		//Signal waiter that there is a pending request
 		notifyAll();
 	}
-
-
-
+	
+	
+	
+	
+	
+	
 	/**
-	 * Is the part of the waiter life cycle where he waits for requests or served the pending and returns the id of the request
-	 * @return request id
+	 * Operation look Around
+	 * 
+	 * It is called by the waiter, he checks for pending service requests and if not waits for them
+	 * 	@return Character that represents the service to be executed
+	 * 		'c' : means a client has arrived therefore needs to be presented with the menu by the waiter
+	 * 		'o' : means that the waiter will hear the order and deliver it to the chef
+	 * 		'p' : means that a portion needs to be delivered by the waiter
+	 * 		'b' : means that the bill needs to be prepared and presented by the waiter
+	 * 		'g' : means that some student wants to leave and waiter needs to say goodbye 
 	 */
-	public synchronized int look_arround()
+	public synchronized char lookAround()
 	{
-		Request req;
+		Request r;
 		
-		while(requestsCount == 0)
+		//While there are no pending request, waiter blocks
+		while(numberOfPendingRequests == 0)
 		{
 			try {
 				wait();
 			} catch (InterruptedException e) {
-	
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		
 		try 
 		{
-			req = requests.read();
-			requestsCount--;
-		}
-		catch (MemException e)
-		{	
+			//If there is a pending request take it of the queue of pending requests
+			r = pendingServiceRequestQueue.read();
+			//Update number of pending requests
+			numberOfPendingRequests--;
+		} catch (MemException e) {	
 			e.printStackTrace();
 			return 0;
 		}		
-
-		currentStudent = req.requestorId;
-		
-		return req.requestId;
+		//Register student id in studentBeingAnswered
+		studentBeingAnswered = r.id;
+		return r.type;
 	}
 	
 	
@@ -179,77 +209,94 @@ public class Bar
 	
 	
 	/**
-	 * Part of the waiter lifecycle to update his state to signal that is preparing the bill
+	 * Operation prepare the Bill
+	 * 
+	 * It is called the waiter to prepare the bill of the meal eaten by the students
 	 */
-	public synchronized void prepare_the_bill()
+	public synchronized void prepareBill()
 	{
-		((BarClientProxy) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
-		repository.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
+		//Update Waiter state
+		((BarClientProxy) Thread.currentThread()).setWaiterState(WaiterStates.PROCESSING_THE_BILL);
+		reposStub.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
 	}
 	
 	
 	
 	
 	/**
-	 * Part of the waiter lifecycle to say goodbye to the students when we signal that wants to go home
-	 * @return true if all students left the restaurant
+	 * Operation say Goodbye
+	 * 
+	 * It is called by the waiter to say goodbye to a student that's leaving the restaurant
+	 * @return true if there are no more students at the restaurant, false otherwise
 	 */
-	public synchronized boolean say_goodbye()
+	public synchronized boolean sayGoodbye()
 	{
-		goodbyeIds[currentStudent] = currentStudent;
-		//Notify student
+		//Student was greeted
+		studentsGreeted[studentBeingAnswered] = true;
+		//Wake up student that is waiting to be greeted by waiter
 		notifyAll();
-
-		studentCount--;
-		repository.setSeatsAtLeaving(currentStudent);
-		currentStudent = -1;
 		
-		repository.setWaiterState(((BarClientProxy) Thread.currentThread()).getWaiterState());
-
-		if(studentCount == 0)
+		//Update number of students at the restaurant
+		numberOfStudentsAtRestaurant--;
+		// seat at table becomes empty after waiter greets the student
+		reposStub.updateSeatsAtLeaving(studentBeingAnswered);
+		studentBeingAnswered = -1;
+		
+		if(numberOfStudentsAtRestaurant == 0)
 			return true;
 		return false;
 		
 	}
-
-
-
-
+	
+	
+	
+	
 	/**
-	 * Is the part of student life cycle when we decide to enter the restaurant adding a new request to wake up the waiter
+	 * Operation enter the restaurant
+	 * 
+	 * It is called by the student to signal that he is entering the restaurant
 	 */
 	public void enter()
 	{		
 		synchronized(this)
 		{
-			int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
+			int studentId = ((BarClientProxy) Thread.currentThread()).getStudentId();
 
-			students[id] = ((BarClientProxy) Thread.currentThread());
-			students[id].setStudentState(States.GOING_TO_THE_RESTAURANT);
-			
-			studentCount++;
+			//Update student state
+			students[studentId] = ((BarClientProxy) Thread.currentThread());
+			students[studentId].setStudentState(StudentStates.GOING_TO_THE_RESTAURANT);
+			((BarClientProxy) Thread.currentThread()).setStudentState(StudentStates.GOING_TO_THE_RESTAURANT);
 
+			numberOfStudentsAtRestaurant++;
+
+			//Register first and last to arrive
+			if(numberOfStudentsAtRestaurant == 1)
+				tabStub.setFirstToArrive(studentId);
+			else if (numberOfStudentsAtRestaurant == ExecuteConst.N)
+				tabStub.setLastToArrive(studentId);
+
+			//Add a new pending requests to the queue
 			try {
-				requests.write(new Request(id,0));
+				pendingServiceRequestQueue.write(new Request(studentId, 'c'));
 			} catch (MemException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-			requestsCount++;
-			if(studentCount == 1) {
-				repository.setFirstStudent(id);
-			}
-			else if (studentCount == SimulPar.N){
-				repository.setLastStudent(id);
-			}
-			students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
-			repository.setStudentState(id, ((BarClientProxy) Thread.currentThread()).getStudentState());
-			repository.setStudentSeat(studentCount-1, id);
-			//Notify waiter
+			//Update number of pending requests
+			numberOfPendingRequests++;
+			
+			//Update student state
+			students[studentId].setStudentState(StudentStates.TAKING_A_SEAT_AT_THE_TABLE);
+			((BarClientProxy) Thread.currentThread()).setStudentState(StudentStates.TAKING_A_SEAT_AT_THE_TABLE);
+			reposStub.updateStudentState(studentId, students[studentId].getStudentState(), true);
+			//register seat at the general repo
+			reposStub.updateSeatsAtTable(numberOfStudentsAtRestaurant-1, studentId);
+			
+			//Signal waiter that there is a pending request
 			notifyAll();
 		}
-
-		table.seat();
+		//Seat student at table and block it
+		tabStub.seatAtTable();
 
 	}
 	
@@ -258,101 +305,123 @@ public class Bar
 	
 	
 	/**
-	 * Part of the 1º student lifecycle to alert the waiter that the order has ready to he get
+	 * Operation call the waiter
+	 * 
+	 * It is called by the first student to arrive the restaurant to call the waiter to describe the order
+	 *
 	 */
-	public synchronized void call_the_waiter()
+	public synchronized void callWaiter()
 	{
-		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
-		Request req = new Request(id,1);
-
+		int studentId = ((BarClientProxy) Thread.currentThread()).getStudentId();
+		Request r = new Request(studentId,'o');
+		
+		//Add a new service request to queue of pending requests (portion to be collected)
 		try {
-			requests.write(req);
+			pendingServiceRequestQueue.write(r);
 		} catch (MemException e) {
-
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		requestsCount++;	
-
+		
+		//Update number of pending requests
+		numberOfPendingRequests++;	
+		
+		//Signal waiter that there is a pending request
 		notifyAll();
 	}
-
+	
+	
+	
 	
 	/**
-	 * Part of the student lifecycle to signal the waiter that he ends the current course or that the last student wants to pay the bill
+	 * Operation signal the waiter
+	 * 
+	 * It is called by the last student to finish eating that next course can be brought 
+	 * signal chef that he can put request in the queue and waiter that he proceed his execution to collect portions
+	 * It is also used by last student to arrive to signal that he wishes to pay the bill
 	 */
-	public synchronized void signal_the_waiter()
+	public synchronized void signalWaiter()
 	{
-		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
+		int studentId = ((BarClientProxy) Thread.currentThread()).getStudentId();
 
-		if(((BarClientProxy) Thread.currentThread()).getStudentState() == States.PAYING_THE_BILL)
+		if(((BarClientProxy) Thread.currentThread()).getStudentState() == StudentStates.PAYING_THE_BILL)
 		{
+			//Add a new pending requests to the queue
 			try {
-				requests.write(new Request(id, 3));
+				pendingServiceRequestQueue.write(new Request(studentId, 'b'));
 			} catch (MemException e) {
-
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-			requestsCount++;	
-
+			//Update number of pending requests
+			numberOfPendingRequests++;	
+			
+			//Signal waiter that there is a pending request
 			notifyAll();
 			
 		}
 		else
 		{
-			courseHasReady = true;		
-			//Notify chef
+			courseFinished = true;		
+			//Wake chef up because he is waiting to tell waiter to collect portion
+			// and waiter so he can collect a new portion
 			notifyAll();
 		}
 	}
-
-
-
-
+	
+	
+	
+	
 	/**
-	 * Is the part of student life cycle when we decide to leave the restaurant adding a new request to wake up the waiter
+	 * Operation exit the restaurant
+	 * 
+	 * It is called by a student when he leaves the restaurant
 	 */
 	public synchronized void exit()
 	{
-		int id = ((BarClientProxy) Thread.currentThread()).getStudentId();
-		Request req = new Request(id,4);
-
+		int studentId = ((BarClientProxy) Thread.currentThread()).getStudentId();
+		Request r = new Request(studentId,'g');
+		
+		//Add a new service request to queue of pending requests (portion to be collected)
 		try {
-			requests.write(req);
+			pendingServiceRequestQueue.write(r);
 		} catch (MemException e) {
-
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		requestsCount++;
-		//Notify waiter
+		
+		//Update number of pending requests
+		numberOfPendingRequests++;
+		//Update student state
+		students[studentId].setStudentState(StudentStates.GOING_HOME);
+		((BarClientProxy) Thread.currentThread()).setStudentState(StudentStates.GOING_HOME);
+		reposStub.updateStudentState(studentId, students[studentId].getStudentState());
+		//notify waiter that there is a pending request
 		notifyAll();
-
-		students[id].setStudentState(States.GOING_HOME);
-		repository.setStudentState(id, ((BarClientProxy) Thread.currentThread()).getStudentState());
-
-		while(goodbyeIds[id] == -1) {
+	
+		//Block until waiter greets the student goodbye
+		while(studentsGreeted[studentId] == false) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
+	
+	
 	/**
-	 * @return Id of the student that are being attended
+	 * Operation bar server shutdown
 	 */
-	public int getCurrentStudent() { return currentStudent; }
-
-	/**
-	 *   Operation server shutdown.
-	 *
-	 *   New operation.
-	 */
-	public synchronized void shutdown() {
-		entities += 1;
-		if (entities >= 3)
-			BarMain.waitConnection = false;
-		notifyAll();
+	public synchronized void shutdown()
+	{
+		nEntities += 1;
+		if(nEntities >= ExecuteConst.E)
+			ServerRestaurantBar.waitConnection = false;
+		notifyAll ();
 	}
 }
-
 
 
 

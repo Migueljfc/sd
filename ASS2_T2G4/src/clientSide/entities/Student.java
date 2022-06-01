@@ -1,141 +1,144 @@
-/**
- * 
- */
 package clientSide.entities;
 
-import clientSide.stubs.BarStub;
-import clientSide.stubs.GeneralRepositoryStub;
-import clientSide.stubs.TableStub;
-import serverSide.main.SimulPar;
+import clientSide.stubs.*;
+import serverSide.main.ExecuteConst;
 
 /**
- * @author miguel cabral 93091
- * @author rodrigo santos 93173
- * @summary
- * This datatype implements the Student thread
+ *    Student thread.
+ *
+ *      It simulates the student life cycle.
+ *      Implementation of a client-server model of type 2 (server replication).
+ *      Communication is based on a communication channel under the TCP protocol.
  */
-
-public class Student extends Thread {
-
+public class Student extends Thread{
+	
 	/**
-	 * Student identification.
+	 * 	Student id
 	 */
-	private int id;
-
+	private int studentId;
+	
 	/**
-	 * student's State.
+	 * 	Student state
 	 */
-	private States state;
-
+	private int studentState;
+	
 	/**
-	 * Table reference
+	 * Reference to the stub of the bar
 	 */
-	private TableStub table;
-
+	
+	private final BarStub barStub;
+	
 	/**
-	 * Bar reference
+	 * Reference to the stub of the table
 	 */
-	private BarStub bar;
-
+	private final TableStub tabStub;
+	
+	
+	
 	/**
-	 * Repository reference
+	 * Instantiation of a Student thread.
+	 *  
+	 * 	@param name thread name
+	 * 	@param studentId student id
+	 * 	@param barStub reference to the stub of the bar
+	 * 	@param tabStub reference to the stub of the table
 	 */
-	private GeneralRepositoryStub repository;
-
-	/**
-	 * @param name  thread name
-	 * @param table reference to the student table
-	 * @param repository  reference to the general repository
-	 */
-	public Student(String name, int id, TableStub table, BarStub bar, GeneralRepositoryStub repository) {
+	public Student(String name, int studentId, BarStub barStub, TableStub tabStub) {
 		super(name);
-		this.id = id;
-		state = States.GOING_TO_THE_RESTAURANT;
-		this.table = table;
-		this.repository = repository;
-		this.bar = bar;
+		this.studentId = studentId;
+		this.studentState = StudentStates.GOING_TO_THE_RESTAURANT;
+		this.barStub = barStub;
+		this.tabStub = tabStub;
 	}
 
+	
+	
+	
 	/**
-	 * Returns the Student's state.
-	 * 
-	 * @return student's current state
+	 * Set a new student id
+	 * @param studentId id of the student to be set
 	 */
-	public States getStudentState() {
-		return state;
+	public void setStudentId(int studentId) {
+		this.studentId = studentId;
 	}
-
+	
 	/**
-	 * Returns the student's id
-	 * 
-	 * @return student's id
+	 * 	Get the student id
+	 * 	@return student id
 	 */
 	public int getStudentId() {
-		return id;
+		return studentId;
 	}
 
 	/**
-	 * Sets the student's state.
-	 * 
-	 * @param s desired state
+	 * Set a new student state
+	 * @param studentState new state to be set
 	 */
-	public void setStudentState(States s) {
-		StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		state = s;
-
+	public void setStudentState(int studentState) {
+		this.studentState = studentState;
 	}
-
+	
 	/**
-	 * Sets the student's id.
-	 * 
-	 * @param i desired id
+	 * 	Get the student state
+	 * 	@return student state
 	 */
-	public void setStudentId(int i) {
-		StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		id = i;
+	public int getStudentState() {
+		return studentState;
 	}
-
+	
+	
+	/**
+	 *	Life cycle of the student
+	 */
 	@Override
-	public void run() {
-		int current_course = 0;
-		walk_a_bit();
-		bar.enter();
-		table.read_menu();
+	public void run ()
+	{
+		walkABit();
+		barStub.enter();
+		tabStub.readMenu();
 		
-		if(id == repository.getFirstStudent())
+		if(studentId == tabStub.getFirstToArrive())
 		{
-			table.prepare_the_order();
-			while(!table.has_everybody_chosen())
-				table.add_up_ones_choice();
-			bar.call_the_waiter();
-			table.describe_the_order();
-			table.join_the_talk();
+			tabStub.prepareOrder();
+			while(!tabStub.everybodyHasChosen())
+				tabStub.addUpOnesChoices();
+			barStub.callWaiter();
+			tabStub.describeOrder();
+			tabStub.joinTalk();
 		}
 		else
-			table.inform_companion();
-
-		while(!table.have_all_courses_delivery()) {
-			table.start_eating();
-			table.end_eating();
-			current_course++;
-
-			while (!table.has_everybody_finished()) ;
-			if (id == repository.getLastStudent() && current_course != SimulPar.M)
-				bar.signal_the_waiter();
-		}
-		if(table.should_have_arrived_earlier())
+			tabStub.informCompanion();
+		
+		int numCoursesEaten = 0;
+		while(!tabStub.haveAllCoursesBeenEaten())
 		{
-			bar.signal_the_waiter();
-			table.honor_the_bill();
+			tabStub.startEating();
+			tabStub.endEating();
+			numCoursesEaten++;
+			
+			while(!tabStub.hasEverybodyFinishedEating());
+			if(studentId == tabStub.getLastToEat() && numCoursesEaten != ExecuteConst.M)
+				barStub.signalWaiter();
 		}
-		bar.exit();
-	}
-
-	private void walk_a_bit() {
-		try {
-			sleep((long) (1 + 50 * Math.random()));
-		} catch (InterruptedException e) {
+		
+		if(tabStub.shouldHaveArrivedEarlier()) 
+		{
+			barStub.signalWaiter();
+			tabStub.honourBill();
 		}
-
+		barStub.exit();
 	}
+	
+	
+	/**
+	 * Sleep for a random time
+	 */
+	private void walkABit()
+	{
+		try
+		{ sleep ((long) (1 + 50 * Math.random ()));
+		}
+		catch (InterruptedException e) {}
+	}
+	
 }

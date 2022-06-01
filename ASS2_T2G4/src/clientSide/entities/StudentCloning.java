@@ -1,39 +1,36 @@
 package clientSide.entities;
 
 /**
- *    Cloning Student.
+ *    Student cloning.
  *
  *      It specifies his own attributes.
  *      Implementation of a client-server model of type 2 (server replication).
  *      Communication is based on a communication channel under the TCP protocol.
  */
 public interface StudentCloning {
+	
+	/**
+	 * Set student id
+	 * 	@param id id of the student
+	 */
+	public void setStudentId(int id);
+	
+	/**
+	 * Get student id
+	 * 	@return id of the student
+	 */
+	public int getStudentId();
+	
+	/**
+	 * Set student state
+	 * 	@param state new state of the student
+	 */
+	public void setStudentState(int state);
+	
+	/**
+	 * Get student state
+	 * @return student state
+	 */
+	public int getStudentState();
 
-    /**
-     * Returns the Student's state.
-     *
-     * @return student's current state
-     */
-    public States getStudentState();
-
-    /**
-     * Returns the student's id
-     *
-     * @return student's id
-     */
-    public int getStudentId();
-
-    /**
-     * Sets the student's state.
-     *
-     * @param s desired state
-     */
-    public void setStudentState(States s) ;
-
-    /**
-     * Sets the student's id.
-     *
-     * @param i desired id
-     */
-    public void setStudentId(int i);
 }
