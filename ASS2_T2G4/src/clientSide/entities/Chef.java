@@ -1,94 +1,96 @@
+/**
+ *
+ */
 package clientSide.entities;
 
-import clientSide.stubs.*;
+import clientSide.stubs.BarStub;
+import clientSide.stubs.GeneralRepositoryStub;
+import clientSide.stubs.KitchenStub;
 
 /**
- *    Chef thread.
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
  *
- *      It simulates the chef life cycle.
- *      Implementation of a client-server model of type 2 (server replication).
- *      Communication is based on a communication channel under the TCP protocol.
+* @summary
+ * This datatype implements the Chef thread
+ *
  */
 public class Chef extends Thread{
-	
-	/**
-	 *	Chef state 
-	 */
-	private int chefState;
-	
-	/**
-	 * Reference to the stub of the kitchen
-	 */
-	private final KitchenStub kitStub;
-	
-	/**
-	 * Reference to the stub of the bar
-	 */
-	private final BarStub barStub;
-	
-	
-	
-	/**
-	 * Set a new chef state
-	 * @param chefState new state to be set
-	 */
-	public void setChefState(int chefState)
-	{
-		this.chefState = chefState;
-	}	
-	
-	
-	/**
-	 * Get the chef's state
-	 * @return chef state
-	 */
-	public int getChefState()
-	{
-		return chefState;
-	}
-	
-	
-	/**
-	 * Instantiation of a Chef thread
-	 * 	@param name thread name
-	 * 	@param kitStub reference to the kitchen stub
-	 * 	@param barStub reference to the bar stub
-	 */
-	public Chef(String name, KitchenStub kitStub, BarStub barStub) {
-		super(name);
-		this.chefState = ChefStates.WAITING_FOR_AN_ORDER;
-		this.kitStub = kitStub;
-		this.barStub = barStub;
-	}
 
-	
-	
-	
-	/**
-	 * 	Life cycle of the chef
-	 */
-	@Override
-	public void run ()
-	{
-		boolean firstCourse = true;
-		
-		kitStub.watchTheNews();
-		kitStub.startPreparation();
-		do
-		{
-			if(!firstCourse)
-				kitStub.continuePreparation();
-			else
-				firstCourse = false;
-			
-			kitStub.proceedPreparation();
-			barStub.alertWaiter();
-			
-			while(!kitStub.haveAllPortionsBeenDelivered())
-				kitStub.haveNextPortionReady();
-		}
-		while(!kitStub.hasOrderBeenCompleted());
-		
-		kitStub.cleanUp();
-	}
+    /**
+    *  Chef's State.
+    */
+    private int state;
+
+    /**
+    *  Kitchen reference
+    */
+    private KitchenStub kitchen;
+
+     /**
+    *  Bar reference
+    */
+    private BarStub bar;
+
+
+
+    /**
+     * @param name    thread name
+     * @param kitchen reference to the chef Kitchen
+     */
+
+    public Chef(String name, KitchenStub kitchen, BarStub bar){
+        super(name);
+        state = States.WAIT_FOR_AN_ORDER;
+        this.kitchen = kitchen;
+        this.bar = bar;
+    }
+
+     /**
+     * Sets the chef's state.
+     * @param s desired state
+     */
+    public void setChefState(int s){
+        StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        state = s;
+
+    }
+
+     /**
+     * Returns the Chef's state.
+     * @return chef's current state
+     */
+    public int getChefState(){
+        return state;
+    }
+
+    /**
+     * Chefs lifecycle
+     */
+    @Override
+    public void run ()
+    {
+        boolean first_course = true;
+
+        kitchen.watch_news();
+        kitchen.start_preparation();
+        do
+        {
+            if(!first_course)
+                kitchen.continue_preparation();
+            else
+            	first_course = false;
+
+            kitchen.proceed_preparation();
+            bar.alert_the_waiter();
+
+            while(!kitchen.have_all_portions_been_delivered())
+                kitchen.have_next_portion_ready();
+        }
+        while(!kitchen.has_the_order_been_completed());
+
+        kitchen.clean_up();
+
+    }
 }
+

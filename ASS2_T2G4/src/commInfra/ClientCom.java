@@ -15,232 +15,269 @@ import java.net.*;
 
 public class ClientCom
 {
-	
-  /**
-   *  Communication socket.
-   */
-   private Socket commSocket = null;
+    /**
+     *  Communication socket.
+     */
 
-  /**
-   *  Name of the computational system where the server is located.
-   */
-   private String serverHostName;
+    private Socket commSocket = null;
 
-  /**
-   *  Number of the listening port at the computational system where the server is located.
-   */
-   private int serverPortNumb;
+    /**
+     *  Name of the computational system where the server is located.
+     */
 
-  /**
-   *  Input stream of the communication channel.
-   */
-   private ObjectInputStream in = null;
+    private String serverHostName;
 
-  /**
-   *  Output stream of the communication channel.
-   */
-   private ObjectOutputStream out = null;
+    /**
+     *  Number of the listening port at the computational system where the server is located.
+     */
 
-   
-  /**
-   *  Instantiation of a communication channel.
-   *
-   *    @param hostName name of the computational system where the server is located
-   *    @param portNumb number of the listening port at the computational system where the server is located
-   */
+    private int serverPortNumb;
 
-   public ClientCom (String hostName, int portNumb)
-   {
-      serverHostName = hostName;
-      serverPortNumb = portNumb;
-   }
+    /**
+     *  Input stream of the communication channel.
+     */
 
-  /**
-   *  Open the communication channel.
-   *
-   *  Instantiation of the communication socket and its binding to the server address.
-   *  The socket input and output streams are opened.
-   *
-   *    @return true, if the communication channel is opened -
-   *            false, otherwise
-   */
+    private ObjectInputStream in = null;
 
-   public boolean open ()
-   {
-      boolean success = true;                                                                      // flag signaling
-                                                                                                   // success on opening the communication channel
-      SocketAddress serverAddress = new InetSocketAddress (serverHostName, serverPortNumb);        // inet address
+    /**
+     *  Output stream of the communication channel.
+     */
 
-      try
-      { commSocket = new Socket();
-        commSocket.connect (serverAddress);
-      }
-      catch (UnknownHostException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the name of the computational system where the server is located, is unknown: " +
-                                 serverHostName + "!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (NoRouteToHostException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the name of the computational system where the server is located, is unreachable: " +
-                                 serverHostName + "!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (ConnectException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the server does not respond at: " + serverHostName + "." + serverPortNumb + "!");
-        if (e.getMessage ().equals ("Connection refused"))
-           success = false;
-           else { GenericIO.writelnString (e.getMessage () + "!");
-                  e.printStackTrace ();
-                  System.exit (1);
-                }
-      }
-      catch (SocketTimeoutException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - time out has occurred in establishing the connection at: " +
-                                 serverHostName + "." + serverPortNumb + "!");
-        success = false;
-      }
-      catch (IOException e)                                // fatal error --- other reasons
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - an indeterminate error has occurred in establishing the connection at: " +
-                                 serverHostName + "." + serverPortNumb + "!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+    private ObjectOutputStream out = null;
 
-      if (!success) return (success);
+    /**
+     *  Instantiation of a communication channel.
+     *
+     *    @param hostName name of the computational system where the server is located
+     *    @param portNumb number of the listening port at the computational system where the server is located
+     */
 
-      try
-      { out = new ObjectOutputStream (commSocket.getOutputStream ());
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - it was not possible to open the output stream!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+    public ClientCom (String hostName, int portNumb)
+    {
+        serverHostName = hostName;
+        serverPortNumb = portNumb;
+    }
 
-      try
-      { in = new ObjectInputStream (commSocket.getInputStream ());
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - it was not possible to open the input stream!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+    /**
+     *  Open the communication channel.
+     *
+     *  Instantiation of the communication socket and its binding to the server address.
+     *  The socket input and output streams are opened.
+     *
+     *    @return true, if the communication channel is opened -
+     *            false, otherwise
+     */
 
-      return (success);
-   }
+    public boolean open ()
+    {
+        boolean success = true;                                                                      // flag signaling
+        // success on opening the communication channel
+        SocketAddress serverAddress = new InetSocketAddress (serverHostName, serverPortNumb);        // inet address
 
-  
-   /**
-   *  Close the communication channel.
-   *
-   *  The socket input and output streams are closed.
-   *  The communication socket is closed.
-   */
-   public void close ()
-   {
-      try
-      { out.close();
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - it was not possible to close the output stream!!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+        try
+        { commSocket = new Socket();
+            commSocket.connect (serverAddress);
+        }
+        catch (UnknownHostException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the name of the computational system where the server is located, is unknown: " +
+                serverHostName + "!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (NoRouteToHostException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the name of the computational system where the server is located, is unreachable: " +
+                serverHostName + "!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (ConnectException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the server does not respond at: " + serverHostName + "." + serverPortNumb + "!");
+            if (e.getMessage ().equals ("Connection refused"))
+                success = false;
+            else { GenericIO.writelnString (e.getMessage () + "!");
+                e.printStackTrace ();
+                System.exit (1);
+            }
+        }
+        catch (SocketTimeoutException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - time out has occurred in establishing the connection at: " +
+                serverHostName + "." + serverPortNumb + "!");
+            success = false;
+        }
+        catch (IOException e)                                // fatal error --- other reasons
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - an indeterminate error has occurred in establishing the connection at: " +
+                serverHostName + "." + serverPortNumb + "!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
 
-      try
-      { in.close();
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - it was not possible to close the input stream!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+        if (!success) return (success);
 
-      try
-      { commSocket.close();
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - it was not possible to close the communication socket!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-   }
+        try
+        { out = new ObjectOutputStream (commSocket.getOutputStream ());
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - it was not possible to open the output stream!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
 
-  /**
-   *  Object read from the communication channel.
-   *
-   *    @return reference to the object that was read
-   */
+        try
+        { in = new ObjectInputStream (commSocket.getInputStream ());
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - it was not possible to open the input stream!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
 
-   public Object readObject ()
-   {
-      Object fromServer = null;                            // object that is read
+        return (success);
+    }
 
-      try
-      { fromServer = in.readObject ();
-      }
-      catch (InvalidClassException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the read object could not be deserialized!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - error on reading an object from the input stream!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (ClassNotFoundException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the read object belongs to an unknown data type!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
+    /**
+     *  Close the communication channel.
+     *
+     *  The socket input and output streams are closed.
+     *  The communication socket is closed.
+     */
 
-      return fromServer;
-   }
+    public void close ()
+    {
+        try
+        { out.close();
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - it was not possible to close the output stream!!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
 
-  /**
-   *  Object write to the communication channel.
-   *
-   *    @param toServer reference to the object to be written
-   */
+        try
+        { in.close();
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - it was not possible to close the input stream!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
 
-   public void writeObject (Object toServer)
-   {
-      try
-      { out.writeObject (toServer);
-      }
-      catch (InvalidClassException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the object to be written can not be serialized!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (NotSerializableException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - the object to be written does not implement the Serializable interface!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-      catch (IOException e)
-      { GenericIO.writelnString (Thread.currentThread ().getName () +
-                                 " - error on writing an object to the output stream!");
-        e.printStackTrace ();
-        System.exit (1);
-      }
-   }
+        try
+        { commSocket.close();
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - it was not possible to close the communication socket!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+    }
+
+    /**
+     *  Object read from the communication channel.
+     *
+     *    @return reference to the object that was read
+     */
+
+    public Object readObject ()
+    {
+        Object fromServer = null;                            // object that is read
+
+        try
+        { fromServer = in.readObject ();
+            if(serverPortNumb == 22139) {						// -------------- DEBUG --------------
+                GenericIO.writelnString("MESSAGE IN from GenRepos\n"+fromServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22130) {
+                GenericIO.writelnString("MESSAGE IN from Bar\n"+fromServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22131) {
+                GenericIO.writelnString("MESSAGE IN from Kitchen\n"+fromServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22132) {
+                GenericIO.writelnString("MESSAGE IN from Table\n"+fromServer.toString());
+                GenericIO.writelnString();
+            }
+
+        }
+        catch (InvalidClassException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the read object could not be deserialized!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - error on reading an object from the input stream!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (ClassNotFoundException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the read object belongs to an unknown data type!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+
+        return fromServer;
+    }
+
+    /**
+     *  Object write to the communication channel.
+     *
+     *    @param toServer reference to the object to be written
+     */
+
+    public void writeObject (Object toServer)
+    {
+        try
+        { out.writeObject (toServer);
+            if(serverPortNumb == 22139) { // ---------------- DEBUG ---------------
+                GenericIO.writelnString("MESSAGE OUT to GenRepos\n"+toServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22130) {
+                GenericIO.writelnString("MESSAGE OUT to Bar\n"+toServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22131) {
+                GenericIO.writelnString("MESSAGE OUT to Kitchen\n"+toServer.toString());
+                GenericIO.writelnString();
+            }
+            if(serverPortNumb == 22132) {
+                GenericIO.writelnString("MESSAGE OUT to Table\n"+toServer.toString());
+                GenericIO.writelnString();
+            }
+        }
+        catch (InvalidClassException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the object to be written can not be serialized!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (NotSerializableException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - the object to be written does not implement the Serializable interface!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+        catch (IOException e)
+        { GenericIO.writelnString (Thread.currentThread ().getName () +
+                " - error on writing an object to the output stream!");
+            e.printStackTrace ();
+            System.exit (1);
+        }
+
+    }
 }

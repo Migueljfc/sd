@@ -1,23 +1,26 @@
 package clientSide.entities;
 
 /**
- *    Waiter cloning.
+ *    @author miguel cabral 93091
+ *    @author rodrigo santos 93173
  *
- *      It specifies his own attributes.
+ *   @summary
  *      Implementation of a client-server model of type 2 (server replication).
  *      Communication is based on a communication channel under the TCP protocol.
  */
 public interface WaiterCloning {
-	
-	/**
-	 * Set waiter state
-	 * 	@param state new state of the waiter
-	 */
-	public void setWaiterState(int state);
-	
-	/**
-	 * Get waiter state
-	 * 	@return state of the waiter
-	 */
-	public int getWaiterState();
+
+    /**
+     * Set waiter state
+     *
+     * @param state
+     */
+    public void setWaiterState(int state);
+
+    /**
+     * Get waiter state
+     *
+     * @return waiter state
+     */
+    public int getWaiterState() ;
 }

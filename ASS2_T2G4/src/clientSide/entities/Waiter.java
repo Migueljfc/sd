@@ -1,117 +1,112 @@
 package clientSide.entities;
 
-import clientSide.stubs.*;
+import clientSide.stubs.BarStub;
+import clientSide.stubs.KitchenStub;
+import clientSide.stubs.TableStub;
+
 
 /**
- *    Waiter thread.
- *
- *      It simulates the waiter life cycle.
- *      Implementation of a client-server model of type 2 (server replication).
- *      Communication is based on a communication channel under the TCP protocol.
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
+ * @summary
+ * This datatype implements the Waiter thread
  */
+
 public class Waiter extends Thread{
 
 	/**
 	 * 	Waiter state
 	 */
-	private int waiterState;
+	
+	private int state;
 	
 	/**
-	 * Reference to the stub of the kitchen
+	 * Reference to the kitchen
 	 */
-	private final KitchenStub kitStub;
+	
+	private final KitchenStub kitchen;
 	
 	/**
-	 * Reference to the stub of the bar
+	 * Reference to the bar
 	 */
-	private final BarStub barStub;
+	
+	private final BarStub bar;
 	
 	/**
-	 * Reference to the stub of the table
+	 * Reference to the table
 	 */
-	private final TableStub tabStub;
-	
-
-	/**
-	 * Instantiation of a Waiter thread
-	 * 
-	 * 	@param name thread name
-	 * 	@param kitStub reference to the stub of the kitchen
-	 * 	@param barStub reference to the stub of the bar
-	 * 	@param tabStub reference to the stub of the table
-	 */
-	public Waiter(String name, KitchenStub kitStub, BarStub barStub, TableStub tabStub) {
-		super(name);
-		this.waiterState = WaiterStates.APRAISING_SITUATION;
-		this.kitStub = kitStub;
-		this.barStub = barStub;
-		this.tabStub = tabStub;
-	}
-	
+	private final TableStub table;
 	
 	/**
-	 * Set a new waiter state
-	 * @param waiterState new state to be set
+	 * Set waiter state
+	 * 	@param  state
 	 */
-	public void setWaiterState(int waiterState) {
-		this.waiterState = waiterState;
+	
+	public void setWaiterState(int state) {
+		this.state = state;
 	}
 	
 	/**
-	 * 	Get waiter state
+	 * Get waiter state
 	 * 	@return waiter state
 	 */
+
 	public int getWaiterState() {
-		return waiterState;
+		return state;
 	}
 	
+	/**
+	 * 	Instantiation of waiter thread
+	 *
+	 * @param name  thread name
+	 * @param table reference to the table
+	 * @param kitchen  reference to the kitchen
+	 * @param bar  reference to the bar
+	 */
 	
+	public Waiter(String name, TableStub table, BarStub bar, KitchenStub kitchen) {
+		super(name);
+		this.state = States.APPRAISING_SITUATION;
+		this.kitchen = kitchen;
+		this.bar = bar;
+		this.table = table;
+	}
 	
 	/**
 	 *	Life cycle of the waiter
 	 */
+
 	@Override
-	public void run ()
-	{
-		//used to store the request that needs to be performed by the waiter
-		char request;
-		//used to check if simulation may stop or not
-		boolean stop = false;
-		
-		while(true)
-		{
-			request = barStub.lookAround();
-			switch(request)
-			{
-				case 'c':	//Client arriving, needs to be presented with the menu
-					tabStub.saluteClient(barStub.getStudentBeingAnswered());
-					tabStub.returnBar();
-					break;
-				case 'o':	//Order will be described to the waiter
-					tabStub.getThePad();
-					kitStub.handNoteToChef();
-					kitStub.returnToBar();
-					break;
-				case 'p':	//Portions need to be collected and delivered
-					while(!tabStub.haveAllClientsBeenServed()) 
-					{
-						kitStub.collectPortion();
-						tabStub.deliverPortion();
+	public void run() {
+
+			int requestId, studentId;
+			boolean all_left = false;
+			while (!all_left) {
+				requestId = bar.look_arround();
+				studentId = bar.getCurrentStudent();
+
+				if (requestId == 0) {
+					table.salute_client(studentId);
+					table.return_to_bar();
+				} else if (requestId == 1) {
+					table.get_the_pad();
+					kitchen.hand_note_to_the_chef();
+					kitchen.return_to_bar();
+				} else if (requestId == 2) {
+					while (!table.have_all_portions_delivered()) {
+						kitchen.collectPortion();
+						table.deliver_portion();
 					}
-					tabStub.returnBar();
-					break;
-				case 'b':	//Bill needs to be prepared so it can be payed by the student
-					barStub.prepareBill();
-					tabStub.presentBill();
-					tabStub.returnBar();
-					break;
-				case 'g':	//Goodbye needs to be said to a student
-					stop = barStub.sayGoodbye();
-					break;
-			}
-			//If the last student has left the restaurant, life cycle may terminate
-			if (stop)
-				break;
+					table.return_to_bar();
+				} else if (requestId == 3) {
+					bar.prepare_the_bill();
+					table.present_the_bill();
+					table.return_to_bar();
+				} else if (requestId == 4) {
+					all_left = bar.say_goodbye();
+				}
+
 		}
+
 	}
 }

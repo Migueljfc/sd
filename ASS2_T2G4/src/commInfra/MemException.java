@@ -10,32 +10,32 @@ package commInfra;
 
 public class MemException extends Exception
 {
-  /**
-   *   Version Id for serialization.
-   */
+    /**
+     *   Version Id for serialization.
+     */
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /**
-   *   Conventional exception instantiation.
-   *
-   *    @param errorMessage pertaining error message
-   */
+    /**
+     *   Conventional exception instantiation.
+     *
+     *    @param errorMessage pertaining error message
+     */
 
-   public MemException (String errorMessage)
-   {
-     super (errorMessage);
-   }
+    public MemException (String errorMessage)
+    {
+        super (errorMessage);
+    }
 
-  /**
-   *   Exception instantiation with associated raising cause.
-   *
-   *    @param errorMessage pertaining error message
-   *    @param cause underlying exception that generated it
-   */
+    /**
+     *   Exception instantiation with associated raising cause.
+     *
+     *    @param errorMessage pertaining error message
+     *    @param cause underlying exception that generated it
+     */
 
-   public MemException (String errorMessage, Throwable cause)
-   {
-     super (errorMessage,  cause);
-   }
+    public MemException (String errorMessage, Throwable cause)
+    {
+        super (errorMessage,  cause);
+    }
 }
