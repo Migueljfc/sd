@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="cd0414b6-e794-43ca-aa4d-13c8f2079070" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/Chef.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/ChefCloning.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/States.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/Student.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/StudentCloning.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/Waiter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/WaiterCloning.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/entities/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/main/ChefMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/main/StudentMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/main/WaiterMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/main/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clientSide/stubs/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/MemException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/MemFIFO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/MemObject.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/MessageException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/MessageType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/ServerCom.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/SimulPar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/commInfra/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/BarClientProxy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/GeneralReposClientProxy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/GeneralRepositoryClientProxy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/KitchenClientProxy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/TableClientProxy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/entities/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/BarMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/GeneralRepositoryMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/KitchenMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/SimulPar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/TableMain.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/main/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/sharedRegions/Request.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/sharedRegions/Table.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverSide/sharedRegions/package-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/clientSide/entities/Chef.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/clientSide/entities/Chef.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="29zloGMFkYxq7azXMYub0PJCKYk" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="cd0414b6-e794-43ca-aa4d-13c8f2079070" name="Changes" comment="" />
+      <created>1654123980924</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1654123980924</updated>
+    </task>
+    <servers />
+  </component>
+</project>
