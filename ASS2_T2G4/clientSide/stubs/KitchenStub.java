@@ -1,46 +1,45 @@
 package clientSide.stubs;
 
-import clientSide.entities.Chef;
-import clientSide.entities.States;
-import clientSide.entities.Waiter;
-import commInfra.ClientCom;
-import commInfra.Message;
-import commInfra.MessageType;
+import commInfra.*;
+import clientSide.entities.*;
 import genclass.GenericIO;
 
 /**
- * Stub to the kitchen
+ * @author miguel cabral 93091
+ * @author rodrigo santos 93173
+ * @summary Stub to the Kitchen.
+ *
+ *    It instantiates a remote reference to the barber shop.
+ *    Implementation of a client-server model of type 2 (server replication).
+ *    Communication is based on a communication channel under the TCP protocol.
  */
-
 public class KitchenStub {
     /**
-     *  Name of the platform where is located the kitchen server.
+     * Name of the platform where is located the kitchen server
      */
-
     private String serverHostName;
-
     /**
-     *  Port number for listening to service requests.
+     * Port number for listening to service requests
      */
-
     private int serverPortNumb;
 
+
     /**
-     *
-     * Instantiation of a stub to the kitchen.
+     * Instantiation of a stub to the Kitchen.
      *
      * @param serverHostName name of the platform where is located the kitchen server
      * @param serverPortNumb port number for listening to service requests
      */
-    public KitchenStub (String serverHostName, int serverPortNumb)
+    public KitchenStub(String serverHostName, int serverPortNumb)
     {
         this.serverHostName = serverHostName;
         this.serverPortNumb = serverPortNumb;
     }
 
 
+
     /**
-     * 	Part of the chef lifecycle to signal that is waiting the order
+     * Part of the chef lifecycle to signal that is waiting the order
      */
     public void watch_news()
     {
@@ -56,7 +55,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.WTNREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.WTNREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -66,7 +65,7 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getChefState().ordinal() < States.WAIT_FOR_AN_ORDER.ordinal() || inMessage.getChefState().ordinal() > States.CLOSING_SERVICE.ordinal())
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
             GenericIO.writelnString (inMessage.toString ());
@@ -75,6 +74,8 @@ public class KitchenStub {
         ((Chef) Thread.currentThread ()).setChefState (inMessage.getChefState());
         com.close ();
     }
+
+
 
     /**
      *  Part of the chef lifecycle to start the preparation and signal the waiter of that
@@ -93,7 +94,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.SPREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.SPREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -104,7 +105,7 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getChefState() != States.WAIT_FOR_AN_ORDER || inMessage.getChefState() != States.CLOSING_SERVICE)
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
             GenericIO.writelnString (inMessage.toString ());
@@ -116,8 +117,9 @@ public class KitchenStub {
     }
 
 
+
     /**
-     * 	Part of the chef lifecycle to signal that the preparation was continued
+     * Part of the chef lifecycle to signal that the preparation was continued
      */
     public void proceed_preparation()
     {
@@ -133,7 +135,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.PPREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.PPREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -144,7 +146,7 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getChefState() != States.WAIT_FOR_AN_ORDER || inMessage.getChefState() != States.CLOSING_SERVICE)
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
             GenericIO.writelnString (inMessage.toString ());
@@ -156,10 +158,12 @@ public class KitchenStub {
     }
 
 
+
+
     /**
      * 	Part of the chef lifecycle to check if he needs to prepare another portion or not
+     * 	@return true if all portions have been delivered
      */
-
     public boolean have_all_portions_been_delivered()
     {
         ClientCom com;					//Client communication
@@ -187,14 +191,16 @@ public class KitchenStub {
         }
         //Close communication channel
         com.close ();
-        return inMessage.getAllClientsBeenServed();     // NAO SEI
+        return inMessage.getAllPortionsBeenDelivered();
     }
 
 
-    /**
-     * 	Part of the chef lifecycle to check if all courses have been delivered
-     */
 
+
+    /**
+     *	Part of the chef lifecycle to check if all courses have been delivered
+     * 	@return true if all courses have been completed
+     */
     public boolean has_the_order_been_completed()
     {
         ClientCom com;					//Client communication
@@ -223,14 +229,14 @@ public class KitchenStub {
 
         //Close communication channel
         com.close ();
-        return inMessage.getHasTheOrderBeenCompleted();
+        return inMessage.getHasOrderBeenCompleted();
     }
 
 
-    /**
-     * 	Part of the chef lifecycle when we need to continue the preparation of another portion of the same course
-     */
 
+    /**
+     * Part of the chef lifecycle when we need to continue the preparation of another portion of the same course
+     */
     public void continue_preparation()
     {
         ClientCom com;					//Client communication
@@ -245,7 +251,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.CPREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.CPREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -256,7 +262,7 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getChefState() != States.WAIT_FOR_AN_ORDER || inMessage.getChefState() != States.CLOSING_SERVICE)
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
         {
             GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
             GenericIO.writelnString (inMessage.toString ());
@@ -268,10 +274,10 @@ public class KitchenStub {
     }
 
 
-    /**
-     * 	Part of the chef lifecycle to signal waiter that a portion has ready to be delivered
-     */
 
+    /**
+     * Part of the chef lifecycle to signal waiter that a portion has ready to be delivered
+     */
     public void have_next_portion_ready()
     {
         ClientCom com;					//Client communication
@@ -286,7 +292,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.HNPRREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.HNPRREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -297,23 +303,23 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if((inMessage.getChefState() != States.DISHING_THE_PORTIONS) || (inMessage.getChefState() != States.DELIVERING_THE_PORTIONS)) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
         ((Chef) Thread.currentThread ()).setChefState (inMessage.getChefState());
         //Close communication channel
         com.close ();
-
     }
 
 
 
-    /**
-     * 	Part of the chef lifecycle when the order has completed
-     */
 
+    /**
+     * Part of the chef lifecycle when the order has completed
+     */
     public void clean_up()
     {
         ClientCom com;					//Client communication
@@ -328,7 +334,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.CUREQ, ((Chef) Thread.currentThread()).getChefState().ordinal());
+        outMessage = new Message (MessageType.CUREQ, ((Chef) Thread.currentThread()).getChefState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -339,10 +345,11 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getChefState() != States.CLOSING_SERVICE) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Chef State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getChefState() < States.WAIT_FOR_AN_ORDER || inMessage.getChefState() > States.CLOSING_SERVICE)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid chef state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
         ((Chef) Thread.currentThread ()).setChefState (inMessage.getChefState());
         //Close communication channel
@@ -350,10 +357,11 @@ public class KitchenStub {
     }
 
 
-    /**
-     * 	Part of the waiter lifecycle to signal the waiter that a new order was started
-     */
 
+
+    /**
+     * Part of the waiter lifecycle to signal the waiter that a new order was started
+     */
     public void hand_note_to_the_chef()
     {
         ClientCom com;					//Client communication
@@ -368,7 +376,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.HNTCREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
+        outMessage = new Message (MessageType.HNTCREQ, ((Waiter) Thread.currentThread()).getWaiterState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -379,10 +387,11 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getWaiterState() != States.PLACING_THE_ORDER) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getWaiterState() < States.APPRAISING_SITUATION || inMessage.getWaiterState() > States.RECEIVING_PAYMENT)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid waiter state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
         ((Waiter) Thread.currentThread ()).setWaiterState (inMessage.getWaiterState());
 
@@ -392,10 +401,10 @@ public class KitchenStub {
 
 
 
-    /**
-     * 	Part of the waiter lifecycle to signal that he is returning to bar
-     */
 
+    /**
+     * Part of the waiter lifecycle to signal that he is returning to bar
+     */
     public void return_to_bar()
     {
         ClientCom com;					//Client communication
@@ -410,7 +419,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.RBREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
+        outMessage = new Message (MessageType.RBREQ, ((Waiter) Thread.currentThread()).getWaiterState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -421,21 +430,22 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getWaiterState() != States.APPRAISING_SITUATION) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getWaiterState() < States.APPRAISING_SITUATION || inMessage.getWaiterState() > States.RECEIVING_PAYMENT)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid waiter state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
         ((Waiter) Thread.currentThread ()).setWaiterState (inMessage.getWaiterState());
 
         //Close communication channel
         com.close ();
-
     }
 
 
+
     /**
-     * 	Part of the waiter lifecycle when he is waiting for a portion and one is ready and will be delivered
+     * Part of the waiter lifecycle when he is waiting for a portion and one is ready and will be delivered
      */
     public void collectPortion()
     {
@@ -451,7 +461,7 @@ public class KitchenStub {
         catch (InterruptedException e) {}
         }
 
-        outMessage = new Message (MessageType.CPOREQ, ((Waiter) Thread.currentThread()).getWaiterState().ordinal());
+        outMessage = new Message (MessageType.CPOREQ, ((Waiter) Thread.currentThread()).getWaiterState());
         com.writeObject (outMessage); 			//Write outGoing message in the communication channel
         inMessage = (Message) com.readObject(); //Read inGoing message
 
@@ -462,24 +472,24 @@ public class KitchenStub {
             GenericIO.writelnString (inMessage.toString ());
             System.exit (1);
         }
-        if(inMessage.getWaiterState() != States.WAITING_FOR_AN_PORTION) {
-            GenericIO.writelnString("Thread "+Thread.currentThread().getName()+": Invalid Waiter State!");
-            GenericIO.writelnString(inMessage.toString());
-            System.exit(1);
+        if(inMessage.getWaiterState() < States.APPRAISING_SITUATION || inMessage.getWaiterState() > States.RECEIVING_PAYMENT)
+        {
+            GenericIO.writelnString ("Thread " + Thread.currentThread ().getName () + ": Invalid waiter state!");
+            GenericIO.writelnString (inMessage.toString ());
+            System.exit (1);
         }
-
         ((Waiter) Thread.currentThread ()).setWaiterState (inMessage.getWaiterState());
         //Close communication channel
         com.close ();
-
     }
 
+
+
     /**
-     *   Operation server shutdown.
-     *
-     *   New operation.
+     * Operation server shutdown
      */
-    public void shutdown(){
+    public void shutdown()
+    {
         ClientCom com;					//Client communication
         Message outMessage, inMessage; 	//outGoing and inGoing messages
 
@@ -506,5 +516,4 @@ public class KitchenStub {
         //Close communication channel
         com.close ();
     }
-
 }
