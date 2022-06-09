@@ -181,7 +181,7 @@ public class ClientCom {
 
         try {
             fromServer = in.readObject();
-            if (serverPortNumb == 22139) {                        // -------------- DEBUG --------------
+            /**if (serverPortNumb == 22139) {                        // -------------- DEBUG --------------
                 GenericIO.writelnString("MESSAGE IN from GenRepos\n" + fromServer.toString());
                 GenericIO.writelnString();
             }
@@ -196,7 +196,7 @@ public class ClientCom {
             if (serverPortNumb == 22132) {
                 GenericIO.writelnString("MESSAGE IN from Table\n" + fromServer.toString());
                 GenericIO.writelnString();
-            }
+            }**/
 
         } catch (InvalidClassException e) {
             GenericIO.writelnString(Thread.currentThread().getName() +
@@ -227,7 +227,7 @@ public class ClientCom {
     public void writeObject(Object toServer) {
         try {
             out.writeObject(toServer);
-            if (serverPortNumb == 22139) { // ---------------- DEBUG ---------------
+            /**if (serverPortNumb == 22139) { // ---------------- DEBUG ---------------
                 GenericIO.writelnString("MESSAGE OUT to GenRepos\n" + toServer.toString());
                 GenericIO.writelnString();
             }
@@ -242,7 +242,7 @@ public class ClientCom {
             if (serverPortNumb == 22132) {
                 GenericIO.writelnString("MESSAGE OUT to Table\n" + toServer.toString());
                 GenericIO.writelnString();
-            }
+            }**/
         } catch (InvalidClassException e) {
             GenericIO.writelnString(Thread.currentThread().getName() +
                     " - the object to be written can not be serialized!");

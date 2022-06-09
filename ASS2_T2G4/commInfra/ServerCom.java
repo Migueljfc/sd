@@ -233,8 +233,8 @@ public class ServerCom
 
         try
         { fromClient = in.readObject ();
-            GenericIO.writelnString("MESSAGE IN\n"+fromClient.toString());
-            GenericIO.writelnString();
+            //GenericIO.writelnString("MESSAGE IN\n"+fromClient.toString());
+            //GenericIO.writelnString();
         }
         catch (InvalidClassException e)
         { GenericIO.writelnString (Thread.currentThread ().getName () +
@@ -268,8 +268,8 @@ public class ServerCom
     {
         try
         { out.writeObject (toClient);
-            GenericIO.writelnString("MESSAGE OUT\n"+toClient.toString());
-            GenericIO.writelnString();
+            //GenericIO.writelnString("MESSAGE OUT\n"+toClient.toString());
+            //GenericIO.writelnString();
         }
         catch (InvalidClassException e)
         { GenericIO.writelnString (Thread.currentThread ().getName () +

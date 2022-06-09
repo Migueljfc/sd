@@ -169,9 +169,7 @@ public class Message implements Serializable
                 studentState = stateOrId;
         }
         else if (entitie == 4) {  //Additional message
-            if (msgType == MessageType.GFSDONE)
-                firstToArrive = stateOrId;
-            else if (msgType == MessageType.GLSDONE)
+            if (msgType == MessageType.GLSDONE)
                 lastToEat = stateOrId;
             else if (msgType == MessageType.STFS)
                 firstToArrive = stateOrId;

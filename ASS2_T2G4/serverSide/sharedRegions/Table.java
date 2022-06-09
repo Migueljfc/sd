@@ -163,7 +163,9 @@ public class Table {
 	 * Set id of the first student to arrive
 	 * @param id id of the first student to arrive
 	 */
-	public synchronized void setFirstStudent(int id) { this.firstStudent = id; }
+	public synchronized void setFirstStudent(int id) {
+		System.out.printf("___________________________ FIRST STUDENT = %s__________________________", id);
+		this.firstStudent = id; }
 
 	/**
 	 * Set id of the last student to arrive
@@ -297,15 +299,16 @@ public class Table {
 
 		((TableClientProxy) Thread.currentThread()).setWaiterState(States.RECEIVING_PAYMENT);
 		reposStub.setWaiterState(((TableClientProxy) Thread.currentThread()).getWaiterState());
+		while(paying){
+			try {
+				wait();
+			} catch (InterruptedException e) {
 
-		try {
-			wait();
-		} catch (InterruptedException e) {
-
+			}
 		}
 
-	}
 
+	}
 
 
 	/**
@@ -579,7 +582,7 @@ public class Table {
 
 			}
 		}
-
+		paying = false;
 		//Notify Waiter
 		notifyAll();
 	}

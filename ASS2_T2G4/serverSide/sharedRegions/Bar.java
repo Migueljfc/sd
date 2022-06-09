@@ -91,6 +91,7 @@ public class Bar {
         this.reposStub = reposStub;
         this.tabStub = tabStub;
         this.nEntities = 0;
+        this.studentCount = 0;
 
         this.goodbyeIds = new boolean[SimulPar.N];
         for (int i = 0; i < SimulPar.N; i++)
