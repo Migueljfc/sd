@@ -24,7 +24,7 @@ public interface BarInterface extends Remote {
     /**
      * Part of the chef lifecycle is called to alert the waiter that a portion has ready
      */
-    public void alert_the_waiter() throws RemoteException;
+    public int alert_the_waiter() throws RemoteException;
 
 
     /**

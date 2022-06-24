@@ -15,18 +15,18 @@ public interface KitchenInterface extends Remote {
     /**
      * Part of the chef lifecycle to signal that is waiting the order
      */
-    public void watch_news() throws RemoteException;
+    public int watch_news() throws RemoteException;
 
     /**
      * Part of the chef lifecycle to start the preparation and signal the waiter of that
      */
-    public void start_preparation() throws RemoteException;
+    public int start_preparation() throws RemoteException;
 
 
     /**
      * Part of the chef lifecycle to signal that the preparation was continued
      */
-    public void proceed_preparation() throws RemoteException;
+    public int proceed_preparation() throws RemoteException;
 
 
     /**
@@ -48,18 +48,18 @@ public interface KitchenInterface extends Remote {
     /**
      * Part of the chef lifecycle when we need to continue the preparation of another portion of the same course
      */
-    public void continue_preparation() throws RemoteException;
+    public int continue_preparation() throws RemoteException;
 
 
     /**
      * Part of the chef lifecycle to signal waiter that a portion has ready to be delivered
      */
-    public void have_next_portion_ready() throws RemoteException;
+    public int have_next_portion_ready() throws RemoteException;
 
     /**
      * Part of the chef lifecycle when the order has completed
      */
-    public void clean_up() throws RemoteException;
+    public int clean_up() throws RemoteException;
 
 
     /**

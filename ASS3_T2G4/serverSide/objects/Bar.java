@@ -106,8 +106,10 @@ public class Bar implements BarInterface {
 
     /**
      * Part of the chef lifecycle is called to alert the waiter that a portion has ready
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void alert_the_waiter() throws RemoteException {
+    public synchronized int alert_the_waiter() throws RemoteException {
+        int chefState;
         while (!courseHasReady) {
             try {
                 wait();
@@ -126,17 +128,24 @@ public class Bar implements BarInterface {
         requestsCount++;
         courseHasReady = false;
 
-        ((Chef) Thread.currentThread()).setChefState(States.DELIVERING_THE_PORTIONS);
-        repository.setChefState(((Chef) Thread.currentThread()).getChefState());
+        chefState = States.DELIVERING_THE_PORTIONS;
+        try{
+            repository.setChefState(chefState);
+        } catch (RemoteException e){
+            GenericIO.writelnString("remote exception on alert_the_waiter - : setChefState" + e.getMessage ());
+        }
+
 
         //Notify waiter
         notifyAll();
+        return chefState;
     }
 
 
     /**
      * Is the part of the waiter life cycle where he waits for requests or served the pending and returns the id of the request
      *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      * @return request id
      */
     public synchronized int look_around() throws RemoteException {
@@ -166,6 +175,8 @@ public class Bar implements BarInterface {
 
     /**
      * Part of the waiter lifecycle to update his state to signal that is preparing the bill
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void prepare_the_bill() throws RemoteException {
         ((Waiter) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
@@ -176,6 +187,7 @@ public class Bar implements BarInterface {
     /**
      * Part of the waiter lifecycle to say goodbye to the students when we signal that wants to go home
      *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      * @return true if all students left the restaurant
      */
     public synchronized boolean say_goodbye() throws RemoteException {
@@ -197,6 +209,8 @@ public class Bar implements BarInterface {
 
     /**
      * Is the part of student life cycle when we decide to enter the restaurant adding a new request to wake up the waiter
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public void enter() throws RemoteException {
         synchronized (this) {
@@ -233,6 +247,8 @@ public class Bar implements BarInterface {
 
     /**
      * Part of the 1º student lifecycle to alert the waiter that the order has ready to he get
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void call_the_waiter() throws RemoteException {
         int id = ((Student) Thread.currentThread()).getStudentId();
@@ -251,6 +267,8 @@ public class Bar implements BarInterface {
 
     /**
      * Part of the student lifecycle to signal the waiter that he ends the current course or that the last student wants to pay the bill
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void signal_the_waiter() throws RemoteException {
         int id = ((Student) Thread.currentThread()).getStudentId();
@@ -276,6 +294,8 @@ public class Bar implements BarInterface {
 
     /**
      * Is the part of student life cycle when we decide to leave the restaurant adding a new request to wake up the waiter
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void exit() throws RemoteException {
         int id = ((Student) Thread.currentThread()).getStudentId();
@@ -313,6 +333,8 @@ public class Bar implements BarInterface {
 
     /**
      * Operation bar server shutdown
+     *
+     * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void shutdown() throws RemoteException {
         entities += 1;

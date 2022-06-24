@@ -145,6 +145,8 @@ public class Table implements TableInterface {
 
     /**
      * Part of the waiter lifecycle is called when a student enter the restaurant
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void salute_client(int id) throws RemoteException {
 		currentStudent = id;
@@ -178,6 +180,8 @@ public class Table implements TableInterface {
     
     /**
      * Part of the waiter lifecycle is called when we return to bar
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void return_to_bar() throws RemoteException
     {
@@ -188,6 +192,8 @@ public class Table implements TableInterface {
     
     /**
      *Part of the waiter lifecycle is called when the first student intent to describe the order
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void get_the_pad() throws RemoteException {
 		((Waiter) Thread.currentThread()).setWaiterState(States.TAKING_THE_ORDER);
@@ -211,6 +217,8 @@ public class Table implements TableInterface {
     
     /**
      * Part of the waiter lifecycle is called to check if all portions have been delivered
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      * @return true if all portions been delivered
      */
     public synchronized boolean have_all_portions_delivered() throws RemoteException
@@ -227,6 +235,8 @@ public class Table implements TableInterface {
 
     /**
 	 * Part of the waiter lifecycle is used to signal that a portion have been delivered
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void deliver_portion()
     {
@@ -236,6 +246,8 @@ public class Table implements TableInterface {
     
     /**
      *  Part of the waiter lifecycle is used present the bill and signal the last student to pay
+	 *
+	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void present_the_bill() throws RemoteException
     {
@@ -262,6 +274,8 @@ public class Table implements TableInterface {
     
     /**
      * Called when a student enter in the bar to register the position in the table and to wait by the waiter to present the menu
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void seat() throws RemoteException
     {
@@ -289,6 +303,8 @@ public class Table implements TableInterface {
     
     /**
      * Part of the student lifecycle used to update the student state and update the read array to notify that the student already read the menu
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void read_menu() throws RemoteException
     {
@@ -307,6 +323,8 @@ public class Table implements TableInterface {
     
     /**
      *  Part of the 1º student lifecycle to update his state and signal that is organizing the order
+	 *
+	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void prepare_the_order() throws RemoteException
     {
@@ -322,7 +340,9 @@ public class Table implements TableInterface {
     
     /**
      *  Part of the 1º student lifecycle to check if the others students chosen their orders
-     * @return true if the others students already chosen their orders
+	 *
+	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
+     *  @return true if the others students already chosen their orders
      */
     public synchronized boolean has_everybody_chosen() throws RemoteException
     {
@@ -347,6 +367,8 @@ public class Table implements TableInterface {
     
     /**
      * Part of the 1º student lifecycle to update the number os orders and notify the other students of that
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void add_up_ones_choice() throws RemoteException
     {
@@ -361,6 +383,8 @@ public class Table implements TableInterface {
     
     /**
      * Part of the 1º student lifecycle to wake up the waiter and describe the order
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void describe_the_order() throws RemoteException
     {
@@ -383,55 +407,51 @@ public class Table implements TableInterface {
     
     /**
      * Part of the 1º student lifecycle to join the talk with the other students
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void join_the_talk() throws RemoteException
-    {
-    	students[firstStudent].setStudentState(States.CHATING_WITH_COMPANIONS);
-    	repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
-    }
-    
-    
-    
+    public synchronized void join_the_talk() throws RemoteException {
+		students[firstStudent].setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
+	}
     
     
     /**
      * Part of the students' lifecycle to inform the 1º student about his course option
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void inform_companion() throws RemoteException
-    {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized void inform_companion() throws RemoteException {
+		int id = ((Student) Thread.currentThread()).getStudentId();
 
-    	while(waitingForChoices)
-    	{
-    		try {
+		while (waitingForChoices) {
+			try {
 				wait();
 			} catch (InterruptedException e) {
 
 			}
-    	}
-    	
-    	waitingForChoices = true;
-    	//notify student
-    	notifyAll();
+		}
 
-    	students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-    	repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
-    	
-    	
-    }
+		waitingForChoices = true;
+		//notify student
+		notifyAll();
+
+		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+	}
 
 
 	/**
 	 *  Part of the students' lifecycle to check if all courses have been delivered or not
+	 *
+	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 * 	@return true if all courses have been delivered
 	 */
-	public synchronized boolean have_all_courses_delivery() throws RemoteException
-	{
-		if(currentCourse == SimulPar.M)
+	public synchronized boolean have_all_courses_delivery() throws RemoteException {
+		if (currentCourse == SimulPar.M)
 			return true;
 		else {
-			while(portionsDelivery != SimulPar.N)
-			{
+			while (portionsDelivery != SimulPar.N) {
 				try {
 					wait();
 				} catch (InterruptedException e) {
@@ -448,40 +468,41 @@ public class Table implements TableInterface {
      * Operation start eating
      * 
      *  Part of the students' lifecycle to start eating and update his state, for simulate that is used the function sleep
+	 *
+	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */    
-    public synchronized void start_eating() throws RemoteException
-    {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized void start_eating() throws RemoteException {
+		int id = ((Student) Thread.currentThread()).getStudentId();
 
-    	students[id].setStudentState(States.ENJOYING_THE_MEAL);
-    	repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+		students[id].setStudentState(States.ENJOYING_THE_MEAL);
+		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
 
-        try
-        { Thread.sleep ((long) (1 + 100 * Math.random ()));
-        }
-        catch (InterruptedException e) {}
-    }
+		try {
+			Thread.sleep((long) (1 + 100 * Math.random()));
+		} catch (InterruptedException e) {
+		}
+	}
 
 
 
 	/**
      * Part of the student lifecycle to update his state and signal that he end his course and register last student to eat
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void end_eating() throws RemoteException
-    {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized void end_eating() throws RemoteException {
+		int id = ((Student) Thread.currentThread()).getStudentId();
 
-    	finishedCourses++;
+		finishedCourses++;
 
-    	if(finishedCourses == SimulPar.N)
-    	{
-    		currentCourse++;
-    		lastFinish = id;
-    	}
+		if (finishedCourses == SimulPar.N) {
+			currentCourse++;
+			lastFinish = id;
+		}
 
-    	students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-    	repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
-    }
+		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
+		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+	}
     
     
     
@@ -489,45 +510,46 @@ public class Table implements TableInterface {
     
     /**
      * Part of the student lifecycle to wait for the last student to finish his course
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized boolean has_everybody_finished() throws RemoteException
-    {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
-    	
+    public synchronized boolean has_everybody_finished() throws RemoteException {
+		int id = ((Student) Thread.currentThread()).getStudentId();
 
-    	if(id == lastFinish)
-    	{
-    		finishedCourses = 0;
-    		portionsDelivery = 0;
-    		studentsCount++;
+
+		if (id == lastFinish) {
+			finishedCourses = 0;
+			portionsDelivery = 0;
+			studentsCount++;
 			//Notify students
-    		notifyAll();
-    		while(studentsCount != SimulPar.N)
-    		{
-    			try {
+			notifyAll();
+			while (studentsCount != SimulPar.N) {
+				try {
 					wait();
 				} catch (InterruptedException e) {
 
 				}
-    		}
-    	}
-    	while(finishedCourses != 0) {
-    		try {
+			}
+		}
+		while (finishedCourses != 0) {
+			try {
 				wait();
 			} catch (InterruptedException e) {
 
 			}
-    	}
-    	studentsCount++;
-    	if(studentsCount == SimulPar.N)
-    		notifyAll();
-    	
-    	return true;
-    }
+		}
+		studentsCount++;
+		if (studentsCount == SimulPar.N)
+			notifyAll();
+
+		return true;
+	}
 
 
 	/**
 	 * Part of the student lifecycle to check if he is the last to arrive and change his state to pay the bill
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 * @return True if student was the last to arrive
 	 */
 	public synchronized boolean should_have_arrived_earlier() throws RemoteException
@@ -572,6 +594,8 @@ public class Table implements TableInterface {
 
 	/**
      * Part of the student lifecycle to wait for the waiter to give him the bill
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
     public synchronized void honor_the_bill() throws RemoteException {
     	//Block waiting for waiter to present the bill
@@ -590,6 +614,8 @@ public class Table implements TableInterface {
 
 	/**
 	 * Operation bar server shutdown
+	 *
+	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 */
 	public synchronized void shutdown() throws RemoteException {
 		entities += 1;

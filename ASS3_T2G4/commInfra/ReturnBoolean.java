@@ -7,19 +7,20 @@ import java.io.Serializable;
  *
  *  Used in calls on remote objects.
  */
-public class ReturnValue implements Serializable {
 
+public class ReturnBoolean implements Serializable
+{
     /**
      *  Serialization key.
      */
 
-    private static final long serialVersionUID = 1L;
+    public static final long serialVersionUID = 2021L;
 
     /**
      *  Boolean value.
      */
 
-    private boolean value;
+    private boolean val;
 
     /**
      *  Integer state value.
@@ -28,15 +29,15 @@ public class ReturnValue implements Serializable {
     private int state;
 
     /**
-     *  Return Boolean instantiation.
+     *  ReturnBoolean instantiation.
      *
-     *     @param value boolean value
+     *     @param val boolean value
      *     @param state integer state value
      */
 
-    public ReturnValue(boolean value, int state)
+    public ReturnBoolean (boolean val, int state)
     {
-        this.value = value;
+        this.val = val;
         this.state = state;
     }
 
@@ -46,9 +47,9 @@ public class ReturnValue implements Serializable {
      *     @return boolean value
      */
 
-    public boolean getBooleanValue ()
+    public boolean getBooleanVal ()
     {
-        return (value);
+        return (val);
     }
 
     /**
@@ -57,7 +58,7 @@ public class ReturnValue implements Serializable {
      *     @return integer state value
      */
 
-    public int getStateValue ()
+    public int getIntStateVal ()
     {
         return (state);
     }

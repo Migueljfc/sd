@@ -4,6 +4,12 @@ import genclass.GenericIO;
 
 import java.rmi.RemoteException;
 
+/**
+ *    Instantiation and registering of a table object.
+ *
+ *    Implementation of a client-server model of type 2 (server replication).
+ *    Communication is based on Java RMI.
+ */
 public class TableMain {
 
     /**
