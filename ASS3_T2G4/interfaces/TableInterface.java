@@ -45,19 +45,19 @@ public interface TableInterface extends Remote {
      *
      * @param id id of the student to be saluted
      */
-    public void salute_client(int id) throws RemoteException;
+    public int salute_client(int id) throws RemoteException;
 
 
     /**
      * Part of the waiter lifecycle is called when we return to bar
      */
-    public void return_to_bar() throws RemoteException;
+    public int return_to_bar() throws RemoteException;
 
 
     /**
      * Part of the waiter lifecycle is called when the first student intent to describe the order
      */
-    public void get_the_pad() throws RemoteException;
+    public int get_the_pad() throws RemoteException;
 
 
     /**
@@ -77,25 +77,25 @@ public interface TableInterface extends Remote {
     /**
      * Part of the waiter lifecycle is used present the bill and signal the last student to pay
      */
-    public void present_the_bill() throws RemoteException;
+    public int present_the_bill() throws RemoteException;
 
 
     /**
      * Called when a student enter the bar to register the position in the table and to wait by the waiter to present the menu
      */
-    public void seat() throws RemoteException;
+    public void seat(int id) throws RemoteException;
 
 
     /**
      * Part of the student lifecycle used to update the student state and update the read array to notify that the student already read the menu
      */
-    public void read_menu() throws RemoteException;
+    public int read_menu(int id) throws RemoteException;
 
 
     /**
      * Part of the 1º student lifecycle to update his state and signal that is organizing the order
      */
-    public void prepare_the_order() throws RemoteException;
+    public int prepare_the_order() throws RemoteException;
 
 
     /**
@@ -120,25 +120,25 @@ public interface TableInterface extends Remote {
     /**
      * Part of the 1º student lifecycle to join the talk with the other students
      */
-    public void join_the_talk() throws RemoteException;
+    public int join_the_talk() throws RemoteException;
 
 
     /**
      * Part of the students' lifecycle to inform the 1º student about his course option
      */
-    public void inform_companion() throws RemoteException;
+    public int inform_companion(int id) throws RemoteException;
 
 
     /**
      * Part of the students' lifecycle to start eating and update his state, for simulate that is used the function sleep
      */
-    public void start_eating() throws RemoteException;
+    public int start_eating(int id) throws RemoteException;
 
 
     /**
      * Part of the student lifecycle to update his state and signal that he end his course and register last student to eat
      */
-    public void end_eating() throws RemoteException;
+    public int end_eating(int id) throws RemoteException;
 
 
     /**
@@ -166,7 +166,7 @@ public interface TableInterface extends Remote {
      *
      * @return True if student was the last to arrive
      */
-    public boolean should_have_arrived_earlier() throws RemoteException;
+    public boolean should_have_arrived_earlier(int id) throws RemoteException;
 
     /**
      * Operation server shutdown.

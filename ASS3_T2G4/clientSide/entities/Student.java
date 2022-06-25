@@ -1,5 +1,7 @@
 package clientSide.entities;
 
+import commInfra.ReturnValue;
+import genclass.GenericIO;
 import interfaces.BarInterface;
 import interfaces.GeneralRepositoryInterface;
 import interfaces.TableInterface;
@@ -144,7 +146,7 @@ public class Student extends Thread {
 
 	private void enter(){
 		try{
-			state = bar.enter();
+			state = bar.enter(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -152,18 +154,25 @@ public class Student extends Thread {
 
 	private void read_menu(){
 		try{
-			state = table.read_menu();
+			state = table.read_menu(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void getFirstStudent(){
+	private int getFirstStudent(){
+		int studentId = -1;
 		try{
-			state = table.getfirstStudent();
+			studentId = table.getfirstStudent();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		if (studentId == -1)
+		{
+			GenericIO.writelnString("Invalid id received in getFirstToArrive");
+			System.exit(1);
+		}
+		return studentId;
 	}
 	private void prepare_the_order(){
 		try{
@@ -173,17 +182,19 @@ public class Student extends Thread {
 		}
 	}
 
-	private void has_everybody_chosen(){
+	private boolean has_everybody_chosen(){
+		boolean everybodyChose = false;
 		try{
-			state = table.has_everybody_chosen();
+			everybodyChose = table.has_everybody_chosen();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return everybodyChose;
 	}
 
 	private void add_up_ones_choice(){
 		try{
-			state = table.add_up_ones_choice();
+			table.add_up_ones_choice();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -191,7 +202,7 @@ public class Student extends Thread {
 
 	private void call_the_waiter(){
 		try{
-			state = bar.call_the_waiter();
+			bar.call_the_waiter(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -199,7 +210,7 @@ public class Student extends Thread {
 
 	private void describe_the_order(){
 		try{
-			state = table.describe_the_order();
+			table.describe_the_order();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -215,22 +226,24 @@ public class Student extends Thread {
 
 	private void inform_companion(){
 		try{
-			state = table.inform_companion();
+			state = table.inform_companion(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	private void have_all_courses_delivery(){
+	private boolean have_all_courses_delivery(){
+		boolean coursesDeliver = false;
 		try{
-			state = table.have_all_courses_delivery();
+			coursesDeliver = table.have_all_courses_delivery();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return coursesDeliver;
 	}
 
 	private void start_eating(){
 		try{
-			state = table.start_eating();
+			state = table.start_eating(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -238,47 +251,53 @@ public class Student extends Thread {
 
 	private void end_eating(){
 		try{
-			state = table.end_eating();
+			state = table.end_eating(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void has_everybody_finished(){
+	private boolean has_everybody_finished(){
+		boolean everybodyFinish = false;
 		try{
-			state = table.has_everybody_finished();
+			everybodyFinish = table.has_everybody_finished();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return everybodyFinish;
 	}
 
-	private void getLastToEat(){
+	private int getLastToEat(){
+		int studentId = -1;
 		try{
-			state = table.getLastToEat();
+			studentId = table.getLastToEat();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return studentId;
 	}
 
 	private void signal_the_waiter(){
 		try{
-			state = bar.signal_the_waiter();
+			bar.signal_the_waiter(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void should_have_arrived_earlier(){
+	private boolean should_have_arrived_earlier(){
+		boolean value = false;
 		try{
-			state = table.should_have_arrived_earlier();
+			value = table.should_have_arrived_earlier(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return value;
 	}
 
 	private void honour_the_bill(){
 		try{
-			state = table.honor_the_bill();
+			table.honor_the_bill();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -286,7 +305,7 @@ public class Student extends Thread {
 
 	private void exit(){
 		try{
-			state = bar.exit();
+			state = bar.exit(id);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

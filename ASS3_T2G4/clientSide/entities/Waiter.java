@@ -1,6 +1,7 @@
 package clientSide.entities;
 
 
+import genclass.GenericIO;
 import interfaces.BarInterface;
 import interfaces.KitchenInterface;
 import interfaces.TableInterface;
@@ -82,60 +83,76 @@ public class Waiter extends Thread{
 	public void run() {
 		int requestId, studentId;
 		boolean all_left = false;
+
 		while (!all_left) {
 			requestId = look_around();
 			studentId = getCurrentStudent();
 
 			if (requestId == 0) {
 				salute_client(studentId);
-				return_to_bar();
+				kitchenReturnBar();
 			} else if (requestId == 1) {
 				get_the_pad();
 				hand_note_to_the_chef();
-				return_to_bar();
+				tableReturnBar();
 			} else if (requestId == 2) {
 				while (!have_all_portions_delivered()) {
 					collectPortion();
 					deliver_portion();
 				}
-				return_to_bar();
+				tableReturnBar();
 			} else if (requestId == 3) {
 				prepare_the_bill();
 				present_the_bill();
-				return_to_bar();
+				tableReturnBar();
 			} else if (requestId == 4) {
 				all_left = say_goodbye();
 			}
 		}
 	}
 
-	private void look_around(){
+	private int look_around(){
+		int requestId;
 		try{
-			state = bar.look_around();
+			requestId = bar.look_around();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+		if(requestId!=0 && requestId!=1 && requestId!=2 && requestId!=3 && requestId!=4)
+		{
+			GenericIO.writelnString("Invalid service type!");
+			System.exit(1);
+		}
+		return requestId;
+	}
+
+	private int getCurrentStudent(){
+		int studentId = -1;
+		try{
+			studentId = bar.getCurrentStudent();
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+		if(studentId == -1)
+		{
+			GenericIO.writelnString("Invalid student id!");
+			System.exit(1);
+		}
+
+		return studentId;
+	}
+
+	private void salute_client(int studentId){
+		try{
+			state = table.salute_client(studentId);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void getCurrentStudent(){
+	private void kitchenReturnBar(){
 		try{
-			state = bar.getCurrentStudent();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void salute_client(){
-		try{
-			state = table.salute_client();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void return_to_bar(){
-		try{
-			state = table.return_to_bar();
+			state = kitchen.return_to_bar();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -157,7 +174,7 @@ public class Waiter extends Thread{
 		}
 	}
 
-	private void return_to_bar(){
+	private void tableReturnBar(){
 		try{
 			state = table.return_to_bar();
 		} catch (RemoteException e) {
@@ -165,12 +182,14 @@ public class Waiter extends Thread{
 		}
 	}
 
-	private void have_all_portions_delivered(){
+	private boolean have_all_portions_delivered(){
+		boolean deliver = false;
 		try{
-			state = table.have_all_portions_delivered();
+			deliver = table.have_all_portions_delivered();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return deliver;
 	}
 
 	private void collectPortion(){
@@ -183,7 +202,7 @@ public class Waiter extends Thread{
 
 	private void deliver_portion(){
 		try{
-			state = table.deliver_portion();
+			table.deliver_portion();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
@@ -205,12 +224,14 @@ public class Waiter extends Thread{
 		}
 	}
 
-	private void say_goodbye(){
+	private boolean say_goodbye(){
+		boolean goodbye = false;
 		try{
-			state = bar.say_goodbye();
+			goodbye = bar.say_goodbye();
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
+		return goodbye;
 	}
 
 

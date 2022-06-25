@@ -1,8 +1,7 @@
 package serverSide.objects;
 
-import clientSide.entities.Chef;
+
 import clientSide.entities.States;
-import clientSide.entities.Student;
 import clientSide.entities.Waiter;
 import commInfra.MemException;
 import commInfra.MemFIFO;
@@ -31,7 +30,7 @@ public class Bar implements BarInterface {
     /**
      * Reference to students threads
      */
-    private final Student[] students;
+    private final int [] students;
 
     /**
      * Waiting portions
@@ -85,11 +84,11 @@ public class Bar implements BarInterface {
         this.courseHasReady = true;
         this.currentStudent = -1;
 
-        students = new Student[SimulPar.N];
+        students = new int[SimulPar.N];
         this.goodbyeIds = new int[SimulPar.N];
         for (int i = 0; i < SimulPar.N; i++) {
             goodbyeIds[i] = -1;
-            students[i] = null;
+            students[i] = -1;
         }
 
 
@@ -178,9 +177,15 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void prepare_the_bill() throws RemoteException {
-        ((Waiter) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
-        repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+    public synchronized int prepare_the_bill() throws RemoteException {
+        //((Waiter) Thread.currentThread()).setWaiterState(States.PROCESSING_THE_BILL);
+        //repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+
+        //waiter = Thread.currentThread();
+        int waiterState;
+        waiterState = States.PROCESSING_THE_BILL;
+
+        return waiterState;
     }
 
 
@@ -212,12 +217,11 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public void enter() throws RemoteException {
+    public int enter(int id) throws RemoteException {
         synchronized (this) {
-            int id = ((Student) Thread.currentThread()).getStudentId();
+            students[id] = States.GOING_TO_THE_RESTAURANT;
 
-            students[id] = ((Student) Thread.currentThread());
-            students[id].setStudentState(States.GOING_TO_THE_RESTAURANT);
+            // TODO repository.updateStudentState(id, students[id], true);
 
             studentCount++;
 
@@ -233,14 +237,16 @@ public class Bar implements BarInterface {
             } else if (studentCount == SimulPar.N) {
                 table.setLastStudent(id);
             }
-            students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
-            repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+            students[id] = States.TAKING_A_SEAT_AT_THE_TABLE;
+            repository.updateStudentState(id, students[id], true);
             repository.updateSeatsAtTable(studentCount - 1, id);
             //Notify waiter
             notifyAll();
         }
 
-        table.seat();
+        table.seat(id);
+
+        return students[id];
 
     }
 
@@ -250,8 +256,8 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void call_the_waiter() throws RemoteException {
-        int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized void call_the_waiter(int id) throws RemoteException {
+        //int id = ((Student) Thread.currentThread()).getStudentId();
         Request req = new Request(id, 1);
 
         try {
@@ -270,10 +276,12 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void signal_the_waiter() throws RemoteException {
-        int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized void signal_the_waiter(int id) throws RemoteException {
+        //int id = ((Student) Thread.currentThread()).getStudentId();
 
-        if (((Student) Thread.currentThread()).getStudentState() == States.PAYING_THE_BILL) {
+        // TODO students[id] = state;
+
+        if (students[id] == States.PAYING_THE_BILL) {
             try {
                 requests.write(new Request(id, 3));
             } catch (MemException e) {
@@ -297,8 +305,8 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void exit() throws RemoteException {
-        int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized int exit(int id) throws RemoteException {
+        //int id = ((Student) Thread.currentThread()).getStudentId();
         Request req = new Request(id, 4);
 
         try {
@@ -311,8 +319,8 @@ public class Bar implements BarInterface {
         //Notify waiter
         notifyAll();
 
-        students[id].setStudentState(States.GOING_HOME);
-        repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+        students[id] = States.GOING_HOME;
+        repository.updateStudentState(id, students[id]);
         repository.updateSeatsAtLeaving(id);
 
 
@@ -322,6 +330,7 @@ public class Bar implements BarInterface {
             } catch (InterruptedException e) {
             }
         }
+        return students[id];
     }
 
     /**

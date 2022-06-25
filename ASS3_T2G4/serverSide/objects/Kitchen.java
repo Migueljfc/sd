@@ -285,9 +285,15 @@ public class Kitchen implements KitchenInterface {
 	 * 	@throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 */
 
-	public synchronized void hand_note_to_the_chef() throws RemoteException {
-		((Waiter) Thread.currentThread()).setWaiterState(States.PLACING_THE_ORDER);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+	public synchronized int hand_note_to_the_chef() throws RemoteException {
+		//((Waiter) Thread.currentThread()).setWaiterState(States.PLACING_THE_ORDER);
+		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		int waiterState;
+
+		waiter = Thread.currentThread();
+		waiterState = States.PLACING_THE_ORDER;
+
+
 		startOrder = true;
 		//Notify chef
 		notifyAll();
@@ -299,6 +305,7 @@ public class Kitchen implements KitchenInterface {
 
 			}
 		}
+		return waiterState;
 	}
 
 	/**
@@ -307,10 +314,15 @@ public class Kitchen implements KitchenInterface {
 	 * 	@throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 */
 	
-	public synchronized void return_to_bar() throws RemoteException
+	public synchronized int return_to_bar() throws RemoteException
 	{
-		((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		//((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
+		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		int waiterState;
+		waiter = Thread.currentThread();
+		waiterState = States.APPRAISING_SITUATION;
+
+		return waiterState;
 	}
 
 	
@@ -319,10 +331,14 @@ public class Kitchen implements KitchenInterface {
 	 *
 	 * 	@throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 */
-	public synchronized void collectPortion() throws RemoteException
+	public synchronized int collectPortion() throws RemoteException
 	{
-		((Waiter) Thread.currentThread()).setWaiterState(States.WAITING_FOR_AN_PORTION);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		//((Waiter) Thread.currentThread()).setWaiterState(States.WAITING_FOR_AN_PORTION);
+		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+
+		int waiterState;
+		waiter = Thread.currentThread();
+		waiterState = States.WAITING_FOR_AN_PORTION;
 
 		while ( portionsReady == 0) {
 			try {
@@ -342,7 +358,7 @@ public class Kitchen implements KitchenInterface {
 		
 		//Notify chef
 		notifyAll();
-		
+		return waiterState;
 	}
 
 	/**

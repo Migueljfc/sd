@@ -89,7 +89,7 @@ public class Table implements TableInterface {
 	/**
 	 * Reference to the student threads
 	 */
-	private final Student [] students;
+	private final int [] students;
 	
 	/**
      * Reference to the GeneralRepository.
@@ -132,12 +132,12 @@ public class Table implements TableInterface {
     	
     	seat = new int[SimulPar.N];
     	read = new int[SimulPar.N];
-		students = new Student[SimulPar.N];
+		students = new int[SimulPar.N];
     	for(int i = 0; i < SimulPar.N; i++)
     	{
     		seat[i] = -1;
     		read[i] = -1;
-			students[i] = null;
+			students[i] = -1;
     	}
 		
 
@@ -148,11 +148,16 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void salute_client(int id) throws RemoteException {
+    public synchronized int salute_client(int id) throws RemoteException {
+
 		currentStudent = id;
 
-		((Waiter) Thread.currentThread()).setWaiterState(States.PRESENTING_THE_MENU);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		//((Waiter) Thread.currentThread()).setWaiterState(States.PRESENTING_THE_MENU);
+		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+
+		int waiterState;
+		waiterState = States.PRESENTING_THE_MENU;
+		repository.setWaiterState(waiterState);
 
 		isReading = true;
 
@@ -176,6 +181,8 @@ public class Table implements TableInterface {
 
 		currentStudent = -1;
 		isReading = false;
+
+		return waiterState;
 	}
     
     /**
@@ -183,10 +190,15 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void return_to_bar() throws RemoteException
+    public synchronized int return_to_bar() throws RemoteException
     {
-    	((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
-    	repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());    	
+    	//((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
+    	//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		int waiterState;
+		waiterState = States.APPRAISING_SITUATION;
+		repository.setWaiterState(waiterState);
+
+		return waiterState;
     }
 
     
@@ -195,9 +207,12 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void get_the_pad() throws RemoteException {
-		((Waiter) Thread.currentThread()).setWaiterState(States.TAKING_THE_ORDER);
-		repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+    public synchronized int get_the_pad() throws RemoteException {
+		//((Waiter) Thread.currentThread()).setWaiterState(States.TAKING_THE_ORDER);
+		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+		int waiterState;
+		waiterState = States.TAKING_THE_ORDER;
+		repository.setWaiterState(waiterState);
 
 		receiveTheOrder = true;
 
@@ -211,6 +226,8 @@ public class Table implements TableInterface {
 
 			}
 		}
+
+		return waiterState;
 
 	}
 
@@ -249,14 +266,18 @@ public class Table implements TableInterface {
 	 *
 	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void present_the_bill() throws RemoteException
+    public synchronized int present_the_bill() throws RemoteException
     {
     	paying = true;
 		//Notify student to pay
     	notifyAll();
     	
-    	((Waiter) Thread.currentThread()).setWaiterState(States.RECEIVING_PAYMENT);
-    	repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+    	//((Waiter) Thread.currentThread()).setWaiterState(States.RECEIVING_PAYMENT);
+    	//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+
+		int waiterState;
+		waiterState = States.RECEIVING_PAYMENT;
+		repository.setWaiterState(waiterState);
 
 		while(paying){
 			/**Fita cola preta*/
@@ -266,7 +287,7 @@ public class Table implements TableInterface {
 
 			}
 		}
-
+		return waiterState;
     	
     }
     
@@ -277,12 +298,14 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void seat() throws RemoteException
+    public synchronized void seat(int id) throws RemoteException
     {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
+    	//int id = ((Student) Thread.currentThread()).getStudentId();
     	
-		students[id] = ((Student) Thread.currentThread());
-		students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
+		//students[id] = ((Student) Thread.currentThread());
+		//students[id].setStudentState(States.TAKING_A_SEAT_AT_THE_TABLE);
+
+		students[id] = States.TAKING_A_SEAT_AT_THE_TABLE;
 
     	seat[id] = id;
 
@@ -306,18 +329,22 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void read_menu() throws RemoteException
+    public synchronized int read_menu(int id) throws RemoteException
     {
-    	int id = ((Student) Thread.currentThread()).getStudentId();
+    	//int id = ((Student) Thread.currentThread()).getStudentId();
 
-    	students[id].setStudentState(States.SELECTING_THE_COURSES);
-    	repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
-    	
+    	//students[id].setStudentState(States.SELECTING_THE_COURSES);
+    	//repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+
+		students[id] = States.SELECTING_THE_COURSES;
+		repository.updateStudentState(id, students[id]);
+
     	read[id] = id;
 
     	//Notify waiter
     	notifyAll();
 
+		return students[id];
     }    
 
     
@@ -326,13 +353,17 @@ public class Table implements TableInterface {
 	 *
 	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void prepare_the_order() throws RemoteException
+    public synchronized int prepare_the_order() throws RemoteException
     {
     	ordersCount++;
 
-    	students[firstStudent].setStudentState(States.ORGANIZING_THE_ORDER);
-    	repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
-    	
+    	//students[firstStudent].setStudentState(States.ORGANIZING_THE_ORDER);
+    	//repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
+
+		students[firstStudent] = States.ORGANIZING_THE_ORDER;
+		repository.updateStudentState(firstStudent, students[firstStudent]);
+
+		return students[firstStudent];
     }
     
     
@@ -410,9 +441,14 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void join_the_talk() throws RemoteException {
-		students[firstStudent].setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
+    public synchronized int join_the_talk() throws RemoteException {
+		//students[firstStudent].setStudentState(States.CHATING_WITH_COMPANIONS);
+		//repository.updateStudentState(firstStudent, ((Student) Thread.currentThread()).getStudentState());
+
+		students[firstStudent] = States.CHATING_WITH_COMPANIONS;
+		repository.updateStudentState(firstStudent, students[firstStudent]);
+
+		return students[firstStudent];
 	}
     
     
@@ -421,9 +457,8 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void inform_companion() throws RemoteException {
-		int id = ((Student) Thread.currentThread()).getStudentId();
-
+    public synchronized int inform_companion(int id) throws RemoteException {
+		//int id = ((Student) Thread.currentThread()).getStudentId();
 		while (waitingForChoices) {
 			try {
 				wait();
@@ -436,8 +471,13 @@ public class Table implements TableInterface {
 		//notify student
 		notifyAll();
 
-		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+		//students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
+		//repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+
+		students[id] = States.CHATING_WITH_COMPANIONS;
+		repository.updateStudentState(id, students[id]);
+
+		return students[id];
 	}
 
 
@@ -471,16 +511,20 @@ public class Table implements TableInterface {
 	 *
 	 *  @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */    
-    public synchronized void start_eating() throws RemoteException {
-		int id = ((Student) Thread.currentThread()).getStudentId();
+    public synchronized int start_eating(int id) throws RemoteException {
+		//int id = ((Student) Thread.currentThread()).getStudentId();
+		//students[id].setStudentState(States.ENJOYING_THE_MEAL);
+		//repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
 
-		students[id].setStudentState(States.ENJOYING_THE_MEAL);
-		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+		students[id] = States.ENJOYING_THE_MEAL;
+		repository.updateStudentState(id, students[id]);
 
 		try {
 			Thread.sleep((long) (1 + 100 * Math.random()));
 		} catch (InterruptedException e) {
 		}
+
+		return students[id];
 	}
 
 
@@ -490,18 +534,21 @@ public class Table implements TableInterface {
 	 *
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void end_eating() throws RemoteException {
-		int id = ((Student) Thread.currentThread()).getStudentId();
-
+    public synchronized int end_eating(int id) throws RemoteException {
+		//int id = ((Student) Thread.currentThread()).getStudentId();
 		finishedCourses++;
 
 		if (finishedCourses == SimulPar.N) {
 			currentCourse++;
 			lastFinish = id;
 		}
+		//students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
+		//repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
 
-		students[id].setStudentState(States.CHATING_WITH_COMPANIONS);
-		repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+		students[id] = States.CHATING_WITH_COMPANIONS;
+		repository.updateStudentState(id, students[id]);
+
+		return students[id];
 	}
     
     
@@ -552,13 +599,13 @@ public class Table implements TableInterface {
 	 * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
 	 * @return True if student was the last to arrive
 	 */
-	public synchronized boolean should_have_arrived_earlier() throws RemoteException
+	public synchronized boolean should_have_arrived_earlier(int id) throws RemoteException
 	{
-		int id = ((Student) Thread.currentThread()).getStudentId();
+		//int id = ((Student) Thread.currentThread()).getStudentId();
 
 		if(id == lastStudent) {
-			students[id].setStudentState(States.PAYING_THE_BILL);
-			repository.updateStudentState(id, ((Student) Thread.currentThread()).getStudentState());
+			students[id] = States.PAYING_THE_BILL;
+			repository.updateStudentState(id, students[id]);
 			return true;
 		}
 		else
@@ -569,27 +616,25 @@ public class Table implements TableInterface {
 	 * Get id of the first student to enter
 	 * @return id of the first student to enter in the restaurant
 	 */
-	public int getfirstStudent() {
-		return firstStudent; }
+	public int getfirstStudent() throws RemoteException { return firstStudent; }
 
 	/**
 	 * Get id of the last student to enter
 	 * @return id of the last student to finish eating a meal
 	 */
-	public int getLastToEat() {
-		return lastToEat; }
+	public int getLastToEat() throws RemoteException { return lastToEat; }
 
 	/**
 	 * Set id of the first student to arrive
 	 * @param id id of the first student to arrive
 	 */
-	public synchronized void setFirstStudent(int id) { this.firstStudent = id; }
+	public synchronized void setFirstStudent(int id) throws RemoteException { this.firstStudent = id; }
 
 	/**
 	 * Set id of the last student to arrive
 	 * @param id if of the last student to arrive to the restaurant
 	 */
-	public synchronized void setLastStudent(int id) { this.lastStudent = id; }
+	public synchronized void setLastStudent(int id) throws RemoteException { this.lastStudent = id; }
 
 
 	/**

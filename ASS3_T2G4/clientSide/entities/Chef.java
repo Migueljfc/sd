@@ -7,6 +7,7 @@ import interfaces.KitchenInterface;
 import java.rmi.RemoteException;
 
 /**
+ * Chef thread.
  * @author miguel cabral 93091
  * @author rodrigo santos 93173
  * @summary This datatype implements the Chef thread
@@ -30,6 +31,7 @@ public class Chef extends Thread {
 
 
     /**
+     * Instantiation of a Chef thread
      * @param name    thread name
      * @param kitchen reference to the chef Kitchen
      */

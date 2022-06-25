@@ -38,7 +38,7 @@ public interface BarInterface extends Remote {
     /**
      * Part of the waiter lifecycle to update his state to signal that is preparing the bill
      */
-    public void prepare_the_bill() throws RemoteException;
+    public int prepare_the_bill() throws RemoteException;
 
 
     /**
@@ -51,25 +51,25 @@ public interface BarInterface extends Remote {
     /**
      * Is the part of student life cycle when we decide to enter the restaurant adding a new request to wake up the waiter
      */
-    public void enter() throws RemoteException;
+    public int enter(int id) throws RemoteException;
 
 
     /**
      * Part of the 1º student lifecycle to alert the waiter that the order has ready to he get
      */
-    public void call_the_waiter() throws RemoteException;
+    public void call_the_waiter(int id) throws RemoteException;
 
 
     /**
      * Part of the student lifecycle to signal the waiter that he ends the current course or that the last student wants to pay the bill
      */
-    public void signal_the_waiter() throws RemoteException;
+    public void signal_the_waiter(int id) throws RemoteException;
 
 
     /**
      * Is the part of student life cycle when we decide to leave the restaurant adding a new request to wake up the waiter
      */
-    public void exit() throws RemoteException;
+    public int exit(int id) throws RemoteException;
 
 
     /**
