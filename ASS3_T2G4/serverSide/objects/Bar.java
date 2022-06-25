@@ -184,6 +184,7 @@ public class Bar implements BarInterface {
         //waiter = Thread.currentThread();
         int waiterState;
         waiterState = States.PROCESSING_THE_BILL;
+        repository.setWaiterState(waiterState);
 
         return waiterState;
     }
@@ -203,7 +204,7 @@ public class Bar implements BarInterface {
         studentCount--;
         currentStudent = -1;
 
-        repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
+        repository.setWaiterState(States.APPRAISING_SITUATION);
 
         if (studentCount == 0)
             return true;
@@ -220,8 +221,7 @@ public class Bar implements BarInterface {
     public int enter(int id) throws RemoteException {
         synchronized (this) {
             students[id] = States.GOING_TO_THE_RESTAURANT;
-
-            // TODO repository.updateStudentState(id, students[id], true);
+            repository.updateStudentState(id, students[id], true);
 
             studentCount++;
 
@@ -276,10 +276,10 @@ public class Bar implements BarInterface {
      *
      * @throws RemoteException if either the invocation of the remote method, or the communication with the register service fails
      */
-    public synchronized void signal_the_waiter(int id) throws RemoteException {
+    public synchronized void signal_the_waiter(int id, int state) throws RemoteException {
         //int id = ((Student) Thread.currentThread()).getStudentId();
 
-        // TODO students[id] = state;
+        students[id] = state;
 
         if (students[id] == States.PAYING_THE_BILL) {
             try {

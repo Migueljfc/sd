@@ -219,7 +219,7 @@ public class GeneralRepository implements GeneralRepositoryInterface {
      *
      * @param chefState chef state
      */
-    public synchronized void setChefState(int chefState) {
+    public synchronized void setChefState(int chefState) throws RemoteException {
         this.chefState = chefState;
         reportStatus();
     }
@@ -229,7 +229,7 @@ public class GeneralRepository implements GeneralRepositoryInterface {
      *
      * @param waiterState waiter state
      */
-    public synchronized void setWaiterState(int waiterState) {
+    public synchronized void setWaiterState(int waiterState) throws RemoteException {
         this.waiterState = waiterState;
         reportStatus();
     }
@@ -283,7 +283,7 @@ public class GeneralRepository implements GeneralRepositoryInterface {
     /**
      * @return the student seat position in the table
      */
-    public synchronized int getStudentSeat(int id) {
+    public synchronized int getStudentSeat(int id) throws RemoteException  {
         for (int i = 0; i < seats.length; i++) {
             if (seats[i] == id) return i;
         }
@@ -295,7 +295,7 @@ public class GeneralRepository implements GeneralRepositoryInterface {
      *
      * @param portionsDelivery number of portions delivered
      */
-    public synchronized void setnPortions(int portionsDelivery) {
+    public synchronized void setnPortions(int portionsDelivery) throws RemoteException  {
         nPortions = portionsDelivery;
     }
 
@@ -304,7 +304,7 @@ public class GeneralRepository implements GeneralRepositoryInterface {
      *
      * @param i number of courses
      */
-    public synchronized void setnCourses(int i) {
+    public synchronized void setnCourses(int i) throws RemoteException  {
         nCourses = i;
     }
 

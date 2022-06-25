@@ -1,8 +1,6 @@
 package serverSide.objects;
 
-import clientSide.entities.Chef;
 import clientSide.entities.States;
-import clientSide.entities.Waiter;
 import genclass.GenericIO;
 import interfaces.GeneralRepositoryInterface;
 import interfaces.KitchenInterface;
@@ -57,27 +55,15 @@ public class Kitchen implements KitchenInterface {
 	 */
 	private int entities;
 
-	/**
-	 * Reference to the chef thread
-	 */
-	private Thread chef;
-
-	/**
-	 * Reference to the waiter thread
-	 */
-	private Thread waiter;
 
 	/**
 	 * Instantiation of Kitchen object
 	 *
 	 * @param repository repository of information
-	 * @param chef
 	 */
-	public Kitchen(GeneralRepositoryInterface repository, Thread chef)
+	public Kitchen(GeneralRepositoryInterface repository)
 	{
 		this.repository = repository;
-		this.chef = new Thread();
-		this.waiter = new Thread();
 		this.portionsReady = 0;
 		this.portionsDelivery = 0;
 		this.coursesDelivery = 0;
@@ -108,8 +94,6 @@ public class Kitchen implements KitchenInterface {
 			}
 		}
 		return chefState;
-
-
 	}
 	
 	
@@ -147,7 +131,6 @@ public class Kitchen implements KitchenInterface {
 	public synchronized int proceed_preparation() throws RemoteException
 	{
 		int chefState;
-		chef = Thread.currentThread();
 		chefState = States.DISHING_THE_PORTIONS;
 		try{
 			repository.setChefState(chefState);
@@ -236,7 +219,6 @@ public class Kitchen implements KitchenInterface {
 	public synchronized int have_next_portion_ready() throws RemoteException
 	{
 		int chefState;
-		chef = Thread.currentThread();
 		chefState = States.DISHING_THE_PORTIONS;
 		try{
 			repository.setChefState(chefState);
@@ -246,7 +228,6 @@ public class Kitchen implements KitchenInterface {
 
 		portionsReady++;
 
-		chef = Thread.currentThread();
 		chefState = States.DELIVERING_THE_PORTIONS;
 		try{
 			repository.setChefState(chefState);
@@ -290,9 +271,8 @@ public class Kitchen implements KitchenInterface {
 		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
 		int waiterState;
 
-		waiter = Thread.currentThread();
 		waiterState = States.PLACING_THE_ORDER;
-
+		repository.setWaiterState(waiterState);
 
 		startOrder = true;
 		//Notify chef
@@ -319,9 +299,8 @@ public class Kitchen implements KitchenInterface {
 		//((Waiter) Thread.currentThread()).setWaiterState(States.APPRAISING_SITUATION);
 		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
 		int waiterState;
-		waiter = Thread.currentThread();
 		waiterState = States.APPRAISING_SITUATION;
-
+		repository.setWaiterState(waiterState);
 		return waiterState;
 	}
 
@@ -337,9 +316,8 @@ public class Kitchen implements KitchenInterface {
 		//repository.setWaiterState(((Waiter) Thread.currentThread()).getWaiterState());
 
 		int waiterState;
-		waiter = Thread.currentThread();
 		waiterState = States.WAITING_FOR_AN_PORTION;
-
+		repository.setWaiterState(waiterState);
 		while ( portionsReady == 0) {
 			try {
 				wait();

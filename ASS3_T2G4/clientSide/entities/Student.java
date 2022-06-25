@@ -52,20 +52,12 @@ public class Student extends Thread {
 	public Student(String name, int id, TableInterface table, BarInterface bar) {
 		super(name);
 		this.id = id;
-		state = States.GOING_TO_THE_RESTAURANT;
+		setStudentState(States.GOING_TO_THE_RESTAURANT);
 		this.table = table;
 		this.repository = repository;
 		this.bar = bar;
 	}
 
-	/**
-	 * Returns the Student's state.
-	 * 
-	 * @return student's current state
-	 */
-	public int getStudentState() {
-		return state;
-	}
 
 	/**
 	 * Returns the student's id
@@ -79,22 +71,11 @@ public class Student extends Thread {
 	/**
 	 * Sets the student's state.
 	 * 
-	 * @param s desired state
+	 * @param studentState new state to be set
 	 */
-	public void setStudentState(int s) {
-		StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		state = s;
+	public void setStudentState(int studentState) {
+		this.state = studentState;
 
-	}
-
-	/**
-	 * Sets the student's id.
-	 * 
-	 * @param i desired id
-	 */
-	public void setStudentId(int i) {
-		StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		id = i;
 	}
 
 	/**
@@ -279,7 +260,7 @@ public class Student extends Thread {
 
 	private void signal_the_waiter(){
 		try{
-			bar.signal_the_waiter(id);
+			bar.signal_the_waiter(id,state);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}

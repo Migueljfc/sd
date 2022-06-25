@@ -101,10 +101,19 @@ public class Table implements TableInterface {
 	 */
 	private int entities;
 
+	/**
+	 * last student to arrive
+	 */
 	private int lastStudent;
 
+	/**
+	 * first student to arrive
+	 */
 	private int firstStudent;
 
+	/**
+	 * last student to eat
+	 */
 	private int lastToEat;
 
 	/**

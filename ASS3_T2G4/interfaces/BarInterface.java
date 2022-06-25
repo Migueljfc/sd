@@ -63,7 +63,7 @@ public interface BarInterface extends Remote {
     /**
      * Part of the student lifecycle to signal the waiter that he ends the current course or that the last student wants to pay the bill
      */
-    public void signal_the_waiter(int id) throws RemoteException;
+    public void signal_the_waiter(int id, int state) throws RemoteException;
 
 
     /**
